@@ -1,0 +1,13 @@
+{
+  "source": "siem_alert",
+  "title": "Encoded PowerShell command on win-dc-397",
+  "description": "Sysmon alert from host win-dc-397.attackrange.local. Sysmon EventID: 1 (process created) Channel=Microsoft-Windows-Sysmon/Operational Computer=win-dc-397.attackrange.local User=ATTACKRANGE\\Administrator IntegrityLevel=High ParentImage=C:\\Windows\\System32\\cmd.exe Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe CommandLine=powershell.exe  -Exec bypass -enc VwByAGkAdABlAC0ASABvAHMAdAAgACIASABlAGwAbABvACAAVwBvAHIAbABkACIA Hashes=MD5=097CE5761C89434367598B34FE32893B,SHA256=BA4038FD20E474C047BE8AAD5BFACDB1BFC1DDBE12F803F473B7918D8D819436. The alert contains only this process-creation record; script-block logs, network activity and file reputation have not been reviewed.",
+  "severity": "medium",
+  "observables": {"hosts": ["win-dc-397.attackrange.local"], "users": ["Administrator"]},
+  "attributes": {
+    "original_source": "splunk-attack-data",
+    "dataset": "datasets/attack_techniques/T1059.001/encoded_powershell/windows-sysmon.log",
+    "synthetic": false,
+    "note": "Recorded attack data (Splunk Attack Data, Attack Range lab, 2021-01-19). The same recording is indexed in Elastic (cade-attack-data) with shifted timestamps."
+  }
+}

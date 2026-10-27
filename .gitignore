@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local configuration (copy .env.example to .env)
+.env
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# MITRE ATT&CK dataset (large; fetched explicitly with scripts/fetch_attack_dataset.py)
+app/data/attack/*.json
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+lab/
+
+# Generated evaluation artifacts
+reports/
+
+# Reference paper document (not project source)
+*.docx

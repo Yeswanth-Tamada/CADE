@@ -1,0 +1,12 @@
+{
+  "source": "siem_alert",
+  "title": "SYNTHETIC: Suspicious scheduled task creation",
+  "description": "SYNTHETIC. Endpoint telemetry reports that a scheduled task named DailyTelemetryCheck was created on workstation WS-HR-019 by user jdoe. The task action points to C:\\ProgramData\\Telemetry\\telemetry.exe. Later process telemetry reports taskeng.exe launching telemetry.exe from that path. The incident bundle does not include the executable's file reputation, a file hash, the full task XML, or a related security alert. This is synthetic test data; no real task was created and no executable was run.",
+  "severity": "medium",
+  "observables": {"hosts": ["WS-HR-019"], "users": ["jdoe"]},
+  "attributes": {
+    "original_source": "synthetic-edr",
+    "synthetic": true,
+    "note": "SYNTHETIC test data created for CADE development. Not a real incident."
+  }
+}

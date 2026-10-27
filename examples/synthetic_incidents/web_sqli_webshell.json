@@ -1,0 +1,8 @@
+{
+  "source": "analyst_description",
+  "title": "SYNTHETIC: SQL injection followed by a suspected web shell",
+  "description": "SYNTHETIC. WAF logs on WEB-APP-03 show requests from 198.51.100.91 containing UNION SELECT payloads against /products.php, several returning HTTP 200. Twenty minutes later a new file /var/www/html/uploads/img_cache.php appeared and received POST requests from the same address. The web server process then spawned sh. The PHP file contents and full access logs are missing from this report.",
+  "severity": "high",
+  "observables": {"hosts": ["WEB-APP-03"], "ips": ["198.51.100.91"]},
+  "attributes": {"rule_id": "WAF-SQLI-012", "synthetic": true, "note": "SYNTHETIC test data created for CADE development. Not a real incident."}
+}

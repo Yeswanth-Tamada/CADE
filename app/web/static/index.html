@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CADE Analyst Console</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">CADE <span>Coverage-Aware DAG Evolution</span></div>
+    <div id="mode-badge" class="badge muted">not connected</div>
+    <form id="login" class="login" autocomplete="off">
+      <input id="api-key" type="password" placeholder="API key (cade_...)" aria-label="API key">
+      <button type="submit">Connect</button>
+      <button type="button" id="logout" class="secondary">Forget key</button>
+    </form>
+  </header>
+  <div id="banner" class="banner hidden"></div>
+  <nav class="tabs">
+    <button data-tab="incidents" class="active">Incidents</button>
+    <button data-tab="library">Playbook library</button>
+    <button data-tab="audit">Audit log</button>
+  </nav>
+  <main>
+    <section id="tab-incidents" class="tab">
+      <aside class="sidebar">
+        <details class="card" open>
+          <summary>New incident</summary>
+          <form id="new-incident" class="stack">
+            <input name="title" placeholder="Title (optional)" maxlength="300">
+            <select name="source">
+              <option value="siem_alert">SIEM alert</option>
+              <option value="analyst_description">Analyst description</option>
+              <option value="log_excerpt">Log excerpt</option>
+              <option value="threat_intel_report">Threat-intel report</option>
+            </select>
+            <select name="severity">
+              <option value="">Severity (optional)</option>
+              <option>low</option><option>medium</option><option>high</option><option>critical</option>
+            </select>
+            <textarea name="description" rows="6" required placeholder="Incident description (use synthetic data only)"></textarea>
+            <button type="submit">Submit</button>
+          </form>
+        </details>
+        <div class="row between"><h3>Incidents</h3><button id="refresh" class="secondary small">Refresh</button></div>
+        <ul id="incident-list" class="list"></ul>
+      </aside>
+      <div id="detail" class="detail"><p class="muted">Connect with an API key, then select or submit an incident.</p></div>
+    </section>
+    <section id="tab-library" class="tab hidden"><div id="library" class="detail"></div></section>
+    <section id="tab-audit" class="tab hidden"><div id="audit" class="detail"></div></section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# Optional: extra packages for the Sigma adapter (rule parsing and Lucene conversion).
+# The core service and the test suite do not need these.
+pyyaml>=6,<7
+pysigma>=1.5,<2
+pysigma-backend-elasticsearch>=2.1,<3

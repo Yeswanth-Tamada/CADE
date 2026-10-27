@@ -1,0 +1,8 @@
+{
+  "source": "siem_alert",
+  "title": "SYNTHETIC: Remote service creation from a workstation",
+  "description": "SYNTHETIC. The SIEM correlated a network logon by svc-backup on server FS-02 from workstation WS-ENG-007 (198.51.100.23) followed within a minute by creation of a new service named UpdSvc that runs C:\\Windows\\Temp\\psexesvc.exe. The same account logged on to two other servers in the previous hour. The bundle does not include the process tree on FS-02 or authentication logs from the domain controllers.",
+  "severity": "high",
+  "observables": {"hosts": ["FS-02", "WS-ENG-007"], "users": ["svc-backup"], "ips": ["198.51.100.23"]},
+  "attributes": {"rule_id": "SIEM-LM-019", "synthetic": true, "note": "SYNTHETIC test data created for CADE development. Not a real incident."}
+}

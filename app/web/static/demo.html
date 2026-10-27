@@ -1,0 +1,1363 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CADE Live Wall</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Projector wall for the CADE demo: the incident, CADE's analysis, routing decision, evolved plan and execution results, read from the CADE API or from a recorded run.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a stacked "operations wall" — testbed row, CADE's pipeline, the three decision panels,
+   the response DAG with a step inspector, then what the run found. Every value comes from the CADE API
+   (live) or from a recording of it (replay); the only typed-in text is the testbed description. */
+:root{
+  --bg:#eaeef5; --surface:#ffffff; --surface-2:#f3f6fb; --border:#d3dbe8;
+  --fg:#111722; --muted:#586274; --faint:#8793a5;
+  --accent:#0e76ad;                 /* CADE / defender, analyst steps */
+  --attack:#cf3636; --run:#c9810a; --ok:#1c9a68; --idle:#92a0b4; --contain:#b2457e; --sim:#6a53c9;
+  --ph-collect:#0e76ad; --ph-enrich:#128a9a; --ph-analyze:#6a53c9;
+  --ph-verify:#c9810a; --ph-contain:#b2457e; --ph-report:#1c9a68;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.08);
+  --r:12px;
+  --fdisplay:"Oxanium",ui-sans-serif,system-ui,sans-serif;
+  --fbody:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --fmono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a0e15; --surface:#121a26; --surface-2:#0d1420; --border:#233145;
+  --fg:#e9eef6; --muted:#9aa7bb; --faint:#5f6c81;
+  --accent:#36b4e6;
+  --attack:#ff5c5c; --run:#f0a62f; --ok:#36d094; --idle:#5c6a80; --contain:#e46faa; --sim:#9281f0;
+  --ph-collect:#36b4e6; --ph-enrich:#2fd0d8; --ph-analyze:#9281f0;
+  --ph-verify:#f0a62f; --ph-contain:#e46faa; --ph-report:#36d094;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.45);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0a0e15; --surface:#121a26; --surface-2:#0d1420; --border:#233145;
+  --fg:#e9eef6; --muted:#9aa7bb; --faint:#5f6c81;
+  --accent:#36b4e6;
+  --attack:#ff5c5c; --run:#f0a62f; --ok:#36d094; --idle:#5c6a80; --contain:#e46faa; --sim:#9281f0;
+  --ph-collect:#36b4e6; --ph-enrich:#2fd0d8; --ph-analyze:#9281f0;
+  --ph-verify:#f0a62f; --ph-contain:#e46faa; --ph-report:#36d094;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--fbody);line-height:1.45;
+  -webkit-font-smoothing:antialiased;letter-spacing:.1px}
+h1,h2,h3{margin:0;font-family:var(--fdisplay);text-wrap:balance;letter-spacing:.3px}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:14px;max-width:1500px;margin:0 auto}
+.mono{font-family:var(--fmono)}
+.ey{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.faint{color:var(--faint)}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:21}
+.bar .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
+.logo{font-family:var(--fdisplay);font-weight:700;font-size:20px;letter-spacing:1px;display:flex;align-items:center;gap:9px}
+.logo b{color:var(--accent)}
+.logo i{width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent);font-style:normal}
+.logo span{font-family:var(--fbody);font-size:12px;letter-spacing:.3px;color:var(--muted);font-weight:500}
+.spacer{flex:1 1 auto}
+.phase{display:flex;align-items:center;gap:9px;padding:7px 14px;border-radius:999px;border:1px solid var(--border);
+  background:var(--surface);font-family:var(--fdisplay);font-weight:600;font-size:14px;letter-spacing:.4px;max-width:520px}
+.phase .dot{width:9px;height:9px;border-radius:50%;background:var(--idle);flex:none}
+.phase[data-tone=bad]{border-color:color-mix(in srgb,var(--attack) 55%,var(--border));color:var(--attack)}
+.phase[data-tone=bad] .dot{background:var(--attack)}
+.phase[data-tone=work],.phase[data-tone=warn]{border-color:color-mix(in srgb,var(--run) 55%,var(--border));color:var(--run)}
+.phase[data-tone=work] .dot{background:var(--run);animation:blink 1.1s steps(2) infinite}
+.phase[data-tone=warn] .dot{background:var(--run)}
+.phase[data-tone=ok]{border-color:color-mix(in srgb,var(--ok) 55%,var(--border));color:var(--ok)}
+.phase[data-tone=ok] .dot{background:var(--ok)}
+@keyframes blink{50%{opacity:.25}}
+
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;font-size:13px;
+  padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);color:#fff}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--fg);font:inherit;font-weight:600;
+  padding:8px 14px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.warn{border-color:var(--contain);color:var(--contain)}
+.btn:disabled{opacity:.45;cursor:default}
+input[type=password],input[type=text],select,textarea{font:inherit;padding:8px 11px;border:1px solid var(--border);
+  border-radius:9px;background:var(--surface);color:var(--fg);min-width:0}
+
+/* badges */
+.tag{font-size:11px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:999px;text-transform:uppercase;
+  border:1px solid var(--border);background:var(--surface);color:var(--muted);white-space:nowrap}
+.tag.live{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,var(--border))}
+.tag.sim{background:color-mix(in srgb,var(--run) 16%,var(--surface));color:var(--run);border-color:color-mix(in srgb,var(--run) 40%,var(--border))}
+.tag.replay{background:color-mix(in srgb,var(--sim) 16%,var(--surface));color:var(--sim);border-color:color-mix(in srgb,var(--sim) 45%,var(--border))}
+.tag.bad{background:color-mix(in srgb,var(--attack) 14%,var(--surface));color:var(--attack);border-color:color-mix(in srgb,var(--attack) 40%,var(--border))}
+.tag[hidden]{display:none}
+
+/* banners */
+.banner{border-radius:var(--r);padding:11px 15px;margin-top:12px;font-size:13px;border:1px solid var(--border);background:var(--surface)}
+.banner b{font-family:var(--fdisplay);letter-spacing:.4px}
+.banner.replay{border:2px solid var(--sim);background:color-mix(in srgb,var(--sim) 10%,var(--surface))}
+.banner.replay b{color:var(--sim);font-size:15px}
+.banner .tb{color:var(--muted)}
+.banner p{margin:3px 0 0}
+
+/* generic card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+.sec{margin-top:16px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin:0 2px 9px;flex-wrap:wrap}
+.sec-head h2{font-size:15px;font-weight:600}
+.sec-head .ey:last-child{margin-left:auto}
+
+/* TESTBED ROW */
+.net{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr auto 1fr;align-items:stretch}
+.node{padding:14px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.node .role{display:flex;align-items:center;gap:9px;min-width:0}
+.node .glyph{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;
+  border:1px solid var(--border);background:var(--surface-2)}
+.node .glyph svg{width:20px;height:20px}
+.node h3{font-size:15px}
+.node .ip{font-family:var(--fmono);font-size:11px;color:var(--muted)}
+.node .stat{font-size:12px;color:var(--muted);min-height:1.2em;overflow-wrap:anywhere}
+.node.attacker .glyph{color:var(--attack)}
+.node.victim .glyph{color:var(--run)}
+.node.store .glyph{color:var(--ph-enrich)}
+.node.llm .glyph{color:var(--sim)}
+.node.cade{border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));box-shadow:var(--shadow),0 0 0 1px color-mix(in srgb,var(--accent) 20%,transparent)}
+.node.cade .glyph{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));
+  background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.node.think .glyph{animation:think 1.3s ease-in-out infinite}
+@keyframes think{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 18%,transparent)}}
+
+/* links between testbed boxes: static (configured, never animated), used (this incident used it), on (in progress now) */
+.link{position:relative;min-width:50px;align-self:center;height:60px;display:flex;align-items:center;justify-content:center}
+.link .wire{position:relative;width:100%;height:3px;border-radius:3px;background:var(--border);overflow:hidden}
+.link .wire::after{content:"";position:absolute;inset:0;border-radius:3px;
+  background:linear-gradient(90deg,transparent,var(--c,var(--accent)),transparent);
+  background-size:60% 100%;background-repeat:no-repeat;opacity:0;transform:translateX(-60%)}
+.link.static .wire{background:repeating-linear-gradient(90deg,var(--faint) 0 6px,transparent 6px 11px)}
+.link.used .wire{background:color-mix(in srgb,var(--c,var(--accent)) 60%,var(--border))}
+.link.on .wire{background:color-mix(in srgb,var(--c,var(--accent)) 30%,var(--border))}
+.link.on .wire::after{opacity:1;animation:flow 1.1s linear infinite var(--dir,normal)}
+@keyframes flow{from{transform:translateX(-60%)}to{transform:translateX(160%)}}
+.link .cap{position:absolute;top:calc(50% + 9px);left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--c,var(--faint))}
+.link .arw{position:absolute;top:50%;transform:translateY(-50%);color:var(--c,var(--faint));font-size:12px}
+.link .arw.r{right:-2px}.link .arw.l{left:-2px}
+
+/* PIPELINE */
+.pipe{display:flex;gap:0;overflow-x:auto}
+.step{flex:1 1 0;min-width:112px;padding:13px 13px 14px;position:relative;display:flex;flex-direction:column;gap:5px}
+.step+.step{border-left:1px solid var(--border)}
+.step .n{display:flex;align-items:center;gap:8px}
+.step .sdot{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;
+  border:2px solid var(--idle);color:var(--idle);background:var(--surface);font-family:var(--fdisplay)}
+.step h4{margin:0;font-size:14px;font-weight:600;font-family:var(--fbody)}
+.step .sub{font-size:11.5px;color:var(--faint);overflow-wrap:anywhere}
+.step[data-s=active] .sdot{border-color:var(--run);color:#fff;background:var(--run);animation:think 1.2s ease-in-out infinite}
+.step[data-s=active] h4{color:var(--run)}
+.step[data-s=done] .sdot{border-color:var(--ok);color:#fff;background:var(--ok)}
+.step[data-s=done] .sdot::after{content:"✓"}
+.step[data-s=warn] .sdot{border-color:var(--run);color:var(--run)}
+.step[data-s=warn] .sdot::after{content:"!"}
+.step[data-s=warn] h4{color:var(--run)}
+.step[data-s=fail] .sdot{border-color:var(--attack);color:#fff;background:var(--attack)}
+.step[data-s=fail] .sdot::after{content:"✕"}
+.step[data-s=fail] h4{color:var(--attack)}
+.step[data-s=na] .sdot{border-style:dashed}
+.step[data-s=na] .sdot::after{content:"–"}
+.step[data-s=done] .sdot b,.step[data-s=warn] .sdot b,.step[data-s=fail] .sdot b,.step[data-s=na] .sdot b{display:none}
+
+/* three decision panels */
+.cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+.panel,.feed,.insp{padding:14px 15px;min-width:0;overflow-wrap:anywhere}
+.panel h3{font-size:14px;font-weight:600;margin-bottom:9px;display:flex;align-items:baseline;gap:8px}
+.panel h3 .num{font-size:11px;color:var(--faint);font-family:var(--fbody);letter-spacing:.1em}
+.panel h4{margin:13px 0 6px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.ttl{font-weight:600;font-size:14.5px}
+.meta{font-size:12px;color:var(--muted);margin-top:2px}
+.quote{margin:8px 0 0;padding:8px 10px;border-left:3px solid var(--border);background:var(--surface-2);border-radius:6px;
+  font-size:12.5px;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.quote.full{display:block;-webkit-line-clamp:unset}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12.5px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-family:var(--fmono);font-size:11px;padding:2px 7px;border-radius:7px;border:1px solid var(--border);
+  background:var(--surface-2);display:inline-flex;gap:5px;align-items:center;max-width:100%;overflow-wrap:anywhere}
+.chip b{color:var(--accent);font-weight:600}
+.chip.t-ok{border-color:color-mix(in srgb,var(--ok) 45%,var(--border))}
+.chip.t-bad{border-color:color-mix(in srgb,var(--attack) 50%,var(--border));color:var(--attack)}
+.chip.t-warn{border-color:color-mix(in srgb,var(--run) 45%,var(--border))}
+.chip.t-muted{color:var(--muted)}
+.chip.t-sim{border-style:dashed;color:var(--sim)}
+.evrows{display:grid;gap:6px}
+.evrow{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:start;font-size:12px}
+.evk{color:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin:8px 0 0}
+.warnbox{font-size:12px;margin-top:9px;padding:7px 9px;border-radius:7px;border:1px solid color-mix(in srgb,var(--run) 45%,var(--border));
+  background:color-mix(in srgb,var(--run) 9%,var(--surface))}
+.bigact{font-family:var(--fdisplay);font-weight:700;font-size:20px;color:var(--accent);line-height:1.2}
+.pol{font-size:12px;margin-top:8px;padding:7px 9px;border-radius:7px;background:var(--surface-2);border:1px solid var(--border)}
+.route{display:grid;gap:7px;margin-top:4px}
+.route .ri{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:8px;align-items:center;font-size:12px}
+.route .ri .mono{font-size:11.5px}
+.route .ri.win{font-weight:600}
+.route .ri.win .lbl{color:var(--accent)}
+.meter{height:7px;border-radius:5px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border)}
+.meter i{display:block;height:100%;border-radius:5px;background:var(--faint);width:0;transition:width .6s ease}
+.route .ri.win .meter i{background:var(--accent)}
+.big{display:flex;gap:18px;align-items:baseline;flex-wrap:wrap}
+.big .v{font-family:var(--fdisplay);font-weight:700;font-size:28px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.chart{margin-top:8px}
+.chart svg{width:100%;height:auto;display:block}
+.chart .lg{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:3px}
+.chart .lg i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* DAG + inspector */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+.stage>*{min-width:0}
+.dagwrap{overflow:auto;padding:8px;min-height:320px}
+.dag{position:relative}
+.dag svg.edges{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.gnode{position:absolute;border:1px solid var(--border);border-left:4px solid var(--stripe,var(--idle));
+  border-radius:10px;background:var(--surface);padding:8px 10px;display:flex;flex-direction:column;gap:3px;cursor:pointer;
+  transition:box-shadow .3s,border-color .3s,opacity .4s;text-align:left;font:inherit;color:inherit}
+.gnode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gnode.sel{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent)}
+.gnode .top{display:flex;align-items:center;gap:6px}
+.gnode .st{width:9px;height:9px;border-radius:50%;background:var(--sc,var(--idle));flex:none}
+.gnode .stlbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--sc,var(--muted))}
+.gnode .simtag{margin-left:auto;font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--sim);border:1px dashed var(--sim);border-radius:5px;padding:0 4px}
+.gnode .lbl{font-size:12.5px;font-weight:600;line-height:1.25}
+.gnode .act{font-family:var(--fmono);font-size:10px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gnode .gate{font-size:10px;font-weight:700;letter-spacing:.03em;color:var(--contain)}
+.gnode .gate.ok{color:var(--ok)}
+.gnode[data-s=ok]{--sc:var(--ok)}
+.gnode[data-s=nodata]{--sc:var(--muted)}
+.gnode[data-s=failed]{--sc:var(--attack)}
+.gnode[data-s=unavail]{--sc:var(--attack);border-style:dashed;border-left-style:solid}
+.gnode[data-s=analyst]{--sc:var(--accent)}
+.gnode[data-s=skipped]{--sc:var(--faint);opacity:.6}
+.gnode[data-s=blocked]{--sc:var(--contain);border-color:var(--contain)}
+.gnode[data-s=sim]{--sc:var(--sim);border-style:dashed;border-left-style:solid}
+.gnode[data-s=pending]{--sc:var(--idle)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:11.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:9px;height:9px;border-radius:50%}
+.insp{padding:14px 15px;position:sticky;top:76px}
+.insp ul,.feed ul{margin:6px 0 0;padding-left:18px;font-size:12px}
+.insp li,.feed li{margin:2px 0;overflow-wrap:anywhere}
+.stchip{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sc,var(--muted))}
+.stchip i{width:8px;height:8px;border-radius:50%;background:var(--sc,var(--idle))}
+
+/* execution + findings */
+.cards2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:16px;align-items:start}
+.feed{padding:14px 15px}
+.frow{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--border);font-size:12.5px}
+.frow:first-of-type{border-top:0}
+.frow .what{font-weight:600}
+.frow .tgt{font-family:var(--fmono);font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.frow .fnd{margin-top:2px;overflow-wrap:anywhere}
+details{margin-top:6px}
+details summary{cursor:pointer;font-size:12px;color:var(--accent);font-weight:600}
+.reportl{font-size:12px;margin:6px 0 0;padding-left:18px}
+.learn{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* controls */
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.controls .grp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ghost{background:transparent;border:1px dashed var(--border)}
+.liveform{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.liveform select{max-width:340px}
+.empty{display:grid;place-items:center;text-align:center;min-height:280px;color:var(--muted);gap:8px;padding:20px}
+.empty .k{font-family:var(--fdisplay);font-size:17px;color:var(--fg)}
+.scrim{font-size:11.5px;color:var(--faint)}
+.runstat{font-size:12px;color:var(--muted);font-family:var(--fmono)}
+
+/* dialogs */
+.incdlg{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--fg);
+  box-shadow:var(--shadow);padding:0;width:min(660px,calc(100vw - 32px))}
+.incdlg::backdrop{background:rgba(8,12,20,.55)}
+.incdlg form{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 20px}
+.incdlg h2{grid-column:1/-1;font-size:17px}
+.incdlg .wide{grid-column:1/-1}
+.incdlg .note{margin-top:-4px}
+.incdlg .fld{display:flex;flex-direction:column;gap:5px}
+.incdlg textarea{resize:vertical;min-height:110px;line-height:1.45}
+.incdlg .chk{display:flex;align-items:flex-start;gap:8px;font-size:13px}
+.incdlg .chk.confirm{padding:9px 10px;border:1px solid var(--contain);border-radius:9px;background:color-mix(in srgb,var(--contain) 8%,var(--surface))}
+.incdlg .acts{display:flex;justify-content:flex-end;gap:8px}
+.incdlg ul{margin:6px 0 0;padding-left:18px;font-size:12.5px}
+.incdlg li{margin:3px 0}
+@media (max-width:560px){.incdlg form{grid-template-columns:1fr}}
+
+@media (max-width:1180px){
+  /* too narrow for five boxes in a row: wrap them; each box's status line still says what it did */
+  .net{grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+  .net .link{display:none}
+  .net .node{border-bottom:1px solid var(--border)}
+  .cards3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .insp{position:static}
+}
+@media (max-width:860px){
+  .cards3,.cards2{grid-template-columns:minmax(0,1fr)}
+  .net{grid-template-columns:1fr}
+  .link{height:26px;min-width:0}
+  .link .wire{width:3px;height:100%}
+  .link .arw{display:none}
+  .link .cap{top:50%;left:calc(50% + 10px);transform:translateY(-50%)}
+  .frow{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="logo"><i></i><b>CADE</b> <span>Response Wall</span></div>
+    <div class="spacer"></div>
+    <span id="src-tag" class="tag replay">Replay</span>
+    <span id="exec-tag" class="tag" hidden></span>
+    <div class="phase" id="phase" data-tone="idle"><span class="dot"></span><span id="phase-label">Standing by</span></div>
+    <div class="seg" role="group" aria-label="Data source">
+      <button id="m-replay" aria-pressed="true">Replay</button>
+      <button id="m-live" aria-pressed="false">Live</button>
+    </div>
+    <button class="btn ghost" id="theme">Theme</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div id="banner"></div>
+  <div class="controls" id="controls"></div>
+  <p class="scrim" id="scrim"></p>
+
+  <!-- TESTBED -->
+  <section class="sec">
+    <div class="sec-head"><span class="ey">The demo testbed</span><h2>Where the attack happens and what CADE talks to</h2>
+      <span class="ey">testbed is not part of paper 968</span></div>
+    <div class="card net" id="net">
+      <div class="node attacker"><div class="role"><span class="glyph" id="g-atk"></span><div><h3>Attacker</h3><div class="ip" id="ip-atk"></div></div></div><div class="stat" id="s-atk"></div></div>
+      <div class="link" id="l-atk"><span class="wire"></span><span class="arw r">▶</span><span class="cap">attack</span></div>
+      <div class="node victim"><div class="role"><span class="glyph" id="g-vic"></span><div><h3>Victim host</h3><div class="ip" id="ip-vic"></div></div></div><div class="stat" id="s-vic"></div></div>
+      <div class="link" id="l-log"><span class="wire"></span><span class="arw r">▶</span><span class="cap">logs</span></div>
+      <div class="node store"><div class="role"><span class="glyph" id="g-es"></span><div><h3>Elasticsearch</h3><div class="ip" id="ip-es"></div></div></div><div class="stat" id="s-es"></div></div>
+      <div class="link" id="l-q"><span class="wire"></span><span class="arw l">◀</span><span class="cap">queries</span></div>
+      <div class="node cade" id="n-cade"><div class="role"><span class="glyph" id="g-cade"></span><div><h3>CADE</h3><div class="ip" id="ip-cade"></div></div></div><div class="stat" id="s-cade"></div></div>
+      <div class="link" id="l-llm"><span class="wire"></span><span class="arw r">▶</span><span class="cap">LLM</span></div>
+      <div class="node llm"><div class="role"><span class="glyph" id="g-llm"></span><div><h3>LLMs (Ollama)</h3><div class="ip" id="ip-llm"></div></div></div><div class="stat" id="s-llm"></div></div>
+    </div>
+  </section>
+
+  <!-- PIPELINE -->
+  <section class="sec">
+    <div class="sec-head"><span class="ey">What CADE has done</span><h2>From incident to learning</h2>
+      <span class="ey">paper 968 §3–§6</span></div>
+    <div class="card pipe" id="pipe"></div>
+  </section>
+
+  <!-- DECISION PANELS -->
+  <section class="sec">
+    <div class="cards3">
+      <div class="card panel" id="c-incident"></div>
+      <div class="card panel" id="c-route"></div>
+      <div class="card panel" id="c-plan"></div>
+    </div>
+  </section>
+
+  <!-- DAG + INSPECTOR -->
+  <section class="sec">
+    <div class="sec-head"><span class="ey">The response plan</span><h2>The steps of the plan, and how they connect</h2>
+      <span class="ey" id="dag-note"></span></div>
+    <div class="stage">
+      <div>
+        <div class="card dagwrap"><div class="dag" id="dag"></div></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="card insp" id="c-node"></div>
+    </div>
+  </section>
+
+  <!-- EXECUTION + FINDINGS -->
+  <section class="sec">
+    <div class="sec-head"><span class="ey">The run</span><h2>What actually ran, and what it found</h2></div>
+    <div class="cards2">
+      <div class="card panel" id="c-exec"></div>
+      <div class="card feed" id="c-feed"></div>
+    </div>
+  </section>
+
+</div>
+
+<input type="file" id="rec-file" accept="application/json,.json" hidden>
+
+<dialog id="inc-dlg" class="incdlg" aria-labelledby="inc-dlg-h">
+  <form method="dialog" id="inc-form">
+    <h2 id="inc-dlg-h">New incident</h2>
+    <p class="note wide">CADE analyses the text, decides how to respond, builds a plan and, if ticked, runs it in the execution mode the server is configured for. The wall follows it live.</p>
+    <label class="fld wide"><span class="ey">Title</span>
+      <input type="text" id="f-title" maxlength="300" placeholder="Short headline"></label>
+    <label class="fld wide"><span class="ey">What was observed (required)</span>
+      <textarea id="f-desc" rows="6" required placeholder="Describe the activity: which host, which accounts and IPs, what ran, and when."></textarea></label>
+    <label class="fld"><span class="ey">Severity</span>
+      <select id="f-sev"><option value="">not set</option><option>informational</option><option>low</option><option>medium</option><option selected>high</option><option>critical</option></select></label>
+    <label class="fld"><span class="ey">Source</span>
+      <select id="f-src"><option value="analyst_description" selected>analyst description</option><option value="siem_alert">SIEM alert</option><option value="log_excerpt">log excerpt</option><option value="threat_intel_report">threat-intel report</option><option value="other">other</option></select></label>
+    <label class="fld"><span class="ey">Hosts</span><input type="text" id="f-hosts" placeholder="e.g. victim"></label>
+    <label class="fld"><span class="ey">Users</span><input type="text" id="f-users" placeholder="comma-separated"></label>
+    <label class="fld wide"><span class="ey">IP addresses</span><input type="text" id="f-ips" placeholder="comma-separated"></label>
+    <label class="chk wide"><input type="checkbox" id="f-exec" checked> Run the plan when it is ready</label>
+    <p class="note wide">Host-changing steps stay gated: CADE skips them unless an approver approved them and a verification confirmed the target. This page cannot approve or verify anything.</p>
+    <div class="acts wide"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="run">Run</button></div>
+  </form>
+</dialog>
+
+<dialog id="fb-dlg" class="incdlg" aria-labelledby="fb-dlg-h">
+  <form method="dialog" id="fb-form">
+    <h2 id="fb-dlg-h">Record analyst feedback</h2>
+    <div class="wide" id="fb-what"></div>
+    <label class="chk wide"><input type="checkbox" id="fb-retained" checked> Retain the findings: the analyst keeps what this run found</label>
+    <label class="chk wide"><input type="checkbox" id="fb-resolved"> The run resolved the incident</label>
+    <label class="fld wide"><span class="ey">Notes (optional)</span><textarea id="fb-notes" rows="3" maxlength="2000"></textarea></label>
+    <label class="chk wide confirm"><input type="checkbox" id="fb-confirm"> I understand this changes CADE's playbook library and router learning state, and that it cannot be undone or repeated for this run.</label>
+    <div class="acts wide"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="submit" id="fb-submit" disabled>Record feedback</button></div>
+  </form>
+</dialog>
+
+<script>
+"use strict";
+/* ---------- tiny DOM helper ---------- */
+function h(tag, attrs={}, ...kids){
+  const el=document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs||{})){
+    if(v==null||v===false) continue;
+    if(k.startsWith("on")) el.addEventListener(k.slice(2),v);
+    else if(k==="class") el.className=v;
+    else if(k==="html") el.innerHTML=v;
+    else el.setAttribute(k, v===true?"":String(v));
+  }
+  for(const c of kids.flat(Infinity)){ if(c==null||c===false) continue; el.append(c instanceof Node?c:document.createTextNode(String(c))); }
+  return el;
+}
+const $=s=>document.querySelector(s);
+const svgEl=(t,a={})=>{const e=document.createElementNS("http://www.w3.org/2000/svg",t);for(const[k,v]of Object.entries(a))e.setAttribute(k,String(v));return e;};
+const last=a=>a&&a.length?a[a.length-1]:null;
+const uniq=a=>[...new Set(a)];
+const human=s=>String(s==null?"":s).replace(/_/g," ");
+const pctS=x=>typeof x==="number"?`${Math.round(x*100)}%`:"–";
+const f2=x=>typeof x==="number"?x.toFixed(2):"–";
+const f3=x=>typeof x==="number"?((x!==0&&Math.abs(x)<0.001)?x.toExponential(1):x.toFixed(3)):"–";
+const dur=ms=>{if(typeof ms!=="number"||!isFinite(ms))return "–";const s=ms/1000;return s<1?`${Math.round(ms)} ms`:s<90?`${s.toFixed(s<10?1:0)} s`:`${(s/60).toFixed(1)} min`;};
+const tdiff=(a,b)=>(a&&b)?Date.parse(b)-Date.parse(a):null;
+const clock=iso=>{if(!iso)return "–";const d=new Date(iso);return isNaN(d)?"–":d.toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"});};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const splitList=s=>(s||"").split(/[,\s]+/).map(x=>x.trim()).filter(Boolean);
+const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
+
+/* ---------- glyphs ---------- */
+const ICON={
+  attacker:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 17h16M7 20h10M5 4h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/><path d="m9 8 2 2-2 2M13 12h2"/></svg>',
+  victim:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/><circle cx="12" cy="10" r="2.2"/></svg>',
+  store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>',
+  cade:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 5 6v5c0 4 3 7 7 9 4-2 7-5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>',
+  llm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>'
+};
+
+/* ---------- the demo testbed ----------
+   Typed-in configuration of the conference testbed, NOT values from the CADE API. The testbed itself
+   (GCP VMs) is not part of paper 968, whose evaluation used recorded Splunk Attack Data. */
+const TESTBED={
+  attacker:"presenter laptop",
+  victim:"victim VM · Ubuntu 22.04 · 10.160.0.3",
+  logs:"auditd → Filebeat",
+  elastic:"runs on the cade VM",
+  cade:"cade VM · 10.160.0.2",
+  llm:"presenter laptop, via SSH tunnel"
+};
+
+/* ---------- wording tied to paper 968 and the API ---------- */
+const ACTION_TEXT={reuse:"Reuse a stored playbook",request_evidence:"Request more evidence",synthesize:"Synthesize a new playbook"};
+const SOURCE_TEXT={analyst_description:"analyst description",siem_alert:"SIEM alert",log_excerpt:"log excerpt",threat_intel_report:"threat-intel report",other:"other"};
+const OS_SOURCE={llm:"LLM judge, 3 judgments averaged (Eq. 11)",heuristic:"heuristic OS_H (no LLM judge configured)",
+  estimated:"provisional estimate, not judged",heuristic_fallback:"heuristic OS_H (judge output unusable)"};
+const TERMINATION={full_coverage:"full coverage (IC = EA = 1)",plateau:"plateau (gain < 0.01 over 3 generations)",generation_budget:"generation limit"};
+/* node states: one entry per visual state; the legend is generated from this list so it always matches */
+const NODE_STATES={
+  ok:{label:"succeeded",help:"the step ran; a tool step returned data"},
+  nodata:{label:"no data",help:"the tool answered with nothing (not proof of absence)"},
+  failed:{label:"failed",help:"the tool returned an error"},
+  unavail:{label:"tool unavailable",help:"no working tool, so CADE turned it into a manual task"},
+  analyst:{label:"analyst task",help:"a person must do this step, e.g. record a verification verdict"},
+  skipped:{label:"skipped",help:"an input, approval or verification was missing"},
+  blocked:{label:"blocked by gate",help:"a safety gate refused the step"},
+  sim:{label:"simulated only",help:"a host-changing step answered by the simulator; no real action"},
+  pending:{label:"not run",help:"no run has reached this step"},
+};
+const STATE_COLOR={ok:"var(--ok)",nodata:"var(--muted)",failed:"var(--attack)",unavail:"var(--attack)",analyst:"var(--accent)",
+  skipped:"var(--faint)",blocked:"var(--contain)",sim:"var(--sim)",pending:"var(--idle)"};
+
+function nodeState(r,def){
+  if(!r) return {s:"pending",label:"not run"};
+  const d=def||{};
+  switch(r.status){
+    case "succeeded":
+      if(r.destructive&&r.synthetic) return {s:"sim",label:"simulated only"};
+      if(r.verdict) return {s:r.verdict==="confirmed"?"ok":"nodata",label:"verdict: "+human(r.verdict)};
+      return {s:"ok",label:r.destructive?"executed":"succeeded"};
+    case "no_data": return {s:"nodata",label:"no data"};
+    case "failed": return {s:"failed",label:"failed"};
+    case "manual_task":
+      if(d.verification&&analystBound(d)) return {s:"analyst",label:"awaiting analyst verdict"};
+      if(r.tool) return {s:"unavail",label:/unavailable/.test(r.reason||"")?"tool unavailable":"tool error → manual"};
+      return {s:"analyst",label:"analyst task"};
+    case "skipped": return {s:"skipped",label:"skipped"};
+    case "blocked": return {s:"blocked",label:"blocked by gate"};
+    default: return {s:"pending",label:human(r.status)};
+  }
+}
+/* performed by a person (vocabulary binding "analyst.*"), as opposed to a tool or CADE itself */
+function analystBound(d){return !!d&&(d.binding_kind==="analyst"||String(d.binding||"").startsWith("analyst."));}
+function mapPhase(p){
+  const m={triage:"collect",enrichment:"enrich",investigation:"analyze",scoping:"analyze",verification:"verify",
+    containment:"contain",eradication:"contain",recovery:"contain",reporting:"report"};
+  return m[p]||"collect";
+}
+
+/* =======================================================================
+   VIEW — one pure function turns an API snapshot into what the wall shows.
+   Live mode and replay both go through it, so they can never disagree.
+   snapshot = {inc: GET /incidents/{id}, resp: GET /incidents/{id}/response, ev: GET /incidents/{id}/evidence,
+               health: GET /health, vocab: GET /vocabulary, busy, progress, replay}
+   ======================================================================= */
+function view(snap){
+  const V={};
+  snap=snap||{};
+  V.incident=snap.inc&&snap.inc.incident||null;
+  V.analysis=snap.inc&&snap.inc.latest_analysis||null;
+  V.result=V.analysis&&V.analysis.result||null;
+  V.analysisFailed=!!(V.analysis&&V.analysis.extraction_status==="failed")||(!!V.incident&&V.incident.status==="analysis_failed");
+  V.evidence=snap.ev||null; V.health=snap.health||null;
+  V.busy=snap.busy||null; V.progress=snap.progress||""; V.replay=!!snap.replay;
+  V.vocab={}; for(const a of (snap.vocab&&snap.vocab.actions)||[]) V.vocab[a.id]=a;
+  const R=snap.resp||{};
+  V.decisions=R.decisions||[]; V.plans=R.plans||[]; V.runs=R.runs||[];
+  V.plan=last(V.plans);
+  V.run=V.plan?last(V.runs.filter(r=>r.plan_id===V.plan.plan_id)):null;
+  V.planDecision=V.plan&&V.plan.routing_decision_id!=null?(V.decisions.find(d=>d.decision_id===V.plan.routing_decision_id)||null):null;
+  const ld=last(V.decisions);
+  // a decision recorded after the shown plan has no plan of its own (yet)
+  V.pendingDecision=ld&&(!V.plan||Date.parse(ld.created_at)>Date.parse(V.plan.created_at))?ld:null;
+  V.decision=V.pendingDecision||V.planDecision||ld||null;
+  V.awaitingEvidence=!!(V.pendingDecision&&V.pendingDecision.action==="request_evidence");
+  // plan nodes, joined with the run's node results and the vocabulary
+  const results={}; for(const r of (V.run&&V.run.node_results)||[]) results[r.node_id||r.id]=r;
+  const approvals={}; if(V.plan) for(const a of V.plan.approvals||[]) if(a.plan_hash===V.plan.structural_hash) approvals[a.node_id]=a;
+  const verifs={}; if(V.plan) for(const v of V.plan.verifications||[]) verifs[v.node_id]=v;
+  V.nodes=V.plan?V.plan.playbook.nodes.map(n=>{
+    const id=n.node_id||n.id, def=V.vocab[n.action]||{}, r=results[id]||null;
+    return {id,action:n.action,params:n.params||{},def,label:def.name||human(n.action),phase:mapPhase(def.phase),r,st:nodeState(r,def),
+      destructive:!!def.destructive||(V.plan.destructive_nodes||[]).includes(id),
+      verification:!!def.verification||(V.plan.verification_nodes||[]).includes(id),
+      approval:approvals[id]||null,verdict:verifs[id]||null};
+  }):[];
+  V.edges=V.plan?(V.plan.playbook.edges||[]).map(e=>({source:e.source||e.from,target:e.target||e.to,artifact:e.artifact})):[];
+  V.unapproved=V.nodes.filter(n=>n.destructive&&!n.approval);
+  V.partial=V.run&&V.run._partial||null;
+  V.planState=!V.plan?null:V.partial?"executing (replay)":V.run?"executed":(V.plan.status==="executing"||V.busy==="execute")?"executing":V.unapproved.length?"awaiting approval":"ready";
+  // execution tallies, in execution order
+  V.results=(V.run&&V.run.node_results)||[];
+  V.counts={}; for(const n of V.nodes) if(n.r) V.counts[n.st.s]=(V.counts[n.st.s]||0)+1;
+  V.toolCalls={}; V.toolHits={};
+  for(const r of V.results) if(r.tool){V.toolCalls[r.tool]=(V.toolCalls[r.tool]||0)+1; if(r.status==="succeeded")V.toolHits[r.tool]=(V.toolHits[r.tool]||0)+1;}
+  V.confirmedCompromise=V.results.some(r=>r.action==="verify_host_compromise"&&r.verdict==="confirmed");
+  return V;
+}
+
+/* the one-line status in the top bar — derived only from recorded outcomes */
+function headline(V){
+  if(!V.incident) return {tone:"idle",text:MODE==="live"?(LIVE.polling?"No incident yet":"Not connected"):"No recording loaded"};
+  if(V.analysisFailed) return {tone:"bad",text:"Analysis failed"};
+  if(!V.result) return (V.busy==="analyze"||V.incident.status==="analyzing")?{tone:"work",text:"Analysing the incident…"}:{tone:"idle",text:"Incident received · not analysed yet"};
+  if(V.awaitingEvidence) return {tone:"warn",text:"Waiting for evidence: "+(V.pendingDecision.requestable||[]).map(human).join(", ")};
+  if(V.pendingDecision) return V.busy==="respond"?{tone:"work",text:"Building the plan…"}:{tone:"idle",text:`Routed to ${human(V.pendingDecision.action)} · no plan recorded yet`};
+  if(!V.plan) return V.busy==="respond"?{tone:"work",text:"Routing…"}:{tone:"idle",text:"Analysed · not routed yet"};
+  if(!V.run){
+    if(V.planState==="executing") return {tone:"work",text:"Executing the plan…"};
+    if(V.unapproved.length) return {tone:"warn",text:`Plan ready · ${V.unapproved.length} host-changing step(s) await approval · not executed`};
+    return {tone:"idle",text:"Plan ready · not executed"};
+  }
+  if(V.partial) return {tone:"work",text:`Replaying the run · step ${V.partial.k} of ${V.partial.n}`};
+  if(V.run.status==="blocked") return {tone:"bad",text:"Run blocked before any step ran"};
+  const ok=V.counts.ok||0, tot=V.nodes.length;
+  const base=V.run.status==="completed"?"Run completed":"Run completed with issues";
+  return {tone:V.run.status==="completed"?"ok":"warn",text:`${base} · ${ok} of ${tot} steps succeeded`};
+}
+
+/* ---------- pipeline (7 steps; states come from recorded data only) ---------- */
+function pipeline(V){
+  const S=[];
+  const st=(id,label,s,sub)=>S.push({id,label,s,sub});
+  st("incident","Incident in",V.incident?"done":"idle",V.incident?`${SOURCE_TEXT[V.incident.source]||human(V.incident.source)} · submitted`:"text or structured input");
+  st("understand","Understand",V.analysisFailed?"fail":V.result?"done":(V.busy==="analyze"||(V.incident&&V.incident.status==="analyzing"))?"active":"idle",
+    V.result?human(V.result.intent.label):"intent · ATT&CK · evidence");
+  const d=V.decision;
+  st("route","Route",d?"done":(V.busy==="respond"&&V.result)?"active":"idle",
+    d?`${human(d.action)} · ${d.policy==="linucb"?"LinUCB":"rule"}`:"reuse / request / synthesize");
+  let ps="idle",psub="reuse or evolve a DAG";
+  if(V.awaitingEvidence){ps="warn";psub="waiting for evidence";}
+  else if(V.pendingDecision&&V.busy==="respond"){ps="active";psub=V.progress||"building";}
+  else if(V.plan){ps="done";psub=V.plan.source==="library"?"reused from library":"synthesized by CADE";}
+  else if(V.busy==="respond"){ps="active";psub=V.progress||"routing";}
+  st("plan","Plan",ps,psub);
+  let gs="idle",gsub="approval + verified target";
+  if(V.plan){
+    const dn=V.nodes.filter(n=>n.destructive);
+    if(!dn.length){gs="na";gsub="no host-changing steps";}
+    else if(V.unapproved.length){gs="warn";gsub=`${V.unapproved.length} of ${dn.length} not approved`;}
+    else {gs="done";gsub=`${dn.length} approved`;}
+  }
+  st("gate","Safety gate",gs,gsub);
+  let es="idle",esub="queries and lookups";
+  if(V.run){
+    const m=V.run.synthetic||V.run.mode!=="live"?"simulated":"live tools";
+    if(V.partial){es="active";esub=`${m} · replaying`;}
+    else if(V.run.status==="blocked"){es="fail";esub="blocked";}
+    else if(V.run.status==="completed_with_issues"){es="warn";esub=`${m} · with issues`;}
+    else {es="done";esub=`${m} · completed`;}
+  } else if(V.planState==="executing"){es="active";esub="running";}
+  else if(V.plan){esub="not executed";}
+  st("execute","Execute",es,esub);
+  let ls="idle",lsub="analyst feedback";
+  if(V.run&&!V.partial){
+    if(V.run.feedback){ls="done";lsub=V.run.feedback.findings_retained?"findings retained":"not retained";}
+    else lsub="no feedback recorded";
+  }
+  st("learn","Learn",ls,lsub);
+  return S;
+}
+
+/* =======================================================================
+   RENDER
+   ======================================================================= */
+let CUR=null, SEL=null;
+const OPEN=new Set();     // <details> the presenter opened; kept open across re-renders
+function det(key,summary,...content){
+  const d=h("details",{open:OPEN.has(key),ontoggle:e=>{e.target.open?OPEN.add(key):OPEN.delete(key);}},h("summary",{},summary),...content);
+  return d;
+}
+function head(num,title){return h("h3",{},h("span",{class:"num"},num),title);}
+function kv(rows){return h("dl",{class:"kv"},rows.filter(Boolean).map(([k,v,title])=>[h("dt",{title:title||null},k),h("dd",{},v)]));}
+function note(t){return h("p",{class:"note"},t);}
+
+function render(){
+  const V=view(currentSnap()); CUR=V;
+  renderTop(V); renderBanner(V); renderNet(V); renderPipe(V);
+  renderIncident(V); renderRoute(V); renderPlan(V); renderDag(V); renderNode(V); renderExec(V); renderFeed(V);
+}
+
+function renderTop(V){
+  const src=$("#src-tag");
+  src.className="tag "+(MODE==="live"?"live":"replay");
+  src.textContent=MODE==="live"?"Live API":"Replay · recorded";
+  const ex=$("#exec-tag");
+  if(V.run){
+    const real=V.run.mode==="live"&&!V.run.synthetic;
+    ex.className="tag "+(real?"live":"sim");
+    ex.textContent=real?"Execution: live tools · real data":V.run.mode==="live"?"Execution: live mode · includes synthetic data":"Execution: simulated · synthetic results";
+    ex.hidden=false;
+  } else if(V.health&&V.health.playbooks){
+    ex.className="tag"; ex.textContent=`${V.replay?"At recording, server":"Server"} executes in ${V.health.playbooks.execution_mode} mode`; ex.hidden=false;
+  } else ex.hidden=true;
+  const hl=headline(V);
+  $("#phase").setAttribute("data-tone",hl.tone);
+  $("#phase-label").textContent=hl.text;
+}
+
+function renderBanner(V){
+  const b=$("#banner"); const kids=[];
+  if(MODE==="replay"&&REPLAY.rec){
+    const r=REPLAY.rec;
+    kids.push(h("div",{class:"banner replay"},h("b",{},"REPLAY of a recorded CADE run — this is not happening now."),
+      h("p",{},`Recorded ${clock(r.recorded_at)} from ${r.origin||"an unknown source"} · incident ${r.incident&&r.incident.incident?r.incident.incident.incident_id:"?"}. `,
+        "Steps appear one at a time; real durations are shown in the panels.")));
+  }
+  const models=[];
+  const syn=V.plan&&V.plan.synthesis;
+  if(V.analysis) models.push(`intent ${V.analysis.model_name}`);
+  if(syn&&syn.generator) models.push(`generator ${syn.generator.model}`);
+  if(syn) models.push(`judge ${syn.judge_model||"none (heuristic)"}`);
+  kids.push(h("div",{class:"banner"},
+    h("span",{class:"tb"},h("b",{},"Demo testbed, not part of paper 968: "),
+      "a GCP Ubuntu victim VM (auditd + Filebeat → Elasticsearch) attacked from the presenter's laptop; CADE's LLMs run in Ollama on that laptop. ",
+      "The paper's evaluation used 96 scenarios from Splunk Attack Data (Windows Sysmon, Security and PowerShell logs), so Windows-only steps return “no data” on this Linux victim."),
+    models.length?h("p",{class:"tb"},`Models in this incident: ${models.join(" · ")}. Paper Table 3: Llama 3.2 3B · Qwen3 14B · Gemma 3 12B. Scores here are not comparable to the paper's tables.`):null));
+  b.replaceChildren(...kids);
+}
+
+function setLink(id,mode,color){
+  const el=$("#"+id); if(!el)return;
+  el.classList.toggle("static",mode==="static"); el.classList.toggle("used",mode==="used"); el.classList.toggle("on",mode==="on");
+  el.style.setProperty("--c",color||"var(--faint)");
+}
+function renderNet(V){
+  $("#ip-atk").textContent=TESTBED.attacker; $("#ip-vic").textContent=TESTBED.victim; $("#ip-es").textContent=TESTBED.elastic;
+  $("#ip-cade").textContent=TESTBED.cade; $("#ip-llm").textContent=TESTBED.llm;
+  $("#s-atk").textContent="outside CADE's view: CADE sees only the incident it is given and the logs it queries";
+  const hosts=V.result?V.result.entities.hosts:(V.incident?V.incident.observables.hosts:[]);
+  $("#s-vic").textContent=(hosts&&hosts.length?`hosts in this incident: ${hosts.slice(0,3).join(", ")}`:"no host named in this incident")
+    +(V.confirmedCompromise?" · an analyst confirmed compromise":"");
+  const eq=V.toolCalls.elastic||0, eh=V.toolHits.elastic||0;
+  $("#s-es").textContent=`${TESTBED.logs}, shipped continuously · `+(V.run?`${eq} quer${eq===1?"y":"ies"} by this run, ${eh} returned data`:"not queried for this incident yet");
+  const vt=V.toolCalls.virustotal||0;
+  const conf=V.health&&V.health.playbooks?`${V.replay?"when recorded, the ":""}server executes in ${V.health.playbooks.execution_mode} mode`:"";
+  $("#s-cade").textContent=[conf,V.run?`VirusTotal lookups by this run: ${vt}`:""].filter(Boolean).join(" · ")||"—";
+  const syn=V.plan&&V.plan.synthesis;
+  const used=[V.analysis?`intent: ${V.analysis.model_name}`:null,syn&&syn.generator?`generator: ${syn.generator.model}`:null,syn&&syn.judge_model?`judge: ${syn.judge_model}`:null].filter(Boolean);
+  $("#s-llm").textContent=used.length?used.join(" · "):"not used for this incident yet";
+  // links: attack and log shipping are configuration (never animated); CADE's own calls light up when the data shows them
+  setLink("l-atk","static","var(--attack)");
+  setLink("l-log","static","var(--ph-enrich)");
+  setLink("l-q",V.busy==="execute"?"on":eq?"used":"idle","var(--ph-enrich)");
+  setLink("l-llm",(V.busy==="analyze"||V.busy==="respond")?"on":(V.analysis||syn)?"used":"idle","var(--sim)");
+  $("#l-q .cap").textContent=V.run?`queries (${eq})`:"queries";
+  $("#n-cade").classList.toggle("think",!!V.busy);
+}
+
+function renderPipe(V){
+  $("#pipe").replaceChildren(...pipeline(V).map((s,i)=>h("div",{class:"step","data-s":s.s},
+    h("div",{class:"n"},h("span",{class:"sdot"},h("b",{},String(i+1))),h("h4",{},s.label)),
+    h("div",{class:"sub"},s.sub))));
+}
+
+/* ---------- panel 1–2: incident + understanding ---------- */
+function evidenceRows(V){
+  const base=(V.evidence&&V.evidence.base)||(V.result&&V.result.evidence_profile)||null; if(!base) return null;
+  const cats=items=>uniq((items||[]).map(i=>i.category));
+  const crit=cats((base.missing||[]).filter(i=>i.criticality==="critical"));
+  const sup=cats((base.missing||[]).filter(i=>i.criticality!=="critical")).filter(c=>!crit.includes(c));
+  const E=V.evidence||{};
+  const rows=[
+    ["In hand (observed)",cats(base.observed),"ok",true],
+    ["Added by tools",cats(E.tool_observed),"ok"],
+    ["Added by analysts",cats(E.analyst_supplied),"ok"],
+    ["Missing: critical",crit,"bad",true],
+    ["Missing: supporting",sup,"warn"],
+    ["Model guess, unconfirmed",cats(base.unconfirmed),"muted"],
+    ["Not checked",base.not_checked||[],"muted"],
+    ["Simulated (never counted)",E.simulated_categories||[],"sim"],
+  ].filter(r=>r[1].length||r[3]);
+  return h("div",{class:"evrows"},rows.map(([k,cs,tone])=>h("div",{class:"evrow"},h("span",{class:"evk"},k),
+    h("span",{class:"chips"},cs.length?cs.map(c=>h("span",{class:"chip t-"+tone},human(c))):h("span",{class:"faint"},"none")))));
+}
+function renderIncident(V){
+  const el=$("#c-incident"), t=head("1–2","Incident and understanding");
+  if(!V.incident){el.replaceChildren(t,note(MODE==="live"?"Connect, then pick or submit an incident.":"Load a recording to replay it."));return;}
+  const I=V.incident, kids=[t,
+    h("div",{class:"ttl"},I.title||"(untitled incident)"),
+    h("div",{class:"meta"},h("span",{class:"mono"},I.incident_id)," · ",SOURCE_TEXT[I.source]||human(I.source),I.severity?` · severity ${I.severity}`:""," · received ",clock(I.received_at)),
+    h("p",{class:"quote"+(OPEN.has("desc")?" full":""),title:"Click to expand",onclick:e=>{e.currentTarget.classList.toggle("full");OPEN.has("desc")?OPEN.delete("desc"):OPEN.add("desc");}},I.raw_description)];
+  const ob=I.observables||{}, obs=Object.entries(ob).filter(([,v])=>v&&v.length);
+  if(obs.length) kids.push(h("h4",{},"Observables supplied with it"),h("div",{class:"chips"},obs.flatMap(([k,v])=>v.map(x=>h("span",{class:"chip",title:k},x)))));
+  if(V.analysisFailed){
+    const er=V.analysis&&V.analysis.error;
+    kids.push(h("div",{class:"warnbox"},"Analysis failed",er?`: ${er.category} — ${er.message}`:"","."));
+  } else if(!V.result){
+    kids.push(note(V.busy==="analyze"?"CADE is analysing the text…":"Not analysed yet."));
+  } else {
+    const R=V.result, it=R.intent;
+    kids.push(h("h4",{},"Intent (canonical label)"),
+      kv([["Intent",h("span",{},human(it.label)," ",h("span",{class:"mono faint"},`(${it.label})`))],["Confidence",pctS(it.confidence)],["ATT&CK tactic",it.tactic?human(it.tactic):"–"]]),
+      it.rationale?note(it.rationale):null,
+      h("h4",{},"ATT&CK techniques proposed"),
+      (it.attack_techniques||[]).length?h("div",{class:"chips"},it.attack_techniques.map(tq=>h("span",{class:"chip",title:tq.justification||""},
+        h("b",{},tq.technique_id)," ",tq.name||"",` · ${pctS(tq.confidence)}`,tq.validation_status!=="validated"?` · ${tq.validation_status}`:""))):note("None proposed."));
+    const en=R.entities||{}, erow=[["hosts",en.hosts],["users",en.users],["IPs",en.ips],["domains",en.domains],["processes",en.processes],
+      ["file hashes",(en.file_hashes||[]).map(x=>x.value)]].filter(([,v])=>v&&v.length);
+    kids.push(h("h4",{},"Entities found in the text"),
+      erow.length?h("div",{class:"evrows"},erow.map(([k,v])=>h("div",{class:"evrow"},h("span",{class:"evk"},k),h("span",{class:"chips"},v.slice(0,6).map(x=>h("span",{class:"chip"},x)),v.length>6?h("span",{class:"faint"},`+${v.length-6}`):null)))):note("None."),
+      h("h4",{},"Evidence profile (drives routing, §3)"),evidenceRows(V),
+      note(`Analysed by ${V.analysis.model_name} (${V.analysis.provider}) in ${dur(V.analysis.duration_ms)} · extraction ${V.analysis.extraction_status}`
+        +((V.analysis.warnings||[]).length?` · ${V.analysis.warnings.length} warning(s)`:"")));
+  }
+  el.replaceChildren(...kids);
+}
+
+/* ---------- panel 3: routing decision (§4) ---------- */
+function policyBox(d){
+  const hasUcb=d.ucb&&Object.keys(d.ucb).length;
+  if(d.policy==="linucb") return h("div",{class:"pol"},h("b",{},"Chosen by LinUCB")," (the learned contextual bandit, Eq. 8). ",
+    d.rule_action&&d.rule_action!==d.action?`The hand-designed rule (Eq. 7) would have chosen ${human(d.rule_action)}.`:"The hand-designed rule (Eq. 7) agrees.");
+  if(hasUcb) return h("div",{class:"pol"},h("b",{},"Chosen by the hand-designed rule")," (Eq. 7: highest utility). LinUCB is still in its bootstrap period and does not choose yet: CADE follows the rule until the bandit has enough rewarded incidents (20 by default, as in paper Table 3). Its scores below are for reference only.");
+  return h("div",{class:"pol"},h("b",{},"Chosen by the hand-designed rule")," (Eq. 7). Learned routing is switched off on this server.");
+}
+function renderRoute(V){
+  const el=$("#c-route"), t=head("3","Routing decision (§4)");
+  const d=V.decision;
+  if(!d){el.replaceChildren(t,note(V.busy==="respond"?"Routing…":V.result?"Not routed yet.":"Waiting for the analysis."));return;}
+  const kids=[t];
+  if(V.pendingDecision&&V.plan) kids.push(h("div",{class:"warnbox"},`Decision #${d.decision_id} was recorded after the plan below and has no plan of its own yet. The DAG shows the plan from decision #${V.plan.routing_decision_id??"?"}.`));
+  kids.push(h("div",{class:"bigact"},ACTION_TEXT[d.action]||human(d.action)),
+    h("div",{class:"meta"},`decision #${d.decision_id} · round ${d.round} · ${clock(d.created_at)}`),policyBox(d),
+    h("h4",{},"Utilities of the three actions"),
+    h("div",{class:"route"},[["reuse","Reuse · U_reuse, Eq. 3"],["request_evidence","Request · U_request, Eq. 4"],["synthesize","Synthesize · U_gen, Eq. 5"]].map(([k,lbl])=>{
+      const v=d.scores?d.scores[k]:null;
+      return h("div",{class:"ri"+(k===d.action?" win":"")},h("div",{class:"lbl"},lbl+(k===d.action?"  ◀ chosen":"")),
+        h("div",{class:"meter"},h("i",{style:`width:${typeof v==="number"?Math.max(0,Math.min(100,v*100)):0}%`})),h("div",{class:"mono"},f3(v)));
+    })));
+  if(d.ucb&&Object.keys(d.ucb).length) kids.push(note(`LinUCB upper confidence bounds (Eq. 8)${d.policy==="linucb"?"":", not used for this decision"}: `
+    +Object.entries(d.ucb).map(([k,v])=>`${human(k)} ${f3(v)}`).join(" · ")));
+  const T=d.terms||{};
+  kids.push(h("h4",{},"Inputs to the decision"),kv([
+    ["Coverage Cov(p*, A), Eq. 1",f2(T.coverage)],
+    ["Cov⁺ if requested evidence arrived",f2(T.counterfactual_coverage)],
+    ["Retrieval entropy H, Eq. 2",f3(T.entropy),"Low H means one clearly dominant candidate"],
+    ["Requestability ρ",f2(T.requestability)],
+    ["Unmet critical fraction M",f2(T.unmet_fraction)],
+    ["Smoothed success σ̂(p*), Eq. 6",f2(T.smoothed_success)],
+    ["Candidates retrieved (top-N)",T.candidates_retrieved!=null?String(T.candidates_retrieved):"–"]]));
+  const tc=d.top_candidate;
+  kids.push(h("h4",{},"Best stored playbook p*"),
+    tc?kv([["Name",tc.name],["Intent",human(tc.intent_label)],["Similarity",f2(tc.similarity)],["Track record",`${tc.successes} of ${tc.executions} runs successful`],
+      tc.deprioritized?["Flag","de-prioritised (low success)"]:null]):note("No candidate in the library."));
+  const chipRow=(k,cs,tone)=>h("div",{class:"evrow"},h("span",{class:"evk"},k),h("span",{class:"chips"},cs&&cs.length?cs.map(c=>h("span",{class:"chip t-"+tone},human(c))):h("span",{class:"faint"},"none")));
+  kids.push(h("div",{class:"evrows",style:"margin-top:8px"},chipRow("Missing critical (for p*)",d.missing_critical,"bad"),chipRow("Obtainable on request",d.requestable,"warn")));
+  if(d.rationale) kids.push(note(d.rationale));
+  if(d.synthetic_basis) kids.push(h("div",{class:"warnbox"},"Simulated evidence was counted when this decision was made."));
+  if(V.decisions.length>1) kids.push(det("dechist",`All ${V.decisions.length} routing decisions for this incident`,
+    h("ul",{class:"reportl"},V.decisions.map(x=>h("li",{},`#${x.decision_id} · round ${x.round} · ${human(x.action)} (${x.policy}) · ${clock(x.created_at)}`)))));
+  el.replaceChildren(...kids);
+}
+
+/* ---------- panel 4: plan, fitness and evolution (§5) ---------- */
+function evoChart(hist){
+  if(!hist||!hist.length) return null;
+  const W=300,H=124,pl=30,pr=10,pt=8,pb=20;
+  const n=Math.max(...hist.map(g=>g.generation));
+  const vals=hist.flatMap(g=>[g.best_fitness,g.mean_fitness,g.best_ic]).filter(v=>typeof v==="number");
+  const lo=Math.max(0,Math.floor((Math.min(...vals)-0.05)*10)/10), hi=1;
+  const X=g=>pl+(n?g/n:0.5)*(W-pl-pr), Y=v=>pt+(hi-v)/((hi-lo)||1)*(H-pt-pb);
+  const svg=svgEl("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":"Fitness per generation"});
+  for(const v of [lo,(lo+hi)/2,hi]){
+    svg.append(svgEl("line",{x1:pl,x2:W-pr,y1:Y(v),y2:Y(v),stroke:"var(--border)","stroke-width":1}));
+    const tx=svgEl("text",{x:pl-4,y:Y(v)+3,"text-anchor":"end","font-size":9,fill:"var(--faint)"}); tx.textContent=v.toFixed(2); svg.append(tx);
+  }
+  for(const [g,anchor] of [[0,"start"],[n,"end"]]){
+    if(g===n&&n===0)continue;
+    const tx=svgEl("text",{x:X(g),y:H-5,"text-anchor":n?anchor:"middle","font-size":9,fill:"var(--faint)"}); tx.textContent=`gen ${g}`; svg.append(tx);
+  }
+  if(n===0){const tx=svgEl("text",{x:X(0),y:H-5,"text-anchor":"middle","font-size":9,fill:"var(--faint)"});tx.textContent="gen 0";svg.append(tx);}
+  const series=[["mean_fitness","var(--faint)",1.5,"4 3"],["best_ic","var(--ok)",1.5,null],["best_fitness","var(--accent)",2.2,null]];
+  for(const [key,color,w,dash] of series){
+    const pts=hist.map(g=>`${X(g.generation).toFixed(1)},${Y(g[key]).toFixed(1)}`).join(" ");
+    if(hist.length>1) svg.append(svgEl("polyline",{points:pts,fill:"none",stroke:color,"stroke-width":w,...(dash?{"stroke-dasharray":dash}:{})}));
+    for(const g of hist) svg.append(svgEl("circle",{cx:X(g.generation),cy:Y(g[key]),r:hist.length>1?1.8:3,fill:color}));
+  }
+  return h("div",{class:"chart"},svg,h("div",{class:"lg"},
+    h("span",{},h("i",{style:"background:var(--accent)"}),"best fitness"),h("span",{},h("i",{style:"background:var(--faint)"}),"population mean"),
+    h("span",{},h("i",{style:"background:var(--ok)"}),"best IC")));
+}
+function renderPlan(V){
+  const el=$("#c-plan"), t=head("4","Plan, fitness and evolution (§5)");
+  const P=V.plan;
+  if(!P){
+    let msg="No plan yet.";
+    if(V.awaitingEvidence) msg=`No plan: CADE chose to request evidence first (${(V.pendingDecision.requestable||[]).map(human).join(", ")||"see the decision"}).`;
+    else if(V.busy==="respond") msg=`Working: ${V.progress||"routing"}…`;
+    el.replaceChildren(t,note(msg));return;
+  }
+  const kids=[t,
+    h("div",{class:"ttl"},P.source==="library"?`Reused from the library${P.library_entry_id?` (${P.library_entry_id})`:""}`:"Synthesized by CADE: coverage-aware evolution"),
+    h("div",{class:"meta"},h("span",{class:"mono"},P.plan_id)," · ",clock(P.created_at)," · ",V.planState)];
+  if(V.planDecision) kids.push(note(`Routing to plan took ${dur(tdiff(V.planDecision.created_at,P.created_at))}.`));
+  const F=P.fitness;
+  if(F){
+    kids.push(h("div",{class:"big",style:"margin-top:10px"},h("div",{},h("div",{class:"v"},f3(F.fitness)),h("div",{class:"ey"},"fitness f")),
+      h("div",{class:"note",style:"margin:0"},"f = ∛(IC · EA · OS), Eq. 10")),
+      kv([["IC: investigative coverage",f2(F.ic),"fraction of the intent's expected goals addressed"],
+          ["EA: evidence alignment",f2(F.ea),"fraction of intent-relevant evidence categories consumed"],
+          ["OS: operational soundness",f2(F.os),"tool fit, sequencing and safe handling of host-changing steps"],
+          ["OS scored by",OS_SOURCE[F.os_source]||human(F.os_source)]]));
+  } else kids.push(note("No fitness recorded for this plan."));
+  const S=P.synthesis;
+  if(S){
+    const E=S.evolution||{}, sd=S.seeding||{};
+    kids.push(h("h4",{},"How the plan was evolved"),kv([
+      ["Generator",S.generator?`${S.generator.model} (${S.generator.provider})`:"–"],
+      ["Judge",S.judge_model||"none: heuristic OS_H"],
+      ["Seeds K",sd.k!=null?`${sd.k} from a pool of ${sd.pool} (${sd.clusters} clusters)`:"–"],
+      ["Generations",E.generations!=null?`${E.generations} · stopped at ${TERMINATION[E.termination]||human(E.termination)}`:"–"],
+      ["Candidates evaluated",E.evaluations!=null?String(E.evaluations):"–"],
+      ["Judge calls",E.judge_calls!=null?String(E.judge_calls):"–"],
+      ["Search time",dur(E.duration_ms)]]),
+      evoChart(E.history));
+    if(E.history&&E.history.length===1) kids.push(note("The search stopped at generation 0, so there is one point per series."));
+  }
+  const dn=V.nodes.filter(n=>n.destructive).length, vn=V.nodes.filter(n=>n.verification).length;
+  kids.push(note(`${V.nodes.length} steps · ${dn} host-changing (need approval and a verified target) · ${vn} verification step(s)`));
+  if(P.synthetic_basis) kids.push(h("div",{class:"warnbox"},"Simulated evidence influenced routing or synthesis for this plan."));
+  el.replaceChildren(...kids);
+}
+
+/* ---------- DAG layered layout ---------- */
+function layout(nodes,edges){
+  const ids=nodes.map(n=>n.id);
+  const preds=Object.fromEntries(ids.map(id=>[id,edges.filter(e=>e.target===id&&ids.includes(e.source)).map(e=>e.source)]));
+  const layer={};
+  const depth=(id,seen=new Set())=>{
+    if(layer[id]!==undefined)return layer[id];
+    if(seen.has(id))return 0; seen.add(id);
+    layer[id]=preds[id].length?1+Math.max(...preds[id].map(p=>depth(p,seen))):0;
+    return layer[id];
+  };
+  ids.forEach(id=>depth(id));
+  const cols={}; ids.forEach(id=>{(cols[layer[id]]=cols[layer[id]]||[]).push(id);});
+  const W=196,H=86,GX=54,GY=16;
+  const pos={};
+  Object.entries(cols).forEach(([c,mem])=>mem.forEach((id,r)=>{pos[id]={x:12+c*(W+GX),y:12+r*(H+GY)};}));
+  const ncols=Math.max(...Object.keys(cols).map(Number))+1;
+  const nrows=Math.max(...Object.values(cols).map(m=>m.length));
+  return {pos,W,H,GX,width:24+ncols*(W+GX),height:24+nrows*(H+GY)};
+}
+function renderDag(V){
+  const host=$("#dag");
+  $("#legend").replaceChildren(...Object.entries(NODE_STATES).map(([k,v])=>h("span",{title:v.help},h("i",{style:`background:${STATE_COLOR[k]}`}),v.label)),
+    h("span",{title:"a step that changes a host"},h("b",{style:"color:var(--contain)"},"⚠"),"host-changing step"),
+    h("span",{title:"the tool answer came from the simulator"},h("b",{style:"color:var(--sim);font-size:10px"},"SIM"),"synthetic result"));
+  $("#dag-note").textContent=V.plan?`${V.plan.plan_id} · ${V.planState}`:"";
+  if(!V.nodes.length){
+    const msg=!V.incident?(MODE==="live"?"Connect to CADE to follow an incident.":"Load a recording to replay it.")
+      :V.awaitingEvidence?"CADE requested evidence instead of planning.":V.busy==="respond"?"CADE is building the plan…":"No plan for this incident yet.";
+    host.replaceChildren(h("div",{class:"empty"},h("div",{class:"k"},"No plan to show"),h("div",{},msg)));
+    host.style.width="";host.style.height="";return;
+  }
+  const {pos,W,H,GX,width,height}=layout(V.nodes,V.edges);
+  host.style.width=width+"px";host.style.height=height+"px";
+  const svg=svgEl("svg",{class:"edges",viewBox:`0 0 ${width} ${height}`});
+  const stOf=id=>(V.nodes.find(n=>n.id===id)||{st:{}}).st.s;
+  for(const e of V.edges){
+    const a=pos[e.source],b=pos[e.target]; if(!a||!b)continue;
+    const done=stOf(e.source)==="ok"&&stOf(e.target)==="ok";
+    svg.append(svgEl("path",{d:`M${a.x+W},${a.y+H/2} C${a.x+W+GX/2},${a.y+H/2} ${b.x-GX/2},${b.y+H/2} ${b.x},${b.y+H/2}`,
+      fill:"none",stroke:done?"var(--ok)":"var(--border)","stroke-width":done?2:1.5}));
+  }
+  const kids=[svg];
+  for(const n of V.nodes){
+    const p=pos[n.id];
+    let gate=null;
+    if(n.destructive) gate=n.approval?h("div",{class:"gate ok"},`✓ approved by ${n.approval.approved_by}`):h("div",{class:"gate"},"⚠ host-changing · needs approval");
+    else if(n.verification) gate=h("div",{class:"gate",style:"color:var(--accent)"},analystBound(n.def)?"analyst verification step":"automatic verification");
+    kids.push(h("button",{type:"button",class:"gnode"+(SEL===n.id?" sel":""),"data-s":n.st.s,"aria-label":`${n.label}: ${n.st.label}`,
+      style:`left:${p.x}px;top:${p.y}px;width:${W}px;min-height:${H}px;--stripe:var(--ph-${n.phase})`,
+      onclick:()=>{SEL=SEL===n.id?null:n.id;renderDag(CUR);renderNode(CUR);}},
+      h("div",{class:"top"},h("span",{class:"st"}),h("span",{class:"stlbl"},n.st.label),n.r&&n.r.synthetic?h("span",{class:"simtag"},"SIM"):null),
+      h("div",{class:"lbl"},n.label),
+      h("div",{class:"act"},`${n.id} · ${n.action}`),
+      gate));
+  }
+  host.replaceChildren(...kids);
+}
+
+/* ---------- step inspector ---------- */
+function renderNode(V){
+  const el=$("#c-node"), t=head("","Step details");
+  const n=SEL&&V.nodes.find(x=>x.id===SEL);
+  if(!n){el.replaceChildren(t,note(V.nodes.length?"Click a step in the plan to see what it did, which tool it used and what it found.":"Steps appear here once a plan exists."));return;}
+  const r=n.r, d=n.def||{};
+  const kids=[t,h("div",{class:"ttl"},n.label),h("div",{class:"meta mono"},`${n.id} · ${n.action}`),
+    d.description?note(d.description):null,
+    h("div",{style:`margin-top:8px;--sc:${STATE_COLOR[n.st.s]}`,class:"stchip"},h("i",{}),n.st.label,r?h("span",{class:"faint",style:"text-transform:none;letter-spacing:0;font-weight:500"},` (API status: ${r.status})`):null),
+    kv([["Phase",d.phase?human(d.phase):"–"],["Bound to",d.binding||"–"],
+      ["Changes a host",n.destructive?"yes":"no"],
+      n.destructive?["Approval",n.approval?`${n.approval.approved_by} · ${clock(n.approval.approved_at)}`:"none recorded"]:null,
+      n.verification&&analystBound(d)?["Analyst verdict",n.verdict?`${human(n.verdict.verdict)} by ${n.verdict.verified_by}`:"none recorded"]:null,
+      n.verification&&!analystBound(d)?["Verified by","CADE automatically (no analyst)"]:null,
+      analystBound(d)&&!n.verification?["Performed by","an analyst outside CADE"]:null,
+      r?["Tool called",r.tool||"none (internal or analyst step)"]:null,
+      r?["Synthetic result",r.synthetic?"yes (simulator)":"no"]:null,
+      r?["Duration",dur(r.duration_ms)]:null,
+      r&&r.verdict?["Verdict",human(r.verdict)]:null])];
+  if(Object.keys(n.params).length) kids.push(h("h4",{},"Parameters"),h("div",{class:"chips"},Object.entries(n.params).map(([k,v])=>h("span",{class:"chip"},`${k}=${typeof v==="object"?JSON.stringify(v):v}`))));
+  if(!r) kids.push(note(V.run?"This step has no result in the run.":"Not run yet."));
+  else {
+    if(r.targets&&r.targets.length) kids.push(h("h4",{},"Targets"),h("div",{class:"chips"},r.targets.map(x=>h("span",{class:"chip"},x))));
+    if(r.reason) kids.push(h("h4",{},"Reason"),note(r.reason));
+    kids.push(h("h4",{},"Findings"),(r.findings||[]).length?h("ul",{},r.findings.map(f=>h("li",{},f))):note("None."));
+  }
+  el.replaceChildren(...kids);
+}
+
+/* ---------- panel 6–7: execution + learning ---------- */
+function containmentLines(V){
+  return V.nodes.filter(n=>n.destructive).map(n=>{
+    const r=n.r; let txt;
+    if(!r) txt="not run";
+    else if(n.st.s==="sim") txt="simulated only: no real action was taken";
+    else if(r.status==="succeeded") txt=`executed (${V.run.mode} mode)`;
+    else txt=`${human(r.status)}${r.reason?`: ${r.reason}`:""}`;
+    return h("li",{},h("b",{},n.label),` (${n.id}): ${txt}`);
+  });
+}
+function renderExec(V){
+  const el=$("#c-exec"), t=head("6–7","Execution and learning");
+  if(!V.plan){el.replaceChildren(t,note("Nothing to execute yet."));return;}
+  const kids=[t];
+  if(!V.run){
+    kids.push(note(V.planState==="executing"?"CADE is executing the plan…":"This plan has not been executed."));
+    if(V.unapproved.length) kids.push(h("div",{class:"warnbox"},`${V.unapproved.length} host-changing step(s) have no approval: `,
+      V.unapproved.map(n=>n.label).join(", "),". If the plan runs as it is, CADE skips them."));
+    if(V.health&&V.health.playbooks) kids.push(note(`${V.replay?"When this was recorded, the":"The"} server was configured to execute in ${V.health.playbooks.execution_mode} mode.`));
+    el.replaceChildren(...kids);return;
+  }
+  const run=V.run, real=run.mode==="live"&&!run.synthetic;
+  kids.push(h("div",{class:"chips",style:"margin-bottom:8px"},
+    h("span",{class:"tag "+(real?"live":"sim")},run.mode==="live"?"live mode":"simulate mode"),
+    h("span",{class:"tag "+(run.synthetic?"sim":"live")},run.synthetic?"synthetic results":"real tool results"),
+    V.partial?h("span",{class:"tag replay"},`replay · step ${V.partial.k} of ${V.partial.n}`):
+      h("span",{class:"tag "+(run.status==="completed"?"live":run.status==="blocked"?"bad":"sim")},human(run.status))));
+  kids.push(kv([["Run",h("span",{class:"mono"},run.run_id)],["Started by",run.started_by||"–"],["Started",clock(run.started_at)],
+    ["Duration",V.partial?"–":dur(tdiff(run.started_at,run.completed_at))]]));
+  if(!V.partial){
+    kids.push(h("div",{class:"big",style:"margin-top:10px"},h("div",{},h("div",{class:"v"},run.execution_coverage!=null?pctS(run.execution_coverage):"–"),h("div",{class:"ey"},"IC_exec")),
+      h("div",{class:"note",style:"margin:0;max-width:300px"},run.execution_coverage!=null?"Share of the intent's goals answered by an executed step that returned data (§6.2; feeds the Eq. 9 reward).":"Not computed for this run.")));
+  }
+  kids.push(h("h4",{},"Step outcomes"),h("div",{class:"chips"},Object.keys(NODE_STATES).filter(k=>V.counts[k]).map(k=>
+    h("span",{class:"chip",style:`--sc:${STATE_COLOR[k]}`},h("span",{class:"stchip"},h("i",{})),`${NODE_STATES[k].label}: ${V.counts[k]}`))));
+  const cl=containmentLines(V);
+  kids.push(h("h4",{},"Host-changing steps"),cl.length?h("ul",{class:"reportl"},cl):note("This plan has none."),
+    note("Paper 968 (§6.1, §8): actions on live hosts are validated but not executed in the evaluation."));
+  if(run.block_reason) kids.push(h("div",{class:"warnbox"},"Blocked: ",run.block_reason));
+  if(!V.partial&&(run.report||[]).length) kids.push(det("report",`Run report (${run.report.length} lines)`,h("ul",{class:"reportl"},run.report.map(l=>h("li",{},l)))));
+  // learning
+  const L=h("div",{class:"learn"},h("h4",{style:"margin-top:0"},"Learning (analyst feedback)"));
+  const fb=run.feedback;
+  if(V.partial) L.append(note("Shown when the replayed run has finished."));
+  else if(fb){
+    const lo=fb.library_outcome||{};
+    L.append(kv([["Findings retained",fb.findings_retained?"yes":"no"],["Incident resolved",fb.resolved?"yes":"no"],
+      ["Library",`${human(lo.action)}${lo.entry_id?` · ${lo.entry_id}`:""}${lo.executions!=null?` · ${lo.successes}/${lo.executions} successful`:""}`],
+      ["Router reward (Eq. 9)",fb.routing_reward!=null?f3(fb.routing_reward):"not credited"],
+      ["Recorded by",`${fb.submitted_by} · ${clock(fb.submitted_at)}`]]),...[lo.reason?note(`Library: ${lo.reason}.`):null,fb.notes?note(`Notes: ${fb.notes}`):null].filter(Boolean));
+  } else {
+    L.append(note("No analyst feedback recorded: CADE has not learned anything from this run."));
+    if(MODE==="live") L.append(h("div",{class:"grp",style:"margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"},
+      h("button",{class:"btn warn",type:"button",onclick:openFeedback,disabled:FB.busy},FB.busy?"Recording…":"Retain findings…"),
+      h("span",{class:"runstat"},FB.stat)));
+  }
+  kids.push(L);
+  el.replaceChildren(...kids);
+}
+
+function renderFeed(V){
+  const el=$("#c-feed"), t=head("","What each step found, in execution order");
+  if(!V.run){el.replaceChildren(t,note(V.plan?"No run yet.":"Nothing has run."));return;}
+  const byId=Object.fromEntries(V.nodes.map(n=>[n.id,n]));
+  const rows=V.results.map(r=>{
+    const n=byId[r.node_id]||{label:human(r.action),st:nodeState(r,V.vocab[r.action]),def:{}};
+    const f=r.findings||[];
+    return h("div",{class:"frow"},
+      h("div",{},h("span",{class:"stchip",style:`--sc:${STATE_COLOR[n.st.s]}`},h("i",{}),n.st.label),r.synthetic?h("div",{class:"gnode-sim",style:"font-size:10px;color:var(--sim);font-weight:700"},"SIM · synthetic"):null),
+      h("div",{},h("div",{class:"what"},n.label," ",h("span",{class:"mono faint",style:"font-weight:400;font-size:11px"},r.node_id)),
+        (r.tool||(r.targets||[]).length)?h("div",{class:"tgt"},[r.tool,(r.targets||[]).slice(0,4).join(", ")+((r.targets||[]).length>4?` +${r.targets.length-4}`:"")].filter(Boolean).join(" → ")):null,
+        f.length?h("div",{class:"fnd"},f[0]):null,
+        f.length>1?det("f-"+r.node_id,`${f.length-1} more finding(s)`,h("ul",{},f.slice(1).map(x=>h("li",{},x)))):null,
+        r.reason&&r.status!=="succeeded"&&!f.some(x=>x.includes(r.reason))?h("div",{class:"tgt"},"reason: "+r.reason):null));
+  });
+  el.replaceChildren(t,...(rows.length?rows:[note("The run has no step results.")]));
+}
+
+/* =======================================================================
+   REPLAY — plays back a recording of real API responses (no invented data).
+   A recording is what Live mode's "Save recording" downloads.
+   ======================================================================= */
+const REPLAY={rec:null,stages:[],i:0,timer:null,playing:false,speed:1,msg:""};
+function replayStages(rec){
+  const inc=rec.incident, R=rec.response||{}, plans=R.plans||[], runs=R.runs||[], decisions=R.decisions||[];
+  const plan=last(plans), run=plan?last(runs.filter(r=>r.plan_id===plan.plan_id)):null;
+  const base={health:rec.health||null,vocab:rec.vocabulary||null,replay:true};
+  const ev=rec.evidence||null, none={decisions:[],plans:[],runs:[]};
+  const S=[];
+  const push=(label,delay,snap)=>S.push({label,delay,snap:{...base,...snap}});
+  push("Incident submitted",0,{inc:{incident:inc.incident,latest_analysis:null},resp:none});
+  if(!inc.latest_analysis) return S;
+  push("Analysis",2000,{inc,ev,resp:none});
+  const decs=plan?decisions.filter(d=>Date.parse(d.created_at)<=Date.parse(plan.created_at)):decisions;
+  decs.forEach((d,i)=>push(`Routing decision${decs.length>1?` ${i+1} of ${decs.length}`:""}`,2200,{inc,ev,resp:{decisions:decs.slice(0,i+1),plans:[],runs:[]}}));
+  if(!plan) return S;
+  const before={decisions:decs,plans:[plan],runs:[]};
+  push("Plan",2400,{inc,ev,resp:before});
+  if(run){
+    const n=run.node_results.length;
+    for(let k=1;k<=n;k++) push(`Execution: step ${k} of ${n}`,k===1?1800:600,{inc,ev,resp:{...before,runs:[{...run,node_results:run.node_results.slice(0,k),
+      status:null,execution_coverage:null,report:[],feedback:null,completed_at:null,_partial:{k,n}}]}});
+    push("Run finished",900,{inc,ev,resp:{...before,runs:[{...run,feedback:null}]}});
+    if(run.feedback) push("Analyst feedback",1800,{inc,ev,resp:{...before,runs:[run]}});
+  }
+  if(decisions.length>decs.length) push("Later routing decision",1800,{inc,ev,resp:{decisions,plans:[plan],runs:run?[run]:[]}});
+  return S;
+}
+function loadRecording(rec,from){
+  if(!rec||rec.format!=="cade-wall-recording/1"||!rec.incident||!rec.incident.incident){
+    REPLAY.msg=`${from}: not a CADE wall recording (expected format cade-wall-recording/1).`;renderControls();return false;}
+  replayPause(); REPLAY.rec=rec; REPLAY.stages=replayStages(rec); REPLAY.i=0; SEL=null; OPEN.clear();
+  const plans=(rec.response&&rec.response.plans)||[];
+  REPLAY.msg=`Loaded ${from}.`+(plans.length>1?` It holds ${plans.length} plans; the latest plan and its run are replayed.`:"");
+  render(); renderControls(); return true;
+}
+function replaySchedule(){
+  clearTimeout(REPLAY.timer);
+  if(!REPLAY.playing||REPLAY.i>=REPLAY.stages.length-1){REPLAY.playing=false;renderControls();return;}
+  const next=REPLAY.stages[REPLAY.i+1];
+  REPLAY.timer=setTimeout(()=>{REPLAY.i++;render();renderControls();replaySchedule();},Math.max(60,next.delay/REPLAY.speed));
+}
+function replayPlay(){ if(!REPLAY.stages.length)return; if(REPLAY.i>=REPLAY.stages.length-1)REPLAY.i=0; REPLAY.playing=true; render(); replaySchedule(); renderControls(); }
+function replayPause(){ REPLAY.playing=false; clearTimeout(REPLAY.timer); renderControls(); }
+function replayStep(d){ replayPause(); REPLAY.i=Math.max(0,Math.min(REPLAY.stages.length-1,REPLAY.i+d)); render(); renderControls(); }
+function replayEnd(){ replayPause(); REPLAY.i=Math.max(0,REPLAY.stages.length-1); render(); renderControls(); }
+async function tryDefaultRecording(){
+  // a recording placed next to this page (e.g. app/web/static/demo-recording.json) loads automatically
+  if(location.protocol==="file:")return;
+  try{const res=await fetch("demo-recording.json",{cache:"no-store"}); if(res.ok) loadRecording(await res.json(),"demo-recording.json");}catch(e){}
+}
+
+/* =======================================================================
+   LIVE — poll the real CADE API (same origin as this page).
+   ======================================================================= */
+const LIVE={polling:false,timer:null,key:null,incident:null,snap:{},tick:0,stat:"",sig:""};
+const CLIENT={busy:null,progress:"",since:0,incident:null,stat:""};   // what this page itself is driving right now
+const FB={busy:false,stat:""};
+let pendingSelect=null;
+async function apiGet(path){
+  const res=await fetch(path,{headers:{Authorization:`Bearer ${LIVE.key}`}});
+  const body=res.status===204?null:await res.json().catch(()=>null);
+  if(!res.ok){const m=body&&body.error?`${body.error.category}: ${body.error.message}`:`HTTP ${res.status}`;throw new Error(m);}
+  return body;
+}
+async function apiPost(path,body){
+  const res=await fetch(path,{method:"POST",headers:{Authorization:`Bearer ${LIVE.key}`,...(body?{"Content-Type":"application/json"}:{})},
+    body:body?JSON.stringify(body):undefined});
+  const data=res.status===204?null:await res.json().catch(()=>null);
+  if(!res.ok){const m=data&&data.error?`${data.error.category}: ${data.error.message}`:`HTTP ${res.status}`;throw new Error(m);}
+  return data;
+}
+async function safe(p){try{return await apiGet(p);}catch(e){return null;}}
+function setLiveStat(t){LIVE.stat=t;const el=$("#live-stat");if(el)el.textContent=t;}
+function setRunStat(t){CLIENT.stat=t;const el=$("#run-stat");if(el)el.textContent=t;}
+async function liveConnect(){
+  const entered=(($("#api-key")||{}).value||"").trim();
+  let stored=""; try{stored=sessionStorage.getItem("cade-key")||"";}catch(e){}
+  LIVE.key=entered||LIVE.key||stored;
+  LIVE.incident=($("#inc-sel")&&$("#inc-sel").value)||LIVE.incident||null;
+  if(!LIVE.key){setLiveStat("Enter an API key.");return;}
+  try{ sessionStorage.setItem("cade-key",LIVE.key); }catch(e){}
+  setLiveStat("connecting…");
+  try{
+    await apiGet("/health");
+    LIVE.snap.health=await safe("/health"); LIVE.snap.vocab=await safe("/vocabulary");
+    clearTimeout(LIVE.timer); LIVE.polling=true; LIVE.sig=""; renderControls(); liveTick();
+  }catch(err){ setLiveStat("Could not reach CADE: "+err.message+" (open this page from the VM through your tunnel)"); }
+}
+function liveStop(){LIVE.polling=false;clearTimeout(LIVE.timer);LIVE.timer=null;renderControls();setLiveStat("stopped");}
+async function liveTick(){
+  if(!LIVE.polling)return;
+  try{
+    const list=await apiGet("/incidents?limit=100");
+    const sel=$("#inc-sel");
+    if(sel&&Array.isArray(list)){
+      const cur=sel.value;
+      sel.replaceChildren(h("option",{value:""},"latest incident"),
+        ...list.map(i=>h("option",{value:i.incident_id},`${i.title||i.incident_id} · ${human(i.status)}`)));
+      if(pendingSelect&&list.some(i=>i.incident_id===pendingSelect)){sel.value=pendingSelect;pendingSelect=null;}
+      else sel.value=cur;
+    }
+    if(++LIVE.tick%15===0) LIVE.snap.health=await safe("/health")||LIVE.snap.health;
+    const incId=LIVE.incident||(Array.isArray(list)&&list.length?list[0].incident_id:null);
+    if(!incId){LIVE.snap={health:LIVE.snap.health,vocab:LIVE.snap.vocab};setLiveStat("no incidents yet: submit one with “+ New incident”");renderIfChanged();scheduleLive();return;}
+    const [inc,resp,ev]=await Promise.all([apiGet(`/incidents/${incId}`),safe(`/incidents/${incId}/response`),safe(`/incidents/${incId}/evidence`)]);
+    LIVE.snap={...LIVE.snap,inc,resp,ev,incId};
+    renderIfChanged();
+    setLiveStat(`live · ${incId} · ${new Date().toLocaleTimeString()}`);
+  }catch(err){ setLiveStat("poll error: "+err.message); }
+  scheduleLive();
+}
+function scheduleLive(){ if(LIVE.polling){LIVE.timer=setTimeout(liveTick,2000);} }
+/* re-render only when the data changed, so opened details and text selections survive polling */
+function renderIfChanged(){
+  const s=LIVE.snap, sig=JSON.stringify([s.incId,s.inc,s.resp,s.ev,CLIENT.busy,CLIENT.progress,FB.busy]);
+  if(sig===LIVE.sig)return; LIVE.sig=sig; render();
+}
+function currentSnap(){
+  if(MODE==="live"){
+    const s=LIVE.snap||{}, mine=CLIENT.incident&&s.incId===CLIENT.incident;
+    return {...s,busy:mine?CLIENT.busy:null,progress:mine?CLIENT.progress:""};
+  }
+  return REPLAY.stages.length?REPLAY.stages[REPLAY.i].snap:{};
+}
+function setBusy(stage,progress){CLIENT.busy=stage;CLIENT.progress=progress||"";CLIENT.since=Date.now();LIVE.sig="";render();}
+setInterval(()=>{ if(MODE==="live"&&CLIENT.busy) setRunStat(`${CLIENT.incident} · ${CLIENT.progress||CLIENT.busy} · ${Math.round((Date.now()-CLIENT.since)/1000)} s`); },1000);
+
+function openIncidentDialog(){
+  if(!LIVE.polling){setLiveStat("Connect first.");return;}
+  const d=$("#inc-dlg"); d.returnValue=""; d.showModal();
+}
+/* hand CADE a new incident and drive it: analyse → respond (route + plan) → execute. Never approves, verifies or sends feedback. */
+async function runIncident(sub,autoExec){
+  CLIENT.incident=null;
+  try{
+    setRunStat("submitting…");
+    const inc=await apiPost("/incidents",sub);
+    const id=inc.incident_id;
+    CLIENT.incident=id; LIVE.incident=id; pendingSelect=id;   // the wall follows the new incident
+    setBusy("analyze","analysing (about a minute)");
+    const an=await apiPost(`/incidents/${id}/analyze`);
+    if(an&&an.extraction_status==="failed") throw new Error("analysis failed"+(an.error&&an.error.message?": "+an.error.message:""));
+    setBusy("respond","routing");
+    let job=await apiPost(`/incidents/${id}/respond`);
+    while(job.status==="queued"||job.status==="running"){
+      if(job.progress&&job.progress!==CLIENT.progress){CLIENT.progress=job.progress;LIVE.sig="";render();}
+      await sleep(3000);
+      job=await apiGet(`/jobs/${job.job_id}`);
+    }
+    if(job.status!=="succeeded") throw new Error(`respond ${job.status}`+(job.error&&job.error.message?": "+job.error.message:""));
+    const out=job.result||{};
+    if(out.status==="awaiting_evidence"){setBusy(null);setRunStat(`${id} · CADE requested evidence: ${(out.evidence_requests||[]).map(human).join(", ")||"see the decision"}`);return;}
+    const planId=out.plan&&out.plan.plan_id;
+    if(!planId) throw new Error("no plan was returned");
+    if(!autoExec){setBusy(null);setRunStat(`${id} · plan ${planId} ready (not run)`);return;}
+    setBusy("execute","executing the plan");
+    const run=await apiPost(`/response-plans/${planId}/execute`);
+    setBusy(null);
+    setRunStat(`${id} · run ${run.run_id}: ${human(run.status)} (${run.mode} mode${run.synthetic?", synthetic":""})`);
+  }catch(err){ setBusy(null); setRunStat("stopped: "+err.message); }
+  finally{ LIVE.sig=""; renderControls(); if(LIVE.polling){clearTimeout(LIVE.timer);liveTick();} }
+}
+function saveRecording(){
+  const s=LIVE.snap;
+  if(!s.inc){setLiveStat("Nothing to save yet: no incident is shown.");return;}
+  const rec={format:"cade-wall-recording/1",recorded_at:new Date().toISOString(),origin:`${location.origin} (CADE API)`,
+    incident:s.inc,response:s.resp||{decisions:[],plans:[],runs:[]},evidence:s.ev||null,health:s.health||null,vocabulary:s.vocab||null};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(rec,null,1)],{type:"application/json"}));
+  const a=h("a",{href:url,download:`cade-recording-${s.incId}.json`}); document.body.append(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  setLiveStat(`saved cade-recording-${s.incId}.json`);
+}
+
+/* ---------- explicit analyst feedback (the only write this page makes besides submitting/running an incident) ---------- */
+function openFeedback(){
+  const V=CUR, run=V&&V.run;
+  if(MODE!=="live"||!run||run._partial||run.feedback||FB.busy)return;
+  const fx=[
+    h("p",{class:"note",style:"margin-top:0"},"Run ",h("b",{class:"mono"},run.run_id)," of plan ",h("span",{class:"mono"},run.plan_id),
+      ` · ${run.mode} mode · ${run.synthetic?"synthetic results":"real tool results"} · ${human(run.status)}`),
+    h("ul",{},
+      h("li",{},"Sends ",h("span",{class:"mono"},`POST /playbook-runs/${run.run_id}/feedback`),". CADE accepts one feedback per run; it cannot be changed afterwards."),
+      h("li",{},h("b",{},"Playbook library (§3): "),"CADE records this outcome: it inserts the plan, merges it into a near-duplicate, or updates the reused entry's success count (which feeds σ̂, Eq. 6). It counts as a success only if both boxes below are ticked."),
+      h("li",{},h("b",{},"Router learning (§4.3): "),"CADE computes the Eq. 9 reward for this incident's routing decision and stores it for LinUCB. The completeness and speed terms count only if the findings are retained."),
+      run.synthetic?h("li",{},h("b",{},"This run is synthetic: "),"unless the server is configured to learn from simulated runs, the library and the router ignore it. CADE says so in its answer."):null,
+      run.status==="blocked"?h("li",{},h("b",{},"This run was blocked: "),"nothing is stored in the library or credited to the router."):null)];
+  $("#fb-what").replaceChildren(...fx);
+  $("#fb-confirm").checked=false; $("#fb-submit").disabled=true; $("#fb-retained").checked=true; $("#fb-resolved").checked=false; $("#fb-notes").value="";
+  const d=$("#fb-dlg"); d.dataset.run=run.run_id; d.returnValue=""; d.showModal();
+}
+async function submitFeedback(runId){
+  FB.busy=true; FB.stat="recording…"; LIVE.sig=""; render();
+  try{
+    const body={resolved:$("#fb-resolved").checked,findings_retained:$("#fb-retained").checked};
+    const notes=$("#fb-notes").value.trim(); if(notes)body.notes=notes;
+    const run=await apiPost(`/playbook-runs/${runId}/feedback`,body);
+    const fb=run.feedback||{}, lo=fb.library_outcome||{};
+    FB.stat=`Recorded by CADE: library ${human(lo.action)}${lo.reason?` (${lo.reason})`:""} · router reward ${fb.routing_reward!=null?f3(fb.routing_reward):"not credited"}.`;
+  }catch(err){ FB.stat="Not recorded: "+err.message; }
+  finally{ FB.busy=false; LIVE.sig=""; render(); if(LIVE.polling){clearTimeout(LIVE.timer);liveTick();} }
+}
+
+/* ---------- controls ---------- */
+function renderControls(){
+  const c=$("#controls");
+  if(MODE==="replay"){
+    const n=REPLAY.stages.length, at=n?REPLAY.stages[REPLAY.i]:null, end=n&&REPLAY.i>=n-1;
+    c.replaceChildren(
+      h("div",{class:"grp"},h("button",{class:"btn",onclick:()=>$("#rec-file").click()},"Load recording…")),
+      h("div",{class:"grp"},
+        h("button",{class:"btn primary",onclick:()=>REPLAY.playing?replayPause():replayPlay(),disabled:!n},REPLAY.playing?"❚❚ Pause":(end?"↻ Replay":"▶ Play")),
+        h("button",{class:"btn",onclick:()=>replayStep(-1),disabled:!n||REPLAY.i===0},"‹ Back"),
+        h("button",{class:"btn",onclick:()=>replayStep(1),disabled:!n||end},"Step ›"),
+        h("button",{class:"btn",onclick:replayEnd,disabled:!n||end},"End")),
+      h("div",{class:"grp"},h("span",{class:"ey"},"Speed"),
+        ...[0.5,1,2].map(sp=>h("button",{class:"btn"+(REPLAY.speed===sp?" primary":""),onclick:()=>{REPLAY.speed=sp;renderControls();if(REPLAY.playing)replaySchedule();}},sp+"×"))),
+      h("div",{class:"grp"},h("span",{class:"runstat"},at?`stage ${REPLAY.i+1} / ${n}: ${at.label}`:"no recording loaded")));
+    $("#scrim").textContent=(REPLAY.msg?REPLAY.msg+" ":"")+"Replay plays back a recording of real CADE API responses, saved in Live mode with “Save recording”. It needs no VM or network. Nothing in it is happening now.";
+  } else {
+    c.replaceChildren(
+      h("form",{class:"liveform",onsubmit:e=>{e.preventDefault();liveConnect();}},
+        h("input",{type:"password",id:"api-key",placeholder:"CADE API key (cade_…)",autocomplete:"off",value:(()=>{try{return sessionStorage.getItem("cade-key")||"";}catch(e){return "";}})()}),
+        h("select",{id:"inc-sel",onchange:e=>{LIVE.incident=e.target.value||null;SEL=null;setLiveStat("switching…");if(LIVE.polling){clearTimeout(LIVE.timer);liveTick();}}},
+          h("option",{value:""},"latest incident"),
+          LIVE.incident?h("option",{value:LIVE.incident,selected:true},LIVE.incident):null),
+        h("button",{class:"btn primary",type:"submit"},LIVE.polling?"Reconnect":"Connect"),
+        LIVE.polling?h("button",{class:"btn",type:"button",onclick:liveStop},"Stop"):null),
+      h("div",{class:"grp"},
+        h("button",{class:"btn primary",type:"button",onclick:openIncidentDialog,disabled:!LIVE.polling||!!CLIENT.busy},CLIENT.busy?"Running…":"+ New incident"),
+        h("button",{class:"btn",type:"button",onclick:saveRecording,disabled:!LIVE.polling},"Save recording"),
+        h("span",{class:"runstat",id:"run-stat"},CLIENT.stat)),
+      h("div",{class:"grp"},h("span",{class:"scrim",id:"live-stat"},LIVE.stat)));
+    $("#scrim").textContent="Live mode polls CADE every 2 s and shows the real incident, decision, plan and run. It only reaches the API when this page is opened from CADE itself (http://127.0.0.1:8800/console/demo.html through the tunnel). “Save recording” downloads the shown incident for Replay.";
+  }
+}
+
+/* ---------- mode switch ---------- */
+let MODE="replay";
+function setMode(m){
+  MODE=m; store.set("cade-wall-mode",m); SEL=null;
+  $("#m-replay").setAttribute("aria-pressed",String(m==="replay"));
+  $("#m-live").setAttribute("aria-pressed",String(m==="live"));
+  if(m==="replay"){ liveStop(); }
+  else { replayPause(); LIVE.sig=""; }
+  render(); renderControls();
+}
+
+/* ---------- theme toggle ---------- */
+$("#theme").addEventListener("click",()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const sysDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches;
+  const next=cur? (cur==="dark"?"light":"dark") : (sysDark?"light":"dark");
+  document.documentElement.setAttribute("data-theme",next);
+});
+
+/* ---------- wiring + boot ---------- */
+$("#g-atk").innerHTML=ICON.attacker; $("#g-vic").innerHTML=ICON.victim; $("#g-es").innerHTML=ICON.store;
+$("#g-cade").innerHTML=ICON.cade; $("#g-llm").innerHTML=ICON.llm;
+$("#m-replay").addEventListener("click",()=>setMode("replay"));
+$("#m-live").addEventListener("click",()=>setMode("live"));
+$("#rec-file").addEventListener("change",async e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f)return;
+  try{ loadRecording(JSON.parse(await f.text()),f.name); }catch(err){ REPLAY.msg=`${f.name}: ${err.message}`; renderControls(); }
+  e.target.value="";
+});
+$("#inc-dlg").addEventListener("close",()=>{
+  if($("#inc-dlg").returnValue!=="run"||CLIENT.busy)return;
+  const description=$("#f-desc").value.trim();
+  if(!description){setRunStat("the description is empty");return;}
+  const sub={source:$("#f-src").value,description,
+    observables:{hosts:splitList($("#f-hosts").value),users:splitList($("#f-users").value),ips:splitList($("#f-ips").value)}};
+  const title=$("#f-title").value.trim(); if(title)sub.title=title;
+  if($("#f-sev").value)sub.severity=$("#f-sev").value;
+  runIncident(sub,$("#f-exec").checked);
+});
+$("#fb-confirm").addEventListener("change",e=>{$("#fb-submit").disabled=!e.target.checked;});
+$("#fb-dlg").addEventListener("close",()=>{
+  const d=$("#fb-dlg");
+  if(d.returnValue!=="submit"||!$("#fb-confirm").checked||FB.busy)return;   // only on an explicit, confirmed submit
+  submitFeedback(d.dataset.run);
+});
+
+MODE=store.get("cade-wall-mode")==="live"?"live":"replay";
+setMode(MODE);
+tryDefaultRecording();
+</script>

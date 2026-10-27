@@ -1,0 +1,2221 @@
+{
+ "version": "cade-seeds-1.0",
+ "note": "Hand-authored seed playbooks (one per intent) loaded into an empty library so routing has something to retrieve on a cold start. Implementation defaults, not from the paper. Destructive steps (ransomware: isolate_host; credential compromise: disable_account) are always preceded by a verification step.",
+ "playbooks": [
+  {
+   "name": "Suspicious process execution triage",
+   "intent_label": "suspicious_process_execution",
+   "description": "Hand-authored seed playbook for suspicious process execution (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_process_tree",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "file_hash_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "query_network_connections",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "list_startup_items",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "process_list"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "file_hash"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n8",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n4",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n9",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Malware investigation",
+   "intent_label": "malware_investigation",
+   "description": "Hand-authored seed playbook for malware investigation (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "file_hash_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "review_file_integrity",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "select_suspicious_files",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "scan_file_yara",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "analyze_process_tree",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "query_dns_activity",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "list_startup_items",
+     "params": {}
+    },
+    {
+     "node_id": "n11",
+     "action": "verify_malicious_indicator",
+     "params": {}
+    },
+    {
+     "node_id": "n12",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "file_hash"
+    },
+    {
+     "source": "n1",
+     "target": "n4",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n4",
+     "target": "n5",
+     "artifact": "file_events"
+    },
+    {
+     "source": "n5",
+     "target": "n6",
+     "artifact": "file_path"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n7",
+     "target": "n8",
+     "artifact": "process_list"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n10",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n3",
+     "target": "n11",
+     "artifact": "reputation_report"
+    },
+    {
+     "source": "n1",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n10",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n11",
+     "target": "n12",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Ransomware investigation and host isolation",
+   "intent_label": "ransomware_investigation",
+   "description": "Hand-authored seed playbook for ransomware investigation (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "review_file_integrity",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "analyze_process_tree",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "file_hash_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "query_host_auth_events",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "assess_scope",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "isolate_host",
+     "params": {}
+    },
+    {
+     "node_id": "n11",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n4",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n4",
+     "target": "n5",
+     "artifact": "process_list"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "file_hash"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n7",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n5",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n10",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n9",
+     "target": "n10",
+     "artifact": "verification_result"
+    },
+    {
+     "source": "n1",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n10",
+     "target": "n11",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Phishing investigation",
+   "intent_label": "phishing_investigation",
+   "description": "Hand-authored seed playbook for phishing investigation (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_email_events",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_email_artifacts",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "domain_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "query_domain_resolutions",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "file_hash_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "query_user_auth_events",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "verify_account_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "email_messages"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "domain"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "domain"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "file_hash"
+    },
+    {
+     "source": "n1",
+     "target": "n8",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n8",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n10",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Credential compromise response",
+   "intent_label": "credential_compromise",
+   "description": "Hand-authored seed playbook for credential compromise (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_user_auth_events",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_auth_patterns",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "ip_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "query_cloud_audit",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "verify_account_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "disable_account",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "auth_events"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "ip_address"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n4",
+     "target": "n7",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n8",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n7",
+     "target": "n8",
+     "artifact": "verification_result"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n9",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Lateral movement investigation",
+   "intent_label": "lateral_movement",
+   "description": "Hand-authored seed playbook for lateral movement (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_host_auth_events",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_auth_patterns",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "list_startup_items",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "query_ip_connections",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "assess_scope",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "auth_events"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "ip_address"
+    },
+    {
+     "source": "n4",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n4",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n10",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Data exfiltration investigation",
+   "intent_label": "data_exfiltration",
+   "description": "Hand-authored seed playbook for data exfiltration (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_network_connections",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_network_flows",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "ip_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "domain_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "review_file_integrity",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "query_user_auth_events",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "query_cloud_audit",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n11",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "network_flows"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "ip_address"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "domain"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n8",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n1",
+     "target": "n10",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n4",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n10",
+     "target": "n11",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Denial-of-service assessment",
+   "intent_label": "denial_of_service",
+   "description": "Hand-authored seed playbook for denial of service (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_ip_connections",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_network_flows",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "ip_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "query_web_logs",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "review_host_alerts",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "ip_address"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "network_flows"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "ip_address"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n8",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Web application attack investigation",
+   "intent_label": "web_application_attack",
+   "description": "Hand-authored seed playbook for web application attack (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_web_logs",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "query_web_logs_by_source",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "ip_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "review_file_integrity",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "select_suspicious_files",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "scan_file_yara",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "analyze_process_tree",
+     "params": {}
+    },
+    {
+     "node_id": "n11",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n12",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n4",
+     "artifact": "ip_address"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "ip_address"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n6",
+     "target": "n7",
+     "artifact": "file_events"
+    },
+    {
+     "source": "n7",
+     "target": "n8",
+     "artifact": "file_path"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n9",
+     "target": "n10",
+     "artifact": "process_list"
+    },
+    {
+     "source": "n1",
+     "target": "n11",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n10",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n10",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n11",
+     "target": "n12",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "C2 and persistence investigation",
+   "intent_label": "command_and_control_persistence",
+   "description": "Hand-authored seed playbook for command and control persistence (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_network_connections",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_network_flows",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "ip_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "domain_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "list_scheduled_tasks",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "list_startup_items",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "analyze_process_tree",
+     "params": {}
+    },
+    {
+     "node_id": "n11",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n12",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "network_flows"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "ip_address"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "domain"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n8",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n9",
+     "target": "n10",
+     "artifact": "process_list"
+    },
+    {
+     "source": "n1",
+     "target": "n11",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n10",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n10",
+     "target": "n12",
+     "artifact": "findings"
+    },
+    {
+     "source": "n11",
+     "target": "n12",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Generic evidence collection",
+   "intent_label": "unknown",
+   "description": "Hand-authored seed playbook for unknown (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "query_network_connections",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "review_host_alerts",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "assess_scope",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n4",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n3",
+     "target": "n6",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n7",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n7",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n7",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n7",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n7",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Privilege escalation investigation",
+   "intent_label": "privilege_escalation",
+   "description": "Hand-authored seed playbook for privilege escalation (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_process_tree",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "query_registry_events",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "query_service_task_events",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "query_user_auth_events",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "list_local_accounts",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "process_list"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n1",
+     "target": "n8",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n4",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n10",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Defense evasion investigation",
+   "intent_label": "defense_evasion",
+   "description": "Hand-authored seed playbook for defense evasion (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "review_host_alerts",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "query_registry_events",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "query_script_blocks",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "analyze_process_tree",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "review_file_integrity",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "file_hash_reputation",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n11",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n4",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n6",
+     "target": "n7",
+     "artifact": "process_list"
+    },
+    {
+     "source": "n1",
+     "target": "n8",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "file_hash"
+    },
+    {
+     "source": "n1",
+     "target": "n10",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n7",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n10",
+     "target": "n11",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Discovery investigation",
+   "intent_label": "discovery",
+   "description": "Hand-authored seed playbook for discovery (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_process_tree",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "query_script_blocks",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "query_user_auth_events",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "list_local_accounts",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "query_network_connections",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "analyze_network_flows",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n11",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "process_list"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n6",
+     "artifact": "user_id"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n1",
+     "target": "n8",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n8",
+     "target": "n9",
+     "artifact": "network_flows"
+    },
+    {
+     "source": "n1",
+     "target": "n10",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n4",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n11",
+     "artifact": "findings"
+    },
+    {
+     "source": "n10",
+     "target": "n11",
+     "artifact": "findings"
+    }
+   ]
+  },
+  {
+   "name": "Destructive impact investigation",
+   "intent_label": "system_impact",
+   "description": "Hand-authored seed playbook for system impact (CADE implementation default).",
+   "origin": "seed",
+   "nodes": [
+    {
+     "node_id": "n1",
+     "action": "extract_entities",
+     "params": {}
+    },
+    {
+     "node_id": "n2",
+     "action": "triage_alert",
+     "params": {}
+    },
+    {
+     "node_id": "n3",
+     "action": "query_process_events",
+     "params": {}
+    },
+    {
+     "node_id": "n4",
+     "action": "analyze_process_tree",
+     "params": {}
+    },
+    {
+     "node_id": "n5",
+     "action": "review_file_integrity",
+     "params": {}
+    },
+    {
+     "node_id": "n6",
+     "action": "select_suspicious_files",
+     "params": {}
+    },
+    {
+     "node_id": "n7",
+     "action": "query_service_task_events",
+     "params": {}
+    },
+    {
+     "node_id": "n8",
+     "action": "assess_scope",
+     "params": {}
+    },
+    {
+     "node_id": "n9",
+     "action": "verify_host_compromise",
+     "params": {}
+    },
+    {
+     "node_id": "n10",
+     "action": "generate_incident_report",
+     "params": {}
+    }
+   ],
+   "edges": [
+    {
+     "source": "n1",
+     "target": "n3",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n3",
+     "target": "n4",
+     "artifact": "process_list"
+    },
+    {
+     "source": "n1",
+     "target": "n5",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n5",
+     "target": "n6",
+     "artifact": "file_events"
+    },
+    {
+     "source": "n1",
+     "target": "n7",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n4",
+     "target": "n8",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n9",
+     "artifact": "host_id"
+    },
+    {
+     "source": "n4",
+     "target": "n9",
+     "artifact": "findings"
+    },
+    {
+     "source": "n1",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n2",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n3",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n4",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n5",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n6",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n7",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n8",
+     "target": "n10",
+     "artifact": "findings"
+    },
+    {
+     "source": "n9",
+     "target": "n10",
+     "artifact": "findings"
+    }
+   ]
+  }
+ ]
+}

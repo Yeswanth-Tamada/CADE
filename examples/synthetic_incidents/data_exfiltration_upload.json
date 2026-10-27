@@ -1,0 +1,8 @@
+{
+  "source": "siem_alert",
+  "title": "SYNTHETIC: Large outbound upload to unfamiliar domain",
+  "description": "SYNTHETIC. Proxy logs show host WS-FIN-011, used by mlopez, uploaded 4.2 GB to files-share[.]example (203.0.113.77) over HTTPS between 01:10 and 01:55 UTC, far above its 30-day baseline. Shortly before, a 7z archive was created in C:\\Users\\mlopez\\Downloads. File contents and DLP verdicts are not available.",
+  "severity": "high",
+  "observables": {"hosts": ["WS-FIN-011"], "users": ["mlopez"]},
+  "attributes": {"rule_id": "PROXY-EXF-004", "synthetic": true, "note": "SYNTHETIC test data created for CADE development. Not a real incident."}
+}

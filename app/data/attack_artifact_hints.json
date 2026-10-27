@@ -1,0 +1,25 @@
+{
+  "version": "cade-artifact-hints-1.1",
+  "note": "Well-known artifacts of ATT&CK techniques in host telemetry (command lines, registry paths, service names, event ids), in the spirit of public Sigma rules. A match is only a HINT shown to the intent model ('these artifacts point to technique X'): the model decides, and every technique it proposes is validated against the ATT&CK dataset. Patterns are case-insensitive regular expressions over the incident data; 'techniques' lists candidate IDs newest first (ATT&CK v20 renumbered e.g. T1562.001 -> T1685) and the first one active in the loaded dataset is used. Implementation-defined; extend as needed.",
+  "hints": [
+    {"techniques": ["T1059.001"], "pattern": "powershell(\\.exe)?\\b.*\\s-(e|en|enc|enco|encod|encode|encoded|encodedcommand)\\s", "artifact": "encoded PowerShell command line"},
+    {"techniques": ["T1105"], "pattern": "downloadstring\\(|downloadfile\\(|invoke-webrequest|\\biwr\\b|certutil.*-urlcache", "artifact": "file or script downloaded from a remote host"},
+    {"techniques": ["T1547.001"], "pattern": "\\\\currentversion\\\\(run|runonce)(\\\\|\\b)", "artifact": "registry Run / RunOnce key"},
+    {"techniques": ["T1548.002"], "pattern": "ms-settings\\\\shell\\\\open\\\\command|fodhelper\\.exe|computerdefaults\\.exe|eventvwr\\.exe.*mscfile|sdclt\\.exe", "artifact": "UAC bypass via an auto-elevating binary"},
+    {"techniques": ["T1685", "T1562.001"], "pattern": "set-mppreference.*-disable|disableantispyware|disablerealtimemonitoring|sc(\\.exe)?\\s+(stop|config)\\s+windefend", "artifact": "security tool disabled or modified"},
+    {"techniques": ["T1685.005", "T1070.001"], "pattern": "wevtutil(\\.exe)?\\s+(cl|clear-log)|clear-eventlog|eventcode[=:\\s]+1102\\b", "artifact": "Windows event log cleared"},
+    {"techniques": ["T1003.001"], "pattern": "comsvcs\\.dll.*minidump|procdump.*lsass|targetimage=\\S*lsass\\.exe|lsass\\.dmp", "artifact": "LSASS process memory accessed or dumped"},
+    {"techniques": ["T1033"], "pattern": "\\bwhoami(\\.exe)?\\b", "artifact": "current user discovery (whoami)"},
+    {"techniques": ["T1069.002"], "pattern": "net(1)?(\\.exe)?\\s+group\\b.*\\/domain", "artifact": "domain group enumeration (net group /domain)"},
+    {"techniques": ["T1087.002"], "pattern": "net(1)?(\\.exe)?\\s+user\\b.*\\/domain", "artifact": "domain account enumeration (net user /domain)"},
+    {"techniques": ["T1482"], "pattern": "nltest(\\.exe)?\\s+\\/domain_trusts|get-adtrust", "artifact": "domain trust discovery (nltest)"},
+    {"techniques": ["T1569.002"], "pattern": "psexesvc|eventcode[=:\\s]+(4697|7045)\\b", "artifact": "service installed to run a payload (e.g. PsExec)"},
+    {"techniques": ["T1021.002"], "pattern": "psexesvc|\\\\admin\\$|\\\\c\\$", "artifact": "remote execution over SMB admin shares"},
+    {"techniques": ["T1490"], "pattern": "vssadmin(\\.exe)?\\s+delete\\s+shadows|wmic(\\.exe)?\\s+shadowcopy\\s+delete|recoveryenabled\\s+no|wbadmin(\\.exe)?\\s+delete", "artifact": "backups or shadow copies deleted / recovery disabled"},
+    {"techniques": ["T1486"], "pattern": "\\.(lockbit|locked|encrypted|crypt|ryk|conti)\\b|readme[_-]?(restore|decrypt)|how[_-]to[_-]decrypt", "artifact": "files renamed with a ransomware extension or ransom note written"},
+    {"techniques": ["T1110"], "pattern": "eventcode[=:\\s]+4625\\b.*count[=:\\s]+\\d{2,}|failed logon.*\\d{2,} times", "artifact": "many failed logons (password guessing)"},
+    {"techniques": ["T1053.005"], "pattern": "schtasks(\\.exe)?\\s+\\/create|eventcode[=:\\s]+4698\\b", "artifact": "scheduled task created"},
+    {"techniques": ["T1543.003"], "pattern": "sc(\\.exe)?\\s+create\\b|new-service\\b", "artifact": "Windows service created"},
+    {"techniques": ["T1566.001"], "pattern": "attach(ed|ment)\\b.*(email|e-mail|message)|(email|e-mail|message)\\b.*attach(ed|ment)", "artifact": "email with an attachment"}
+  ]
+}

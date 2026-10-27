@@ -1,0 +1,3997 @@
+{
+ "format": "cade-wall-recording/1",
+ "recorded_at": "2026-10-27T12:33:25.177477+00:00",
+ "origin": "http://127.0.0.1:8000 (CADE API) - live run on cade.db",
+ "incident": {
+  "incident": {
+   "incident_id": "INC-57F9B771970147E7",
+   "source": "siem_alert",
+   "title": "Encoded PowerShell command on win-dc-397",
+   "severity": "medium",
+   "raw_description": "Sysmon alert from host win-dc-397.attackrange.local. Sysmon EventID: 1 (process created) Channel=Microsoft-Windows-Sysmon/Operational Computer=win-dc-397.attackrange.local User=ATTACKRANGE\\Administrator IntegrityLevel=High ParentImage=C:\\Windows\\System32\\cmd.exe Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe CommandLine=powershell.exe  -Exec bypass -enc VwByAGkAdABlAC0ASABvAHMAdAAgACIASABlAGwAbABvACAAVwBvAHIAbABkACIA Hashes=MD5=097CE5761C89434367598B34FE32893B,SHA256=BA4038FD20E474C047BE8AAD5BFACDB1BFC1DDBE12F803F473B7918D8D819436. The alert contains only this process-creation record; script-block logs, network activity and file reputation have not been reviewed.",
+   "normalized_description": "Sysmon alert from host win-dc-397.attackrange.local. Sysmon EventID: 1 (process created) Channel=Microsoft-Windows-Sysmon/Operational Computer=win-dc-397.attackrange.local User=ATTACKRANGE\\Administrator IntegrityLevel=High ParentImage=C:\\Windows\\System32\\cmd.exe Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe CommandLine=powershell.exe -Exec bypass -enc VwByAGkAdABlAC0ASABvAHMAdAAgACIASABlAGwAbABvACAAVwBvAHIAbABkACIA Hashes=MD5=097CE5761C89434367598B34FE32893B,SHA256=BA4038FD20E474C047BE8AAD5BFACDB1BFC1DDBE12F803F473B7918D8D819436. The alert contains only this process-creation record; script-block logs, network activity and file reputation have not been reviewed.",
+   "log_excerpt": null,
+   "occurred_at": null,
+   "received_at": "2026-10-27T12:02:53.187862Z",
+   "observables": {
+    "hosts": [
+     "win-dc-397.attackrange.local"
+    ],
+    "users": [
+     "Administrator"
+    ],
+    "ips": [],
+    "domains": [],
+    "file_hashes": [],
+    "processes": []
+   },
+   "attributes": {
+    "original_source": "splunk-attack-data",
+    "dataset": "datasets/attack_techniques/T1059.001/encoded_powershell/windows-sysmon.log",
+    "synthetic": false,
+    "note": "Recorded attack data (Splunk Attack Data, Attack Range lab, 2021-01-19). The same recording is indexed in Elastic (cade-attack-data) with shifted timestamps."
+   },
+   "normalization_warnings": [],
+   "status": "analyzed",
+   "created_at": "2026-10-27T12:02:53.187862Z",
+   "updated_at": "2026-10-27T12:03:58.032224Z",
+   "analysis_started_at": null
+  },
+  "latest_analysis": {
+   "analysis_id": 6,
+   "incident_id": "INC-57F9B771970147E7",
+   "extraction_status": "partial",
+   "provider": "ollama",
+   "model_name": "llama3.2:3b",
+   "attempts": 1,
+   "duration_ms": 64810.24780000007,
+   "warnings": [
+    "evidence 'Sysmon event 1 (process created)' was reported as observed but its excerpt is not in the incident text; downgraded to unconfirmed",
+    "missing evidence 'Script execution evidence (e.g. script logs, network activit' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Network traffic evidence (e.g. packet captures, DNS logs)' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'File activity evidence (e.g. file creation, modification, de' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'DNS evidence (e.g. DNS queries, DNS responses)' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Authentication evidence (e.g. login logs, authentication tok' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'User account evidence (e.g. user profile information, accoun' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Email evidence (e.g. email headers, email content)' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Web server logs (e.g. HTTP requests, web server access logs)' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Memory evidence (e.g. memory dumps, memory snapshots)' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Registry evidence (e.g. registry keys, registry values)' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Scheduled task or service evidence (e.g. task XML, service d' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Cloud audit evidence (e.g. cloud logs, cloud access logs)' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Indicators of compromise evidence (e.g. file hashes, threat ' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Security alert evidence (e.g. security log entries, security' quotes an excerpt that could not be verified; recorded as a model inference",
+    "missing evidence 'Other evidence (e.g. network traffic, system logs)' quotes an excerpt that could not be verified; recorded as a model inference"
+   ],
+   "error": null,
+   "result": {
+    "schema_version": "1.0",
+    "incident_id": "INC-57F9B771970147E7",
+    "source": "siem_alert",
+    "title": "Encoded PowerShell command on win-dc-397",
+    "severity": "medium",
+    "received_at": "2026-10-27T12:02:53.187862Z",
+    "occurred_at": null,
+    "raw_description": "Sysmon alert from host win-dc-397.attackrange.local. Sysmon EventID: 1 (process created) Channel=Microsoft-Windows-Sysmon/Operational Computer=win-dc-397.attackrange.local User=ATTACKRANGE\\Administrator IntegrityLevel=High ParentImage=C:\\Windows\\System32\\cmd.exe Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe CommandLine=powershell.exe  -Exec bypass -enc VwByAGkAdABlAC0ASABvAHMAdAAgACIASABlAGwAbABvACAAVwBvAHIAbABkACIA Hashes=MD5=097CE5761C89434367598B34FE32893B,SHA256=BA4038FD20E474C047BE8AAD5BFACDB1BFC1DDBE12F803F473B7918D8D819436. The alert contains only this process-creation record; script-block logs, network activity and file reputation have not been reviewed.",
+    "normalized_description": "Sysmon alert from host win-dc-397.attackrange.local. Sysmon EventID: 1 (process created) Channel=Microsoft-Windows-Sysmon/Operational Computer=win-dc-397.attackrange.local User=ATTACKRANGE\\Administrator IntegrityLevel=High ParentImage=C:\\Windows\\System32\\cmd.exe Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe CommandLine=powershell.exe -Exec bypass -enc VwByAGkAdABlAC0ASABvAHMAdAAgACIASABlAGwAbABvACAAVwBvAHIAbABkACIA Hashes=MD5=097CE5761C89434367598B34FE32893B,SHA256=BA4038FD20E474C047BE8AAD5BFACDB1BFC1DDBE12F803F473B7918D8D819436. The alert contains only this process-creation record; script-block logs, network activity and file reputation have not been reviewed.",
+    "status": "analyzed",
+    "summary": "A new process was created on the system win-dc-397 using PowerShell with elevated privileges, executing an encoded command line.",
+    "intent": {
+     "label": "malware_investigation",
+     "description": "Suspected malicious file or binary present or executed on a system (excluding ransomware, which has its own label).",
+     "confidence": 0.5,
+     "attack_techniques": [
+      {
+       "technique_id": "T1059.001",
+       "name": "PowerShell",
+       "tactics": [
+        "execution"
+       ],
+       "confidence": 0.8,
+       "justification": "The incident data mentions a PowerShell command with the -Exec bypass flag, which is a known artifact for encoded command line execution",
+       "validation_status": "validated"
+      }
+     ],
+     "tactic": "execution",
+     "rationale": "The attacker created a new process using PowerShell with elevated privileges, executing an encoded command line."
+    },
+    "entities": {
+     "hosts": [
+      "win-dc-397.attackrange.local"
+     ],
+     "users": [
+      "Administrator",
+      "ATTACKRANGE\\Administrator"
+     ],
+     "file_hashes": [
+      {
+       "algorithm": "md5",
+       "value": "097ce5761c89434367598b34fe32893b"
+      },
+      {
+       "algorithm": "sha256",
+       "value": "ba4038fd20e474c047be8aad5bfacdb1bfc1ddbe12f803f473b7918d8d819436"
+      }
+     ],
+     "ips": [],
+     "domains": [
+      "win-dc-397.attackrange.local"
+     ],
+     "processes": [
+      "cmd.exe",
+      "powershell.exe"
+     ]
+    },
+    "evidence_profile": {
+     "observed": [
+      {
+       "evidence_id": "ev-07f7de5fc6b8",
+       "category": "process_telemetry",
+       "description": "Sysmon event 1 in the incident input",
+       "status": "observed",
+       "criticality": null,
+       "rationale": null,
+       "provenance": {
+        "origin": "pattern_extraction",
+        "source_ref": "log_source:Sysmon",
+        "excerpt": "EventID: 1"
+       }
+      }
+     ],
+     "unconfirmed": [
+      {
+       "evidence_id": "ev-c712c10c4e16",
+       "category": "process_telemetry",
+       "description": "Sysmon event 1 (process created)",
+       "status": "inferred",
+       "criticality": null,
+       "rationale": "model claimed this was observed, but the quoted excerpt could not be verified",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-3360fff69e5b",
+       "category": "script_execution",
+       "description": "Unknown",
+       "status": "inferred",
+       "criticality": null,
+       "rationale": "No script execution evidence is provided in the incident data",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      }
+     ],
+     "missing": [
+      {
+       "evidence_id": "ev-8661442aba9a",
+       "category": "script_execution",
+       "description": "Script execution evidence (e.g. script logs, network activity)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any script execution evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-7dddb30757c5",
+       "category": "network_traffic",
+       "description": "Network traffic evidence (e.g. packet captures, DNS logs)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any network traffic evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-27645a868475",
+       "category": "file_activity",
+       "description": "File activity evidence (e.g. file creation, modification, deletion)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any file activity evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-cde23dfba99e",
+       "category": "dns",
+       "description": "DNS evidence (e.g. DNS queries, DNS responses)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any DNS evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-e94281eabf9f",
+       "category": "authentication",
+       "description": "Authentication evidence (e.g. login logs, authentication tokens)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any authentication evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-b9d0435e5ab1",
+       "category": "user_account",
+       "description": "User account evidence (e.g. user profile information, account activity)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any user account evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-11ff4cc20cf9",
+       "category": "email",
+       "description": "Email evidence (e.g. email headers, email content)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any email evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-5eb48e0a9839",
+       "category": "web_server_logs",
+       "description": "Web server logs (e.g. HTTP requests, web server access logs)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any web server logs",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-542fff2a2279",
+       "category": "memory",
+       "description": "Memory evidence (e.g. memory dumps, memory snapshots)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any memory evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-7057fe4e4897",
+       "category": "registry",
+       "description": "Registry evidence (e.g. registry keys, registry values)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any registry evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-8f81459c98fd",
+       "category": "scheduled_tasks_services",
+       "description": "Scheduled task or service evidence (e.g. task XML, service definitions)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any scheduled task or service evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-d1936ae9aef6",
+       "category": "cloud_audit",
+       "description": "Cloud audit evidence (e.g. cloud logs, cloud access logs)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any cloud audit evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-d173393d0769",
+       "category": "indicators_of_compromise",
+       "description": "Indicators of compromise evidence (e.g. file hashes, threat intelligence verdicts)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any indicators of compromise evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-4e424fc6dc86",
+       "category": "security_alert",
+       "description": "Security alert evidence (e.g. security log entries, security alerts)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any security alert evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      },
+      {
+       "evidence_id": "ev-2d01e8f8f6b3",
+       "category": "other",
+       "description": "Other evidence (e.g. network traffic, system logs)",
+       "status": "missing",
+       "criticality": "supporting",
+       "rationale": "The incident data does not provide any other evidence",
+       "provenance": {
+        "origin": "llm_inference",
+        "source_ref": null,
+        "excerpt": null
+       }
+      }
+     ],
+     "critical_missing": [],
+     "not_checked": [],
+     "sources": [
+      "pattern_extraction:log_source",
+      "llm_inference"
+     ]
+    },
+    "uncertainties": [
+     "The incident data does not provide any information about the encoded command line"
+    ],
+    "conflicts": [
+     "The incident data mentions a PowerShell command with the -Exec bypass flag, but does not provide any information about the encoded command line"
+    ],
+    "safety": {
+     "destructive_actions_allowed": false,
+     "human_approval_required": true
+    },
+    "analysis": {
+     "extraction_status": "partial",
+     "warnings": [
+      "evidence 'Sysmon event 1 (process created)' was reported as observed but its excerpt is not in the incident text; downgraded to unconfirmed",
+      "missing evidence 'Script execution evidence (e.g. script logs, network activit' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Network traffic evidence (e.g. packet captures, DNS logs)' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'File activity evidence (e.g. file creation, modification, de' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'DNS evidence (e.g. DNS queries, DNS responses)' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Authentication evidence (e.g. login logs, authentication tok' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'User account evidence (e.g. user profile information, accoun' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Email evidence (e.g. email headers, email content)' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Web server logs (e.g. HTTP requests, web server access logs)' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Memory evidence (e.g. memory dumps, memory snapshots)' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Registry evidence (e.g. registry keys, registry values)' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Scheduled task or service evidence (e.g. task XML, service d' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Cloud audit evidence (e.g. cloud logs, cloud access logs)' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Indicators of compromise evidence (e.g. file hashes, threat ' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Security alert evidence (e.g. security log entries, security' quotes an excerpt that could not be verified; recorded as a model inference",
+      "missing evidence 'Other evidence (e.g. network traffic, system logs)' quotes an excerpt that could not be verified; recorded as a model inference"
+     ],
+     "provider": "ollama",
+     "model_name": "llama3.2:3b",
+     "prompt_version": "intent-extraction-v4",
+     "attempts": 1,
+     "started_at": "2026-10-27T12:02:53.215000Z",
+     "completed_at": "2026-10-27T12:03:58.029511Z",
+     "duration_ms": 64810.24780000007,
+     "llm_duration_ms": 64785.094599999866,
+     "attack_mapping_mode": "verified",
+     "attack_dataset_version": "20.0",
+     "attack_candidates_proposed": 1,
+     "taxonomy_version": "cade-intents-1.1"
+    }
+   },
+   "created_at": "2026-10-27T12:03:58.032224Z"
+  }
+ },
+ "response": {
+  "incident_id": "INC-57F9B771970147E7",
+  "decisions": [
+   {
+    "incident_id": "INC-57F9B771970147E7",
+    "action": "synthesize",
+    "scores": {
+     "reuse": 0.0005437028880495279,
+     "request_evidence": 0.001794219530563442,
+     "synthesize": 0.3450000000000001
+    },
+    "terms": {
+     "coverage": 0.2333333333333333,
+     "counterfactual_coverage": 0.7,
+     "entropy": 0.995339689531004,
+     "requestability": 0.825,
+     "unmet_fraction": 0.6666666666666666,
+     "smoothed_success": 0.5,
+     "w": 0.7,
+     "k": 3.0,
+     "tau": 0.5,
+     "candidates_retrieved": 10
+    },
+    "top_candidate": {
+     "entry_id": "PB-0D22DDF08C794CEE",
+     "name": "Malware investigation",
+     "intent_label": "malware_investigation",
+     "similarity": 0.8078142404556274,
+     "score": 0.8078142404556274,
+     "successes": 0,
+     "executions": 0,
+     "deprioritized": false
+    },
+    "candidates": [
+     {
+      "entry_id": "PB-0D22DDF08C794CEE",
+      "name": "Malware investigation",
+      "intent_label": "malware_investigation",
+      "similarity": 0.8078142404556274,
+      "score": 0.8078142404556274,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     },
+     {
+      "entry_id": "PB-23AE907569804F76",
+      "name": "Suspicious process execution triage",
+      "intent_label": "suspicious_process_execution",
+      "similarity": 0.7267832159996033,
+      "score": 0.7267832159996033,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     },
+     {
+      "entry_id": "PB-C9DE76D341754AF3",
+      "name": "Ransomware investigation and host isolation",
+      "intent_label": "ransomware_investigation",
+      "similarity": 0.7208379507064819,
+      "score": 0.7208379507064819,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     },
+     {
+      "entry_id": "PB-9E535E7DA0804E35",
+      "name": "Web application attack investigation",
+      "intent_label": "web_application_attack",
+      "similarity": 0.6841111183166504,
+      "score": 0.6841111183166504,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     },
+     {
+      "entry_id": "PB-9DFD2AB6092F4155",
+      "name": "Generic evidence collection",
+      "intent_label": "unknown",
+      "similarity": 0.6173403263092041,
+      "score": 0.6173403263092041,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     },
+     {
+      "entry_id": "PB-D257E9E0D56E49C1",
+      "name": "Phishing investigation",
+      "intent_label": "phishing_investigation",
+      "similarity": 0.5816980600357056,
+      "score": 0.5816980600357056,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     },
+     {
+      "entry_id": "PB-E9A6A86B090B4695",
+      "name": "Data exfiltration investigation",
+      "intent_label": "data_exfiltration",
+      "similarity": 0.577653169631958,
+      "score": 0.577653169631958,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     },
+     {
+      "entry_id": "PB-DC3098E5D6FC4040",
+      "name": "Denial-of-service assessment",
+      "intent_label": "denial_of_service",
+      "similarity": 0.5444800853729248,
+      "score": 0.5444800853729248,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     },
+     {
+      "entry_id": "PB-773AF3CC89074BBD",
+      "name": "C2 and persistence investigation",
+      "intent_label": "command_and_control_persistence",
+      "similarity": 0.5339846014976501,
+      "score": 0.5339846014976501,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     },
+     {
+      "entry_id": "PB-E6B68A60A9764D54",
+      "name": "Credential compromise response",
+      "intent_label": "credential_compromise",
+      "similarity": 0.5158026814460754,
+      "score": 0.5158026814460754,
+      "successes": 0,
+      "executions": 0,
+      "deprioritized": false
+     }
+    ],
+    "available_categories": [
+     "process_telemetry"
+    ],
+    "required_critical": [
+     "file_activity",
+     "indicators_of_compromise",
+     "process_telemetry"
+    ],
+    "required_supporting": [
+     "command_line",
+     "dns",
+     "registry",
+     "scheduled_tasks_services",
+     "security_alert"
+    ],
+    "missing_critical": [
+     "file_activity",
+     "indicators_of_compromise"
+    ],
+    "requestable": [
+     "file_activity",
+     "indicators_of_compromise"
+    ],
+    "synthetic_basis": false,
+    "round": 1,
+    "rationale": "Top candidate 'Malware investigation' covers 0.23 of its evidence needs (retrieval entropy 1.00, smoothed success 0.50). The candidate does not fit and a request would not repair it; synthesis scores highest (0.345).",
+    "policy": "rule",
+    "rule_action": "synthesize",
+    "features": [
+     0.2333333333333333,
+     0.7,
+     0.995339689531004,
+     0.825,
+     0.6666666666666666,
+     0.5,
+     0.8078142404556274,
+     0.18032786885245902,
+     1.0
+    ],
+    "ucb": {
+     "reuse": 2.143664,
+     "request_evidence": 2.143664,
+     "synthesize": 2.143664
+    },
+    "decision_id": 3,
+    "created_at": "2026-10-27T12:03:58.387730Z",
+    "created_by": "realtest"
+   }
+  ],
+  "plans": [
+   {
+    "plan_id": "PLAN-99F7DB7E6AA4439D",
+    "incident_id": "INC-57F9B771970147E7",
+    "source": "synthesized",
+    "playbook": {
+     "name": "malware_investigation",
+     "intent_label": "malware_investigation",
+     "description": null,
+     "origin": "evolved",
+     "nodes": [
+      {
+       "node_id": "n1",
+       "action": "review_host_alerts",
+       "params": {}
+      },
+      {
+       "node_id": "n2",
+       "action": "extract_entities",
+       "params": {}
+      },
+      {
+       "node_id": "n3",
+       "action": "triage_alert",
+       "params": {}
+      },
+      {
+       "node_id": "n4",
+       "action": "domain_reputation",
+       "params": {}
+      },
+      {
+       "node_id": "n5",
+       "action": "file_hash_reputation",
+       "params": {}
+      },
+      {
+       "node_id": "n6",
+       "action": "ip_reputation",
+       "params": {}
+      },
+      {
+       "node_id": "n7",
+       "action": "acquire_memory_image",
+       "params": {}
+      },
+      {
+       "node_id": "n8",
+       "action": "analyze_auth_patterns",
+       "params": {}
+      },
+      {
+       "node_id": "n11",
+       "action": "analyze_process_tree",
+       "params": {}
+      },
+      {
+       "node_id": "n12",
+       "action": "list_local_accounts",
+       "params": {}
+      },
+      {
+       "node_id": "n13",
+       "action": "query_cloud_audit",
+       "params": {}
+      },
+      {
+       "node_id": "n14",
+       "action": "query_user_auth_events",
+       "params": {}
+      },
+      {
+       "node_id": "n15",
+       "action": "verify_host_compromise",
+       "params": {}
+      },
+      {
+       "node_id": "n16",
+       "action": "generate_incident_report",
+       "params": {}
+      },
+      {
+       "node_id": "n17",
+       "action": "query_email_events",
+       "params": {}
+      },
+      {
+       "node_id": "n18",
+       "action": "query_ip_connections",
+       "params": {}
+      },
+      {
+       "node_id": "n19",
+       "action": "live_process_listing",
+       "params": {}
+      },
+      {
+       "node_id": "n20",
+       "action": "review_file_integrity",
+       "params": {}
+      },
+      {
+       "node_id": "n21",
+       "action": "select_suspicious_files",
+       "params": {}
+      }
+     ],
+     "edges": [
+      {
+       "source": "n2",
+       "target": "n4",
+       "artifact": "domain"
+      },
+      {
+       "source": "n2",
+       "target": "n5",
+       "artifact": "file_hash"
+      },
+      {
+       "source": "n2",
+       "target": "n6",
+       "artifact": "ip_address"
+      },
+      {
+       "source": "n2",
+       "target": "n7",
+       "artifact": "host_id"
+      },
+      {
+       "source": "n2",
+       "target": "n12",
+       "artifact": "host_id"
+      },
+      {
+       "source": "n2",
+       "target": "n13",
+       "artifact": "user_id"
+      },
+      {
+       "source": "n2",
+       "target": "n14",
+       "artifact": "user_id"
+      },
+      {
+       "source": "n2",
+       "target": "n15",
+       "artifact": "host_id"
+      },
+      {
+       "source": "n13",
+       "target": "n15",
+       "artifact": "findings"
+      },
+      {
+       "source": "n14",
+       "target": "n15",
+       "artifact": "findings"
+      },
+      {
+       "source": "n2",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n15",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n13",
+       "target": "n8",
+       "artifact": "auth_events"
+      },
+      {
+       "source": "n2",
+       "target": "n18",
+       "artifact": "ip_address"
+      },
+      {
+       "source": "n19",
+       "target": "n11",
+       "artifact": "process_list"
+      },
+      {
+       "source": "n1",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n3",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n4",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n5",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n6",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n7",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n8",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n11",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n12",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n17",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n20",
+       "target": "n21",
+       "artifact": "file_events"
+      },
+      {
+       "source": "n18",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n20",
+       "target": "n16",
+       "artifact": "findings"
+      },
+      {
+       "source": "n21",
+       "target": "n16",
+       "artifact": "findings"
+      }
+     ]
+    },
+    "structural_hash": "00bf5547add29090ec84fa8c0818949b2c57a1e9fecf8975f3965ca66143f2b9",
+    "library_entry_id": null,
+    "routing_decision_id": 3,
+    "fitness": {
+     "ic": 1.0,
+     "ea": 1.0,
+     "os": 0.7916666666666666,
+     "os_source": "llm",
+     "fitness": 0.9250831838185912
+    },
+    "synthesis": {
+     "prompt_version": "playbook-generation-v1",
+     "generator": {
+      "provider": "ollama",
+      "model": "llama3.2:3b"
+     },
+     "judge_model": "qwen2.5:3b",
+     "generation": {
+      "requested": 20,
+      "provider": "ollama",
+      "model": "llama3.2:3b",
+      "llm_calls": 20,
+      "llm_failures": 0,
+      "unparseable": 0,
+      "llm_valid": 11,
+      "discarded": 9,
+      "examples_used": 1,
+      "constructive_used": 0,
+      "fallback_reason": null,
+      "temperatures": [
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8,
+       0.8
+      ]
+     },
+     "seeding": {
+      "pool": 12,
+      "admissible": 12,
+      "duplicates": 0,
+      "clusters": 4,
+      "k": 4,
+      "adaptive": true
+     },
+     "gap_proposals": {
+      "goal:file_analysis": "file_hash_reputation",
+      "goal:execution_trace": "analyze_process_tree",
+      "goal:c2_check": "domain_reputation",
+      "goal:persistence_check": "analyze_process_tree",
+      "goal:compromise_verification": "verify_malicious_indicator",
+      "category:file_activity": "scan_file_yara",
+      "category:process_telemetry": "analyze_process_tree",
+      "category:indicators_of_compromise": "file_hash_reputation",
+      "category:network_traffic": "analyze_network_flows",
+      "category:memory": "acquire_memory_image"
+     },
+     "evolution": {
+      "termination": "full_coverage",
+      "generations": 1,
+      "evaluations": 58,
+      "judge_calls": 39,
+      "duration_ms": 41961.7,
+      "operators": {
+       "add_goal_node": 6,
+       "add_evidence_node": 6,
+       "remove_redundant_node": 10,
+       "rebind_tool": 13,
+       "rewire_edge": 12,
+       "insert_verification": 0,
+       "crossover": 11,
+       "gap_directed": 15,
+       "proposal_used": 15
+      },
+      "history": [
+       {
+        "generation": 0,
+        "best_fitness": 0.8705366056852656,
+        "mean_fitness": 0.7577619117278104,
+        "best_ic": 1.0,
+        "best_ea": 0.8333333333333334,
+        "best_os": 0.7916666666666666,
+        "niches": 11,
+        "population": 30
+       },
+       {
+        "generation": 1,
+        "best_fitness": 0.9250831838185912,
+        "mean_fitness": 0.7973031742241262,
+        "best_ic": 1.0,
+        "best_ea": 1.0,
+        "best_os": 0.7916666666666666,
+        "niches": 20,
+        "population": 29
+       }
+      ],
+      "config": {
+       "population_size": 30,
+       "max_generations": 20,
+       "elite_count": 2,
+       "crossover_probability": 0.3,
+       "directed_mutation_probability": 0.7,
+       "mutation_retries": 3,
+       "generational_replacement": true,
+       "fitness_threshold": 0.0,
+       "plateau_generations": 3,
+       "plateau_epsilon": 0.01,
+       "coverage_init": true,
+       "coverage_variation": true,
+       "coverage_selection": true,
+       "coverage_termination": true
+      }
+     },
+     "random_seed": 3715309679,
+     "examples": [
+      "Malware investigation"
+     ]
+    },
+    "destructive_nodes": [],
+    "verification_nodes": [
+     "n15"
+    ],
+    "approvals": [],
+    "verifications": [],
+    "status": "executed",
+    "safety": {
+     "destructive_actions_allowed": false,
+     "human_approval_required": true
+    },
+    "synthetic_basis": false,
+    "created_by": "realtest",
+    "created_at": "2026-10-27T12:14:20.246805Z",
+    "updated_at": "2026-10-27T12:14:28.515272Z"
+   }
+  ],
+  "runs": [
+   {
+    "run_id": "RUN-06106B4567854C12",
+    "plan_id": "PLAN-99F7DB7E6AA4439D",
+    "incident_id": "INC-57F9B771970147E7",
+    "mode": "live",
+    "status": "completed_with_issues",
+    "synthetic": false,
+    "node_results": [
+     {
+      "node_id": "n1",
+      "action": "review_host_alerts",
+      "status": "manual_task",
+      "synthetic": false,
+      "destructive": false,
+      "tool": "wazuh",
+      "targets": [
+       "win-dc-397.attackrange.local"
+      ],
+      "verdict": null,
+      "findings": [
+       "Manual investigation task: perform wazuh.host_alerts for the host_id by hand (tool_unavailable)"
+      ],
+      "reason": "tool_unavailable",
+      "duration_ms": 14.321700000436977
+     },
+     {
+      "node_id": "n2",
+      "action": "extract_entities",
+      "status": "succeeded",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Entities in scope: 1 host_id, 2 user_id, 1 domain, 2 file_hash, 2 process_name, 1 technique_id"
+      ],
+      "reason": null,
+      "duration_ms": 0.33380000058969017
+     },
+     {
+      "node_id": "n3",
+      "action": "triage_alert",
+      "status": "succeeded",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Triage: intent malware_investigation (confidence 0.50), severity medium; critical evidence missing: none"
+      ],
+      "reason": null,
+      "duration_ms": 0.0698000003467314
+     },
+     {
+      "node_id": "n17",
+      "action": "query_email_events",
+      "status": "no_data",
+      "synthetic": false,
+      "destructive": false,
+      "tool": "elastic",
+      "targets": [
+       "Administrator",
+       "ATTACKRANGE\\Administrator"
+      ],
+      "verdict": null,
+      "findings": [
+       "no matching events",
+       "no matching events"
+      ],
+      "reason": "no_data",
+      "duration_ms": 316.5406999996776
+     },
+     {
+      "node_id": "n19",
+      "action": "live_process_listing",
+      "status": "manual_task",
+      "synthetic": false,
+      "destructive": false,
+      "tool": "osquery",
+      "targets": [
+       "win-dc-397.attackrange.local"
+      ],
+      "verdict": null,
+      "findings": [
+       "Manual investigation task: perform osquery.processes for the host_id by hand (tool_unavailable)"
+      ],
+      "reason": "tool_unavailable",
+      "duration_ms": 7.541099999798462
+     },
+     {
+      "node_id": "n20",
+      "action": "review_file_integrity",
+      "status": "manual_task",
+      "synthetic": false,
+      "destructive": false,
+      "tool": "wazuh",
+      "targets": [
+       "win-dc-397.attackrange.local"
+      ],
+      "verdict": null,
+      "findings": [
+       "Manual investigation task: perform wazuh.file_integrity_events for the host_id by hand (tool_unavailable)"
+      ],
+      "reason": "tool_unavailable",
+      "duration_ms": 6.468699999459204
+     },
+     {
+      "node_id": "n4",
+      "action": "domain_reputation",
+      "status": "failed",
+      "synthetic": false,
+      "destructive": false,
+      "tool": "virustotal",
+      "targets": [
+       "win-dc-397.attackrange.local"
+      ],
+      "verdict": null,
+      "findings": [
+       "HTTP 400"
+      ],
+      "reason": "error",
+      "duration_ms": 1107.0495000003575
+     },
+     {
+      "node_id": "n5",
+      "action": "file_hash_reputation",
+      "status": "succeeded",
+      "synthetic": false,
+      "destructive": false,
+      "tool": "virustotal",
+      "targets": [
+       "097ce5761c89434367598b34fe32893b",
+       "ba4038fd20e474c047be8aad5bfacdb1bfc1ddbe12f803f473b7918d8d819436"
+      ],
+      "verdict": null,
+      "findings": [
+       "VirusTotal: 0/75 engines flag file_hash 097ce5761c89434367598b34fe32893b (verdict: clean)",
+       "VirusTotal: 0/75 engines flag file_hash ba4038fd20e474c047be8aad5bfacdb1bfc1ddbe12f803f473b7918d8d819436 (verdict: clean)"
+      ],
+      "reason": null,
+      "duration_ms": 5228.997799998979
+     },
+     {
+      "node_id": "n6",
+      "action": "ip_reputation",
+      "status": "skipped",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Check IP reputation: skipped -- input not available: ip_address"
+      ],
+      "reason": "input not available: ip_address",
+      "duration_ms": 0.04129999979340937
+     },
+     {
+      "node_id": "n7",
+      "action": "acquire_memory_image",
+      "status": "manual_task",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Analyst task: Acquire and triage memory (Capture a memory image of the host and triage it (manual).)"
+      ],
+      "reason": "performed by an analyst outside CADE",
+      "duration_ms": 0.08300000081362668
+     },
+     {
+      "node_id": "n12",
+      "action": "list_local_accounts",
+      "status": "manual_task",
+      "synthetic": false,
+      "destructive": false,
+      "tool": "osquery",
+      "targets": [
+       "win-dc-397.attackrange.local"
+      ],
+      "verdict": null,
+      "findings": [
+       "Manual investigation task: perform osquery.local_users for the host_id by hand (tool_unavailable)"
+      ],
+      "reason": "tool_unavailable",
+      "duration_ms": 5.77059999886842
+     },
+     {
+      "node_id": "n13",
+      "action": "query_cloud_audit",
+      "status": "no_data",
+      "synthetic": false,
+      "destructive": false,
+      "tool": "elastic",
+      "targets": [
+       "Administrator",
+       "ATTACKRANGE\\Administrator"
+      ],
+      "verdict": null,
+      "findings": [
+       "no matching events",
+       "no matching events"
+      ],
+      "reason": "no_data",
+      "duration_ms": 56.30369999926188
+     },
+     {
+      "node_id": "n14",
+      "action": "query_user_auth_events",
+      "status": "no_data",
+      "synthetic": false,
+      "destructive": false,
+      "tool": "elastic",
+      "targets": [
+       "Administrator",
+       "ATTACKRANGE\\Administrator"
+      ],
+      "verdict": null,
+      "findings": [
+       "no matching events",
+       "no matching events"
+      ],
+      "reason": "no_data",
+      "duration_ms": 37.02780000094208
+     },
+     {
+      "node_id": "n18",
+      "action": "query_ip_connections",
+      "status": "skipped",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Query connections to an IP: skipped -- input not available: ip_address"
+      ],
+      "reason": "input not available: ip_address",
+      "duration_ms": 0.028200000087963417
+     },
+     {
+      "node_id": "n11",
+      "action": "analyze_process_tree",
+      "status": "skipped",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Analyse the process tree: skipped -- input not available: process_list"
+      ],
+      "reason": "input not available: process_list",
+      "duration_ms": 0.008700000762473792
+     },
+     {
+      "node_id": "n21",
+      "action": "select_suspicious_files",
+      "status": "skipped",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Select suspicious files: skipped -- input not available: file_events"
+      ],
+      "reason": "input not available: file_events",
+      "duration_ms": 0.007799999366397969
+     },
+     {
+      "node_id": "n8",
+      "action": "analyze_auth_patterns",
+      "status": "skipped",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Analyse authentication patterns: skipped -- input not available: auth_events"
+      ],
+      "reason": "input not available: auth_events",
+      "duration_ms": 0.0070000005507608876
+     },
+     {
+      "node_id": "n15",
+      "action": "verify_host_compromise",
+      "status": "manual_task",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Verify host compromise: awaiting an analyst's verdict"
+      ],
+      "reason": "no verification has been recorded for this step",
+      "duration_ms": 0.06810000013501849
+     },
+     {
+      "node_id": "n16",
+      "action": "generate_incident_report",
+      "status": "succeeded",
+      "synthetic": false,
+      "destructive": false,
+      "tool": null,
+      "targets": [],
+      "verdict": null,
+      "findings": [
+       "Report compiled from 17 finding(s)"
+      ],
+      "reason": null,
+      "duration_ms": 0.05269999928714242
+     }
+    ],
+    "report": [
+     "Manual investigation task: perform wazuh.host_alerts for the host_id by hand (tool_unavailable)",
+     "Entities in scope: 1 host_id, 2 user_id, 1 domain, 2 file_hash, 2 process_name, 1 technique_id",
+     "Triage: intent malware_investigation (confidence 0.50), severity medium; critical evidence missing: none",
+     "no matching events",
+     "Manual investigation task: perform osquery.processes for the host_id by hand (tool_unavailable)",
+     "Manual investigation task: perform wazuh.file_integrity_events for the host_id by hand (tool_unavailable)",
+     "HTTP 400",
+     "VirusTotal: 0/75 engines flag file_hash 097ce5761c89434367598b34fe32893b (verdict: clean)",
+     "VirusTotal: 0/75 engines flag file_hash ba4038fd20e474c047be8aad5bfacdb1bfc1ddbe12f803f473b7918d8d819436 (verdict: clean)",
+     "Check IP reputation: skipped -- input not available: ip_address",
+     "Analyst task: Acquire and triage memory (Capture a memory image of the host and triage it (manual).)",
+     "Manual investigation task: perform osquery.local_users for the host_id by hand (tool_unavailable)",
+     "Query connections to an IP: skipped -- input not available: ip_address",
+     "Analyse the process tree: skipped -- input not available: process_list",
+     "Select suspicious files: skipped -- input not available: file_events",
+     "Analyse authentication patterns: skipped -- input not available: auth_events",
+     "Verify host compromise: awaiting an analyst's verdict"
+    ],
+    "execution_coverage": 0.5,
+    "block_reason": null,
+    "started_by": "realtest",
+    "started_at": "2026-10-27T12:14:21.718905Z",
+    "completed_at": "2026-10-27T12:14:28.502231Z",
+    "feedback": null
+   }
+  ]
+ },
+ "evidence": {
+  "incident_id": "INC-57F9B771970147E7",
+  "analysis_id": 6,
+  "base": {
+   "observed": [
+    {
+     "evidence_id": "ev-07f7de5fc6b8",
+     "category": "process_telemetry",
+     "description": "Sysmon event 1 in the incident input",
+     "status": "observed",
+     "criticality": null,
+     "rationale": null,
+     "provenance": {
+      "origin": "pattern_extraction",
+      "source_ref": "log_source:Sysmon",
+      "excerpt": "EventID: 1"
+     }
+    }
+   ],
+   "unconfirmed": [
+    {
+     "evidence_id": "ev-c712c10c4e16",
+     "category": "process_telemetry",
+     "description": "Sysmon event 1 (process created)",
+     "status": "inferred",
+     "criticality": null,
+     "rationale": "model claimed this was observed, but the quoted excerpt could not be verified",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-3360fff69e5b",
+     "category": "script_execution",
+     "description": "Unknown",
+     "status": "inferred",
+     "criticality": null,
+     "rationale": "No script execution evidence is provided in the incident data",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    }
+   ],
+   "missing": [
+    {
+     "evidence_id": "ev-8661442aba9a",
+     "category": "script_execution",
+     "description": "Script execution evidence (e.g. script logs, network activity)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any script execution evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-7dddb30757c5",
+     "category": "network_traffic",
+     "description": "Network traffic evidence (e.g. packet captures, DNS logs)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any network traffic evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-27645a868475",
+     "category": "file_activity",
+     "description": "File activity evidence (e.g. file creation, modification, deletion)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any file activity evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-cde23dfba99e",
+     "category": "dns",
+     "description": "DNS evidence (e.g. DNS queries, DNS responses)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any DNS evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-e94281eabf9f",
+     "category": "authentication",
+     "description": "Authentication evidence (e.g. login logs, authentication tokens)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any authentication evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-b9d0435e5ab1",
+     "category": "user_account",
+     "description": "User account evidence (e.g. user profile information, account activity)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any user account evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-11ff4cc20cf9",
+     "category": "email",
+     "description": "Email evidence (e.g. email headers, email content)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any email evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-5eb48e0a9839",
+     "category": "web_server_logs",
+     "description": "Web server logs (e.g. HTTP requests, web server access logs)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any web server logs",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-542fff2a2279",
+     "category": "memory",
+     "description": "Memory evidence (e.g. memory dumps, memory snapshots)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any memory evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-7057fe4e4897",
+     "category": "registry",
+     "description": "Registry evidence (e.g. registry keys, registry values)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any registry evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-8f81459c98fd",
+     "category": "scheduled_tasks_services",
+     "description": "Scheduled task or service evidence (e.g. task XML, service definitions)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any scheduled task or service evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-d1936ae9aef6",
+     "category": "cloud_audit",
+     "description": "Cloud audit evidence (e.g. cloud logs, cloud access logs)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any cloud audit evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-d173393d0769",
+     "category": "indicators_of_compromise",
+     "description": "Indicators of compromise evidence (e.g. file hashes, threat intelligence verdicts)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any indicators of compromise evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-4e424fc6dc86",
+     "category": "security_alert",
+     "description": "Security alert evidence (e.g. security log entries, security alerts)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any security alert evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    },
+    {
+     "evidence_id": "ev-2d01e8f8f6b3",
+     "category": "other",
+     "description": "Other evidence (e.g. network traffic, system logs)",
+     "status": "missing",
+     "criticality": "supporting",
+     "rationale": "The incident data does not provide any other evidence",
+     "provenance": {
+      "origin": "llm_inference",
+      "source_ref": null,
+      "excerpt": null
+     }
+    }
+   ],
+   "critical_missing": [],
+   "not_checked": [],
+   "sources": [
+    "pattern_extraction:log_source",
+    "llm_inference"
+   ]
+  },
+  "tool_observed": [],
+  "analyst_supplied": [],
+  "simulated": [],
+  "real_observed_categories": [
+   "process_telemetry"
+  ],
+  "simulated_categories": []
+ },
+ "health": {
+  "status": "ok",
+  "api": {
+   "status": "ok",
+   "version": "0.1.0",
+   "environment": "development"
+  },
+  "dependencies": {
+   "database": {
+    "status": "ok",
+    "required": true
+   },
+   "llm": {
+    "status": "ok",
+    "required_for": "POST /incidents/{id}/analyze",
+    "provider": "ollama",
+    "model": "llama3.2:3b",
+    "reachable": true,
+    "model_available": true,
+    "detail": "model available"
+   },
+   "attack_dataset": {
+    "status": "loaded",
+    "mapping_mode": "verified",
+    "version": "20.0",
+    "technique_count": 867,
+    "detail": "technique IDs are validated against this dataset"
+   }
+  },
+  "playbooks": {
+   "execution_mode": "live",
+   "generator_model": "llama3.2:3b",
+   "judge": "qwen2.5:3b",
+   "library_entries": 11,
+   "embedder": "st:sentence-transformers/all-MiniLM-L6-v2",
+   "vector_index": "faiss",
+   "warnings": [],
+   "tools": {
+    "virustotal": "real",
+    "wazuh": "unavailable",
+    "elastic": "real",
+    "osquery": "unavailable",
+    "yara": "unavailable",
+    "sigma": "real"
+   }
+  }
+ },
+ "vocabulary": {
+  "version": "cade-actions-1.0",
+  "actions": [
+   {
+    "id": "extract_entities",
+    "name": "Extract entities and ATT&CK candidates",
+    "phase": "triage",
+    "binding": "cade.extract_entities",
+    "inputs": [
+     "incident_context"
+    ],
+    "outputs": [
+     "host_id",
+     "user_id",
+     "ip_address",
+     "domain",
+     "file_hash",
+     "process_name",
+     "technique_id",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "security_alert",
+      "critical": false
+     }
+    ],
+    "techniques": [],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Lift the grounded entities and validated ATT&CK candidates of the analysed incident into typed artifacts.",
+    "binding_kind": "internal"
+   },
+   {
+    "id": "triage_alert",
+    "name": "Triage the alert",
+    "phase": "triage",
+    "binding": "cade.triage_alert",
+    "inputs": [
+     "incident_context"
+    ],
+    "outputs": [
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "security_alert",
+      "critical": false
+     }
+    ],
+    "techniques": [],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Summarise severity, intent, evidence gaps and uncertainties of the analysed incident.",
+    "binding_kind": "internal"
+   },
+   {
+    "id": "review_host_alerts",
+    "name": "Review recent host alerts",
+    "phase": "triage",
+    "binding": "wazuh.host_alerts",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "alert_list",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "security_alert",
+      "critical": false
+     }
+    ],
+    "techniques": [],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Pull recent Wazuh alerts for the host to see related detections.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "file_hash_reputation",
+    "name": "Check file hash reputation",
+    "phase": "enrichment",
+    "binding": "virustotal.file_reputation",
+    "inputs": [
+     "file_hash"
+    ],
+    "outputs": [
+     "reputation_report",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "indicators_of_compromise",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1204.002",
+     "T1105",
+     "T1486"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Look up engine verdicts for a file hash.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "ip_reputation",
+    "name": "Check IP reputation",
+    "phase": "enrichment",
+    "binding": "virustotal.ip_reputation",
+    "inputs": [
+     "ip_address"
+    ],
+    "outputs": [
+     "reputation_report",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "indicators_of_compromise",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1071",
+     "T1041",
+     "T1110",
+     "T1498"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Look up engine verdicts for an IP address.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "domain_reputation",
+    "name": "Check domain reputation",
+    "phase": "enrichment",
+    "binding": "virustotal.domain_reputation",
+    "inputs": [
+     "domain"
+    ],
+    "outputs": [
+     "reputation_report",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "indicators_of_compromise",
+      "critical": false
+     },
+     {
+      "category": "dns",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1071.004",
+     "T1566.002",
+     "T1568"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Look up engine verdicts for a domain.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_process_events",
+    "name": "Query process events",
+    "phase": "investigation",
+    "binding": "elastic.process_events",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "process_list",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "process_telemetry",
+      "critical": true
+     },
+     {
+      "category": "command_line",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1059",
+     "T1059.001",
+     "T1204.002",
+     "T1053.005",
+     "T1218",
+     "T1490"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search process-start events (with command lines) on the host.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "inspect_process_inventory",
+    "name": "Inspect process inventory",
+    "phase": "investigation",
+    "binding": "wazuh.host_processes",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "process_list",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "process_telemetry",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1059",
+     "T1055"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "List processes currently known to the Wazuh agent.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "live_process_listing",
+    "name": "Live process listing (osquery)",
+    "phase": "investigation",
+    "binding": "osquery.processes",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "process_list",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "process_telemetry",
+      "critical": false
+     },
+     {
+      "category": "command_line",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1059",
+     "T1055"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "List running processes and command lines with osquery.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "analyze_process_tree",
+    "name": "Analyse the process tree",
+    "phase": "investigation",
+    "binding": "cade.analyze_process_tree",
+    "inputs": [
+     "process_list"
+    ],
+    "outputs": [
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "process_telemetry",
+      "critical": false
+     },
+     {
+      "category": "command_line",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1059.001",
+     "T1218",
+     "T1204.002",
+     "T1053.005"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Look for suspicious parent/child chains, encoded commands and LOLBins.",
+    "binding_kind": "internal"
+   },
+   {
+    "id": "query_network_connections",
+    "name": "Query host network connections",
+    "phase": "investigation",
+    "binding": "elastic.network_events",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "network_flows",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "network_traffic",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1071",
+     "T1041",
+     "T1021",
+     "T1095",
+     "T1571",
+     "T1498"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search network connections made by the host.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_ip_connections",
+    "name": "Query connections to an IP",
+    "phase": "investigation",
+    "binding": "elastic.network_events",
+    "inputs": [
+     "ip_address"
+    ],
+    "outputs": [
+     "network_flows",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "network_traffic",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1071",
+     "T1041",
+     "T1048",
+     "T1110",
+     "T1498"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Find every internal host that talked to an IP address.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "analyze_network_flows",
+    "name": "Analyse network flows",
+    "phase": "investigation",
+    "binding": "cade.analyze_network_flows",
+    "inputs": [
+     "network_flows"
+    ],
+    "outputs": [
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "network_traffic",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1041",
+     "T1048",
+     "T1071",
+     "T1498",
+     "T1499"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Look for beaconing, large transfers and traffic spikes.",
+    "binding_kind": "internal"
+   },
+   {
+    "id": "query_dns_activity",
+    "name": "Query host DNS activity",
+    "phase": "investigation",
+    "binding": "elastic.dns_events",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "dns_records",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "dns",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1071.004",
+     "T1568",
+     "T1048"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search DNS queries made by the host.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_domain_resolutions",
+    "name": "Query resolutions of a domain",
+    "phase": "investigation",
+    "binding": "elastic.dns_events",
+    "inputs": [
+     "domain"
+    ],
+    "outputs": [
+     "dns_records",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "dns",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1071.004",
+     "T1566.002",
+     "T1568"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Find which hosts resolved a domain.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_user_auth_events",
+    "name": "Query a user's authentications",
+    "phase": "investigation",
+    "binding": "elastic.auth_events",
+    "inputs": [
+     "user_id"
+    ],
+    "outputs": [
+     "auth_events",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "authentication",
+      "critical": true
+     },
+     {
+      "category": "user_account",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1110",
+     "T1110.003",
+     "T1078",
+     "T1021",
+     "T1550"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search logon events for the user account.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_host_auth_events",
+    "name": "Query logons on a host",
+    "phase": "investigation",
+    "binding": "elastic.auth_events",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "auth_events",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "authentication",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1021",
+     "T1021.001",
+     "T1021.002",
+     "T1110",
+     "T1078"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search logon events on the host (remote logons, failures).",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "analyze_auth_patterns",
+    "name": "Analyse authentication patterns",
+    "phase": "investigation",
+    "binding": "cade.analyze_auth_patterns",
+    "inputs": [
+     "auth_events"
+    ],
+    "outputs": [
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "authentication",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1110",
+     "T1110.003",
+     "T1078",
+     "T1021",
+     "T1550"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Look for spraying, impossible travel and unusual remote logons.",
+    "binding_kind": "internal"
+   },
+   {
+    "id": "query_web_logs",
+    "name": "Query web server logs",
+    "phase": "investigation",
+    "binding": "elastic.web_events",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "web_requests",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "web_server_logs",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1190",
+     "T1505.003",
+     "T1498",
+     "T1499",
+     "T1083"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search web access logs of the server.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_web_logs_by_source",
+    "name": "Query web requests from an IP",
+    "phase": "investigation",
+    "binding": "elastic.web_events",
+    "inputs": [
+     "ip_address"
+    ],
+    "outputs": [
+     "web_requests",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "web_server_logs",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1190",
+     "T1498",
+     "T1499"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search web requests sent by a client IP.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_email_events",
+    "name": "Query mailbox events",
+    "phase": "investigation",
+    "binding": "elastic.email_events",
+    "inputs": [
+     "user_id"
+    ],
+    "outputs": [
+     "email_messages",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "email",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1566",
+     "T1566.001",
+     "T1566.002"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search email gateway events for the recipient.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "analyze_email_artifacts",
+    "name": "Analyse email artefacts",
+    "phase": "investigation",
+    "binding": "cade.analyze_email",
+    "inputs": [
+     "email_messages"
+    ],
+    "outputs": [
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "email",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1566.001",
+     "T1566.002",
+     "T1204.002"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Inspect senders, links and attachments of the messages.",
+    "binding_kind": "internal"
+   },
+   {
+    "id": "query_cloud_audit",
+    "name": "Query cloud audit trail",
+    "phase": "investigation",
+    "binding": "elastic.cloud_audit_events",
+    "inputs": [
+     "user_id"
+    ],
+    "outputs": [
+     "auth_events",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "cloud_audit",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1078.004",
+     "T1537",
+     "T1530"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search cloud provider audit events for the account.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "review_file_integrity",
+    "name": "Review file integrity events",
+    "phase": "investigation",
+    "binding": "wazuh.file_integrity_events",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "file_events",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "file_activity",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1486",
+     "T1485",
+     "T1105",
+     "T1505.003",
+     "T1005"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "List recent file creations, modifications and deletions on the host.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "select_suspicious_files",
+    "name": "Select suspicious files",
+    "phase": "investigation",
+    "binding": "cade.select_suspicious_files",
+    "inputs": [
+     "file_events"
+    ],
+    "outputs": [
+     "file_path",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "file_activity",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1105",
+     "T1486"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Pick the files worth scanning (executables, recently written, unusual paths).",
+    "binding_kind": "internal"
+   },
+   {
+    "id": "scan_file_yara",
+    "name": "Scan file with YARA",
+    "phase": "investigation",
+    "binding": "yara.scan_file",
+    "inputs": [
+     "file_path"
+    ],
+    "outputs": [
+     "yara_matches",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "file_activity",
+      "critical": false
+     },
+     {
+      "category": "indicators_of_compromise",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1204.002",
+     "T1486",
+     "T1105"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Scan a suspicious file with the deployment's YARA rules.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "list_scheduled_tasks",
+    "name": "List scheduled tasks",
+    "phase": "investigation",
+    "binding": "osquery.scheduled_tasks",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "scheduled_tasks",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "scheduled_tasks_services",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1053",
+     "T1053.005"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Enumerate scheduled tasks and their actions.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_registry_events",
+    "name": "Query registry activity",
+    "phase": "investigation",
+    "binding": "elastic.registry_events",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "registry_events",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "registry",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1547.001",
+     "T1112",
+     "T1548.002",
+     "T1685",
+     "T1562.001"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search the host's Sysmon registry events (12-14) for run keys, policy and security-tool changes.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_script_blocks",
+    "name": "Query PowerShell script blocks",
+    "phase": "investigation",
+    "binding": "elastic.script_block_events",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "script_blocks",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "script_execution",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1059.001",
+     "T1027",
+     "T1140"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search the host's PowerShell script-block logs (4104) for decoded commands.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "query_service_task_events",
+    "name": "Query service and scheduled-task creation",
+    "phase": "investigation",
+    "binding": "elastic.service_task_events",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "service_events",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "scheduled_tasks_services",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1543.003",
+     "T1053.005",
+     "T1569.002"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Search the host's Security events 4697 / 4698 for new services and scheduled tasks.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "list_startup_items",
+    "name": "List autostart entries",
+    "phase": "investigation",
+    "binding": "osquery.startup_items",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "startup_items",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "registry",
+      "critical": false
+     },
+     {
+      "category": "scheduled_tasks_services",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1547.001",
+     "T1543.003",
+     "T1053.005"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Enumerate run keys, services and startup folders.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "list_listening_ports",
+    "name": "List listening ports",
+    "phase": "investigation",
+    "binding": "osquery.listening_ports",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "listening_ports",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "network_traffic",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1571",
+     "T1095",
+     "T1505.003"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "List listening sockets and their processes.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "list_local_accounts",
+    "name": "List local accounts",
+    "phase": "investigation",
+    "binding": "osquery.local_users",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "user_list",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "user_account",
+      "critical": false
+     }
+    ],
+    "techniques": [
+     "T1136",
+     "T1078.003"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Enumerate local accounts to spot newly created ones.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "hunt_technique_sigma",
+    "name": "Hunt with Sigma rules",
+    "phase": "investigation",
+    "binding": "sigma.hunt_technique",
+    "inputs": [
+     "technique_id"
+    ],
+    "outputs": [
+     "sigma_hits",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "security_alert",
+      "critical": false
+     }
+    ],
+    "techniques": [],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Run the Sigma rules tagged with a candidate ATT&CK technique across the SIEM.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "acquire_memory_image",
+    "name": "Acquire and triage memory",
+    "phase": "investigation",
+    "binding": "analyst.acquire_memory_image",
+    "inputs": [
+     "host_id"
+    ],
+    "outputs": [
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "memory",
+      "critical": true
+     }
+    ],
+    "techniques": [
+     "T1055",
+     "T1003",
+     "T1620"
+    ],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Capture a memory image of the host and triage it (manual).",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "assess_scope",
+    "name": "Assess incident scope",
+    "phase": "scoping",
+    "binding": "cade.assess_scope",
+    "inputs": [
+     "findings"
+    ],
+    "outputs": [
+     "scope_assessment",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Combine findings to estimate affected hosts, accounts and data.",
+    "binding_kind": "internal"
+   },
+   {
+    "id": "verify_host_compromise",
+    "name": "Verify host compromise",
+    "phase": "verification",
+    "binding": "analyst.verify_host_compromise",
+    "inputs": [
+     "host_id",
+     "findings"
+    ],
+    "outputs": [
+     "verification_result",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": false,
+    "verification": true,
+    "verifies": [
+     "host_id",
+     "process_name",
+     "file_hash"
+    ],
+    "target": null,
+    "terminal": false,
+    "description": "An analyst confirms from the findings that the host is compromised.",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "verify_account_compromise",
+    "name": "Verify account compromise",
+    "phase": "verification",
+    "binding": "analyst.verify_account_compromise",
+    "inputs": [
+     "user_id",
+     "findings"
+    ],
+    "outputs": [
+     "verification_result",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": false,
+    "verification": true,
+    "verifies": [
+     "user_id"
+    ],
+    "target": null,
+    "terminal": false,
+    "description": "An analyst confirms from the findings that the account is compromised.",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "verify_malicious_indicator",
+    "name": "Verify indicator is malicious",
+    "phase": "verification",
+    "binding": "cade.verify_reputation",
+    "inputs": [
+     "reputation_report"
+    ],
+    "outputs": [
+     "verification_result",
+     "findings"
+    ],
+    "consumes": [
+     {
+      "category": "indicators_of_compromise",
+      "critical": false
+     }
+    ],
+    "techniques": [],
+    "destructive": false,
+    "verification": true,
+    "verifies": [
+     "ip_address",
+     "domain",
+     "file_hash"
+    ],
+    "target": null,
+    "terminal": false,
+    "description": "Confirm an indicator only if its reputation verdict is malicious.",
+    "binding_kind": "internal"
+   },
+   {
+    "id": "isolate_host",
+    "name": "Isolate host",
+    "phase": "containment",
+    "binding": "wazuh.isolate_host",
+    "inputs": [
+     "host_id",
+     "verification_result"
+    ],
+    "outputs": [
+     "containment_status",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": true,
+    "verification": false,
+    "verifies": [],
+    "target": "host_id",
+    "terminal": false,
+    "description": "Cut the host off the network (Wazuh active response).",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "isolate_host_edr",
+    "name": "Isolate host (Elastic Defend)",
+    "phase": "containment",
+    "binding": "elastic.isolate_host",
+    "inputs": [
+     "host_id",
+     "verification_result"
+    ],
+    "outputs": [
+     "containment_status",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": true,
+    "verification": false,
+    "verifies": [],
+    "target": "host_id",
+    "terminal": false,
+    "description": "Cut the host off the network with an Elastic Defend response action.",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "block_ip",
+    "name": "Block IP on host firewall",
+    "phase": "containment",
+    "binding": "wazuh.block_ip",
+    "inputs": [
+     "ip_address",
+     "host_id",
+     "verification_result"
+    ],
+    "outputs": [
+     "containment_status",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": true,
+    "verification": false,
+    "verifies": [],
+    "target": "ip_address",
+    "terminal": false,
+    "description": "Drop traffic to/from the IP on the host (Wazuh firewall-drop).",
+    "binding_kind": "tool"
+   },
+   {
+    "id": "block_domain",
+    "name": "Block domain",
+    "phase": "containment",
+    "binding": "analyst.block_domain",
+    "inputs": [
+     "domain",
+     "verification_result"
+    ],
+    "outputs": [
+     "containment_status",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": true,
+    "verification": false,
+    "verifies": [],
+    "target": "domain",
+    "terminal": false,
+    "description": "Sinkhole or block the domain at the DNS / proxy layer (manual).",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "disable_account",
+    "name": "Disable account",
+    "phase": "containment",
+    "binding": "analyst.disable_account",
+    "inputs": [
+     "user_id",
+     "verification_result"
+    ],
+    "outputs": [
+     "containment_status",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": true,
+    "verification": false,
+    "verifies": [],
+    "target": "user_id",
+    "terminal": false,
+    "description": "Disable the account in the directory (manual).",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "kill_process",
+    "name": "Terminate process",
+    "phase": "containment",
+    "binding": "analyst.kill_process",
+    "inputs": [
+     "process_name",
+     "host_id",
+     "verification_result"
+    ],
+    "outputs": [
+     "containment_status",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": true,
+    "verification": false,
+    "verifies": [],
+    "target": "process_name",
+    "terminal": false,
+    "description": "Terminate the malicious process on the host (manual).",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "quarantine_file",
+    "name": "Quarantine file",
+    "phase": "eradication",
+    "binding": "analyst.quarantine_file",
+    "inputs": [
+     "file_hash",
+     "host_id",
+     "verification_result"
+    ],
+    "outputs": [
+     "containment_status",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": true,
+    "verification": false,
+    "verifies": [],
+    "target": "file_hash",
+    "terminal": false,
+    "description": "Move the malicious file to quarantine (manual).",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "remove_persistence",
+    "name": "Remove persistence",
+    "phase": "eradication",
+    "binding": "analyst.remove_persistence",
+    "inputs": [
+     "host_id",
+     "verification_result"
+    ],
+    "outputs": [
+     "containment_status",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": true,
+    "verification": false,
+    "verifies": [],
+    "target": "host_id",
+    "terminal": false,
+    "description": "Delete the malicious scheduled task, service or run key (manual).",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "reset_credentials",
+    "name": "Reset credentials",
+    "phase": "eradication",
+    "binding": "analyst.reset_credentials",
+    "inputs": [
+     "user_id",
+     "verification_result"
+    ],
+    "outputs": [
+     "containment_status",
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": true,
+    "verification": false,
+    "verifies": [],
+    "target": "user_id",
+    "terminal": false,
+    "description": "Force a password reset and revoke sessions (manual).",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "restore_host",
+    "name": "Restore host to service",
+    "phase": "recovery",
+    "binding": "analyst.restore_host",
+    "inputs": [
+     "host_id",
+     "containment_status"
+    ],
+    "outputs": [
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Release isolation / reimage once eradication is confirmed (manual).",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "notify_stakeholders",
+    "name": "Notify stakeholders",
+    "phase": "reporting",
+    "binding": "analyst.notify_stakeholders",
+    "inputs": [
+     "findings"
+    ],
+    "outputs": [
+     "findings"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": false,
+    "description": "Inform system owners and management (manual).",
+    "binding_kind": "analyst"
+   },
+   {
+    "id": "generate_incident_report",
+    "name": "Generate incident report",
+    "phase": "reporting",
+    "binding": "cade.generate_report",
+    "inputs": [
+     "findings"
+    ],
+    "outputs": [
+     "incident_report"
+    ],
+    "consumes": [],
+    "techniques": [],
+    "destructive": false,
+    "verification": false,
+    "verifies": [],
+    "target": null,
+    "terminal": true,
+    "description": "Compile all findings into the incident report (terminal action).",
+    "binding_kind": "internal"
+   }
+  ],
+  "goals": {
+   "suspicious_process_execution": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "process_lineage",
+     "description": "Reconstruct the process tree and command lines",
+     "actions": [
+      "analyze_process_tree"
+     ],
+     "techniques": [
+      "T1059",
+      "T1059.001",
+      "T1218"
+     ]
+    },
+    {
+     "id": "payload_reputation",
+     "description": "Establish whether dropped files or contacted indicators are malicious",
+     "actions": [
+      "file_hash_reputation",
+      "ip_reputation",
+      "domain_reputation",
+      "scan_file_yara"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "network_follow_up",
+     "description": "Check what the host contacted afterwards",
+     "actions": [],
+     "techniques": [
+      "T1071",
+      "T1041",
+      "T1071.004"
+     ]
+    },
+    {
+     "id": "persistence_check",
+     "description": "Check for persistence created by the process",
+     "actions": [],
+     "techniques": [
+      "T1053.005",
+      "T1547.001",
+      "T1543.003"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether the host is compromised",
+     "actions": [
+      "verify_host_compromise",
+      "verify_malicious_indicator"
+     ],
+     "techniques": []
+    }
+   ],
+   "malware_investigation": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "file_analysis",
+     "description": "Determine whether the file is malicious",
+     "actions": [
+      "file_hash_reputation",
+      "scan_file_yara"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "execution_trace",
+     "description": "Find how and when the malware executed",
+     "actions": [
+      "analyze_process_tree"
+     ],
+     "techniques": [
+      "T1204.002",
+      "T1059"
+     ]
+    },
+    {
+     "id": "c2_check",
+     "description": "Look for command-and-control traffic",
+     "actions": [],
+     "techniques": [
+      "T1071",
+      "T1071.004",
+      "T1041"
+     ]
+    },
+    {
+     "id": "persistence_check",
+     "description": "Look for persistence mechanisms",
+     "actions": [],
+     "techniques": [
+      "T1053.005",
+      "T1547.001",
+      "T1543.003"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether the host is compromised",
+     "actions": [
+      "verify_host_compromise",
+      "verify_malicious_indicator"
+     ],
+     "techniques": []
+    }
+   ],
+   "ransomware_investigation": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "encryption_activity",
+     "description": "Confirm and scope file encryption",
+     "actions": [],
+     "techniques": [
+      "T1486",
+      "T1485"
+     ]
+    },
+    {
+     "id": "recovery_inhibition",
+     "description": "Check for shadow-copy deletion and recovery inhibition",
+     "actions": [],
+     "techniques": [
+      "T1490"
+     ]
+    },
+    {
+     "id": "binary_identification",
+     "description": "Identify the ransomware binary",
+     "actions": [
+      "file_hash_reputation",
+      "scan_file_yara"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "spread_assessment",
+     "description": "Assess lateral spread and affected hosts",
+     "actions": [
+      "assess_scope"
+     ],
+     "techniques": [
+      "T1021",
+      "T1021.002"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Confirm the compromise before any containment",
+     "actions": [
+      "verify_host_compromise"
+     ],
+     "techniques": []
+    }
+   ],
+   "phishing_investigation": [
+    {
+     "id": "triage",
+     "description": "Triage the report and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "message_analysis",
+     "description": "Analyse sender, links and attachments",
+     "actions": [],
+     "techniques": [
+      "T1566",
+      "T1566.001",
+      "T1566.002"
+     ]
+    },
+    {
+     "id": "indicator_reputation",
+     "description": "Check reputation of links, domains and attachments",
+     "actions": [
+      "domain_reputation",
+      "file_hash_reputation",
+      "ip_reputation"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "user_interaction",
+     "description": "Find whether recipients opened the attachment or link",
+     "actions": [
+      "query_domain_resolutions",
+      "query_dns_activity"
+     ],
+     "techniques": [
+      "T1204.002"
+     ]
+    },
+    {
+     "id": "credential_exposure",
+     "description": "Check for credential use after the phish",
+     "actions": [],
+     "techniques": [
+      "T1078",
+      "T1110"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether any account or host is compromised",
+     "actions": [
+      "verify_account_compromise",
+      "verify_host_compromise",
+      "verify_malicious_indicator"
+     ],
+     "techniques": []
+    }
+   ],
+   "credential_compromise": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "authentication_review",
+     "description": "Review authentication history of the account",
+     "actions": [],
+     "techniques": [
+      "T1110",
+      "T1110.003",
+      "T1078"
+     ]
+    },
+    {
+     "id": "source_reputation",
+     "description": "Check reputation of the source addresses",
+     "actions": [
+      "ip_reputation"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "post_auth_activity",
+     "description": "Look for activity after a successful logon",
+     "actions": [
+      "query_cloud_audit"
+     ],
+     "techniques": [
+      "T1021",
+      "T1078.004",
+      "T1550"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether the account is compromised",
+     "actions": [
+      "verify_account_compromise"
+     ],
+     "techniques": []
+    }
+   ],
+   "lateral_movement": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "remote_logons",
+     "description": "Trace remote logons between hosts",
+     "actions": [],
+     "techniques": [
+      "T1021",
+      "T1021.001",
+      "T1021.002"
+     ]
+    },
+    {
+     "id": "remote_execution",
+     "description": "Find remote execution (services, tasks, tools)",
+     "actions": [],
+     "techniques": [
+      "T1543.003",
+      "T1053.005",
+      "T1059"
+     ]
+    },
+    {
+     "id": "credential_use",
+     "description": "Identify the credentials being used",
+     "actions": [],
+     "techniques": [
+      "T1078",
+      "T1550"
+     ]
+    },
+    {
+     "id": "scope",
+     "description": "Determine every host involved",
+     "actions": [
+      "assess_scope",
+      "query_ip_connections"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Confirm compromised hosts and accounts",
+     "actions": [
+      "verify_host_compromise",
+      "verify_account_compromise"
+     ],
+     "techniques": []
+    }
+   ],
+   "privilege_escalation": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "elevation_mechanism",
+     "description": "Identify how elevation was obtained (UAC bypass, service, token manipulation)",
+     "actions": [
+      "query_registry_events",
+      "query_service_task_events"
+     ],
+     "techniques": [
+      "T1548.002",
+      "T1543.003",
+      "T1134"
+     ]
+    },
+    {
+     "id": "elevated_execution",
+     "description": "Trace the processes started with elevated rights",
+     "actions": [
+      "analyze_process_tree",
+      "query_process_events"
+     ],
+     "techniques": [
+      "T1068",
+      "T1059"
+     ]
+    },
+    {
+     "id": "account_privileges",
+     "description": "Review privileged logons and new or changed privileged accounts",
+     "actions": [
+      "query_user_auth_events",
+      "query_host_auth_events",
+      "list_local_accounts"
+     ],
+     "techniques": [
+      "T1078",
+      "T1078.003",
+      "T1136"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether the host or account is compromised",
+     "actions": [
+      "verify_host_compromise",
+      "verify_account_compromise"
+     ],
+     "techniques": []
+    }
+   ],
+   "defense_evasion": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "tamper_check",
+     "description": "Check for disabled security tools, cleared logs or changed policies",
+     "actions": [
+      "query_registry_events",
+      "review_host_alerts"
+     ],
+     "techniques": [
+      "T1685",
+      "T1685.005",
+      "T1562.001",
+      "T1070.001",
+      "T1112"
+     ]
+    },
+    {
+     "id": "obfuscated_execution",
+     "description": "Decode obfuscated scripts and command lines",
+     "actions": [
+      "query_script_blocks",
+      "analyze_process_tree"
+     ],
+     "techniques": [
+      "T1027",
+      "T1140",
+      "T1059.001"
+     ]
+    },
+    {
+     "id": "masquerading_binaries",
+     "description": "Check binaries for masquerading or signed-binary proxy execution",
+     "actions": [
+      "file_hash_reputation",
+      "scan_file_yara"
+     ],
+     "techniques": [
+      "T1036",
+      "T1218"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether the host is compromised",
+     "actions": [
+      "verify_host_compromise",
+      "verify_malicious_indicator"
+     ],
+     "techniques": []
+    }
+   ],
+   "discovery": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "enumeration_commands",
+     "description": "Identify the discovery commands and scripts that were run",
+     "actions": [
+      "query_process_events",
+      "analyze_process_tree",
+      "query_script_blocks"
+     ],
+     "techniques": [
+      "T1082",
+      "T1087",
+      "T1069",
+      "T1057"
+     ]
+    },
+    {
+     "id": "account_enumeration",
+     "description": "Check which accounts and groups were enumerated or used",
+     "actions": [
+      "query_user_auth_events",
+      "list_local_accounts"
+     ],
+     "techniques": [
+      "T1087.002",
+      "T1078"
+     ]
+    },
+    {
+     "id": "network_discovery",
+     "description": "Look for network scanning or share enumeration",
+     "actions": [
+      "query_network_connections",
+      "analyze_network_flows"
+     ],
+     "techniques": [
+      "T1046",
+      "T1135",
+      "T1018"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether the host or account is compromised",
+     "actions": [
+      "verify_host_compromise",
+      "verify_account_compromise"
+     ],
+     "techniques": []
+    }
+   ],
+   "system_impact": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "destructive_activity",
+     "description": "Identify the destructive commands or tools (wipers, service stops, recovery inhibition)",
+     "actions": [
+      "query_process_events",
+      "analyze_process_tree"
+     ],
+     "techniques": [
+      "T1485",
+      "T1489",
+      "T1490",
+      "T1561"
+     ]
+    },
+    {
+     "id": "affected_data",
+     "description": "Scope deleted or altered files",
+     "actions": [
+      "review_file_integrity",
+      "select_suspicious_files"
+     ],
+     "techniques": [
+      "T1565"
+     ]
+    },
+    {
+     "id": "service_disruption",
+     "description": "Check stopped or altered services and scheduled tasks",
+     "actions": [
+      "query_service_task_events",
+      "list_scheduled_tasks"
+     ],
+     "techniques": [
+      "T1489"
+     ]
+    },
+    {
+     "id": "spread_assessment",
+     "description": "Assess how many hosts are affected",
+     "actions": [
+      "assess_scope"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Confirm the compromise before any containment",
+     "actions": [
+      "verify_host_compromise"
+     ],
+     "techniques": []
+    }
+   ],
+   "data_exfiltration": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "transfer_analysis",
+     "description": "Quantify the outbound transfer",
+     "actions": [],
+     "techniques": [
+      "T1041",
+      "T1048"
+     ]
+    },
+    {
+     "id": "destination_reputation",
+     "description": "Check the destination's reputation",
+     "actions": [
+      "ip_reputation",
+      "domain_reputation"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "data_identification",
+     "description": "Identify what data was staged or accessed",
+     "actions": [],
+     "techniques": [
+      "T1005",
+      "T1530",
+      "T1537"
+     ]
+    },
+    {
+     "id": "account_involvement",
+     "description": "Identify the account behind the transfer",
+     "actions": [],
+     "techniques": [
+      "T1078"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether exfiltration really occurred",
+     "actions": [
+      "verify_host_compromise",
+      "verify_account_compromise",
+      "verify_malicious_indicator"
+     ],
+     "techniques": []
+    }
+   ],
+   "denial_of_service": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "traffic_characterisation",
+     "description": "Characterise the attack traffic",
+     "actions": [],
+     "techniques": [
+      "T1498",
+      "T1499"
+     ]
+    },
+    {
+     "id": "source_analysis",
+     "description": "Identify and assess the sources",
+     "actions": [
+      "ip_reputation",
+      "query_ip_connections",
+      "query_web_logs_by_source"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "service_impact",
+     "description": "Measure the impact on the service",
+     "actions": [
+      "query_web_logs",
+      "review_host_alerts"
+     ],
+     "techniques": []
+    }
+   ],
+   "web_application_attack": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "request_analysis",
+     "description": "Analyse the malicious requests",
+     "actions": [],
+     "techniques": [
+      "T1190"
+     ]
+    },
+    {
+     "id": "webshell_check",
+     "description": "Check for web shells or dropped files",
+     "actions": [
+      "scan_file_yara"
+     ],
+     "techniques": [
+      "T1505.003"
+     ]
+    },
+    {
+     "id": "source_reputation",
+     "description": "Check the attacker's source",
+     "actions": [
+      "ip_reputation"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "post_exploitation",
+     "description": "Look for commands run by the web server process",
+     "actions": [
+      "analyze_process_tree"
+     ],
+     "techniques": [
+      "T1059"
+     ]
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether the server is compromised",
+     "actions": [
+      "verify_host_compromise",
+      "verify_malicious_indicator"
+     ],
+     "techniques": []
+    }
+   ],
+   "command_and_control_persistence": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "beacon_analysis",
+     "description": "Confirm and characterise beaconing",
+     "actions": [],
+     "techniques": [
+      "T1071",
+      "T1071.004",
+      "T1571",
+      "T1095"
+     ]
+    },
+    {
+     "id": "destination_reputation",
+     "description": "Check the C2 destination's reputation",
+     "actions": [
+      "ip_reputation",
+      "domain_reputation"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "persistence_mechanism",
+     "description": "Identify the persistence mechanism",
+     "actions": [],
+     "techniques": [
+      "T1053",
+      "T1053.005",
+      "T1547.001",
+      "T1543.003"
+     ]
+    },
+    {
+     "id": "implant_identification",
+     "description": "Identify the implant binary and process",
+     "actions": [
+      "analyze_process_tree",
+      "file_hash_reputation",
+      "scan_file_yara"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "compromise_verification",
+     "description": "Decide whether the host is compromised",
+     "actions": [
+      "verify_host_compromise",
+      "verify_malicious_indicator"
+     ],
+     "techniques": []
+    }
+   ],
+   "unknown": [
+    {
+     "id": "triage",
+     "description": "Triage the alert and extract entities",
+     "actions": [
+      "triage_alert",
+      "extract_entities"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "evidence_collection",
+     "description": "Collect basic host telemetry",
+     "actions": [
+      "query_process_events",
+      "query_network_connections",
+      "review_host_alerts"
+     ],
+     "techniques": []
+    },
+    {
+     "id": "scope",
+     "description": "Estimate what is affected",
+     "actions": [
+      "assess_scope"
+     ],
+     "techniques": []
+    }
+   ]
+  }
+ }
+}

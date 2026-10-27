@@ -1,0 +1,1 @@
+SYNTHETIC analyst note (not a real incident): proxy logs show host LAPTOP-HR-07 contacting cdn-update[.]example every 60 seconds for the last 9 hours with near-identical 512-byte requests. A new scheduled task named 'OneDrive Sync Helper' was created on LAPTOP-HR-07 yesterday. No antivirus alert was raised. We do not yet have the process responsible for the traffic.

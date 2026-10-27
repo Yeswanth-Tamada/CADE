@@ -1,0 +1,117 @@
+{
+  "version": "cade-goals-1.0",
+  "note": "Static per-intent investigative goals (paper 968 Section 5.1: IC(p) is 'the fraction of the intent's expected goals addressed'; here a goal counts as addressed by at least one node, from this static per-intent mapping). Implementation-defined. A node addresses a goal when its action is listed in 'actions' or investigates one of the goal's ATT&CK 'techniques'. Goals are investigative only: containment is never required for coverage, so the search is not rewarded for adding destructive actions.",
+  "intents": {
+    "suspicious_process_execution": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "process_lineage", "description": "Reconstruct the process tree and command lines", "techniques": ["T1059", "T1059.001", "T1218"], "actions": ["analyze_process_tree"]},
+      {"id": "payload_reputation", "description": "Establish whether dropped files or contacted indicators are malicious", "actions": ["file_hash_reputation", "ip_reputation", "domain_reputation", "scan_file_yara"]},
+      {"id": "network_follow_up", "description": "Check what the host contacted afterwards", "techniques": ["T1071", "T1041", "T1071.004"]},
+      {"id": "persistence_check", "description": "Check for persistence created by the process", "techniques": ["T1053.005", "T1547.001", "T1543.003"]},
+      {"id": "compromise_verification", "description": "Decide whether the host is compromised", "actions": ["verify_host_compromise", "verify_malicious_indicator"]}
+    ],
+    "malware_investigation": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "file_analysis", "description": "Determine whether the file is malicious", "actions": ["file_hash_reputation", "scan_file_yara"]},
+      {"id": "execution_trace", "description": "Find how and when the malware executed", "techniques": ["T1204.002", "T1059"], "actions": ["analyze_process_tree"]},
+      {"id": "c2_check", "description": "Look for command-and-control traffic", "techniques": ["T1071", "T1071.004", "T1041"]},
+      {"id": "persistence_check", "description": "Look for persistence mechanisms", "techniques": ["T1053.005", "T1547.001", "T1543.003"]},
+      {"id": "compromise_verification", "description": "Decide whether the host is compromised", "actions": ["verify_host_compromise", "verify_malicious_indicator"]}
+    ],
+    "ransomware_investigation": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "encryption_activity", "description": "Confirm and scope file encryption", "techniques": ["T1486", "T1485"]},
+      {"id": "recovery_inhibition", "description": "Check for shadow-copy deletion and recovery inhibition", "techniques": ["T1490"]},
+      {"id": "binary_identification", "description": "Identify the ransomware binary", "actions": ["file_hash_reputation", "scan_file_yara"]},
+      {"id": "spread_assessment", "description": "Assess lateral spread and affected hosts", "techniques": ["T1021", "T1021.002"], "actions": ["assess_scope"]},
+      {"id": "compromise_verification", "description": "Confirm the compromise before any containment", "actions": ["verify_host_compromise"]}
+    ],
+    "phishing_investigation": [
+      {"id": "triage", "description": "Triage the report and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "message_analysis", "description": "Analyse sender, links and attachments", "techniques": ["T1566", "T1566.001", "T1566.002"]},
+      {"id": "indicator_reputation", "description": "Check reputation of links, domains and attachments", "actions": ["domain_reputation", "file_hash_reputation", "ip_reputation"]},
+      {"id": "user_interaction", "description": "Find whether recipients opened the attachment or link", "techniques": ["T1204.002"], "actions": ["query_domain_resolutions", "query_dns_activity"]},
+      {"id": "credential_exposure", "description": "Check for credential use after the phish", "techniques": ["T1078", "T1110"]},
+      {"id": "compromise_verification", "description": "Decide whether any account or host is compromised", "actions": ["verify_account_compromise", "verify_host_compromise", "verify_malicious_indicator"]}
+    ],
+    "credential_compromise": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "authentication_review", "description": "Review authentication history of the account", "techniques": ["T1110", "T1110.003", "T1078"]},
+      {"id": "source_reputation", "description": "Check reputation of the source addresses", "actions": ["ip_reputation"]},
+      {"id": "post_auth_activity", "description": "Look for activity after a successful logon", "techniques": ["T1021", "T1078.004", "T1550"], "actions": ["query_cloud_audit"]},
+      {"id": "compromise_verification", "description": "Decide whether the account is compromised", "actions": ["verify_account_compromise"]}
+    ],
+    "lateral_movement": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "remote_logons", "description": "Trace remote logons between hosts", "techniques": ["T1021", "T1021.001", "T1021.002"]},
+      {"id": "remote_execution", "description": "Find remote execution (services, tasks, tools)", "techniques": ["T1543.003", "T1053.005", "T1059"]},
+      {"id": "credential_use", "description": "Identify the credentials being used", "techniques": ["T1078", "T1550"]},
+      {"id": "scope", "description": "Determine every host involved", "actions": ["assess_scope", "query_ip_connections"]},
+      {"id": "compromise_verification", "description": "Confirm compromised hosts and accounts", "actions": ["verify_host_compromise", "verify_account_compromise"]}
+    ],
+    "privilege_escalation": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "elevation_mechanism", "description": "Identify how elevation was obtained (UAC bypass, service, token manipulation)", "techniques": ["T1548.002", "T1543.003", "T1134"], "actions": ["query_registry_events", "query_service_task_events"]},
+      {"id": "elevated_execution", "description": "Trace the processes started with elevated rights", "techniques": ["T1068", "T1059"], "actions": ["analyze_process_tree", "query_process_events"]},
+      {"id": "account_privileges", "description": "Review privileged logons and new or changed privileged accounts", "techniques": ["T1078", "T1078.003", "T1136"], "actions": ["query_user_auth_events", "query_host_auth_events", "list_local_accounts"]},
+      {"id": "compromise_verification", "description": "Decide whether the host or account is compromised", "actions": ["verify_host_compromise", "verify_account_compromise"]}
+    ],
+    "defense_evasion": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "tamper_check", "description": "Check for disabled security tools, cleared logs or changed policies", "techniques": ["T1685", "T1685.005", "T1562.001", "T1070.001", "T1112"], "actions": ["query_registry_events", "review_host_alerts"]},
+      {"id": "obfuscated_execution", "description": "Decode obfuscated scripts and command lines", "techniques": ["T1027", "T1140", "T1059.001"], "actions": ["query_script_blocks", "analyze_process_tree"]},
+      {"id": "masquerading_binaries", "description": "Check binaries for masquerading or signed-binary proxy execution", "techniques": ["T1036", "T1218"], "actions": ["file_hash_reputation", "scan_file_yara"]},
+      {"id": "compromise_verification", "description": "Decide whether the host is compromised", "actions": ["verify_host_compromise", "verify_malicious_indicator"]}
+    ],
+    "discovery": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "enumeration_commands", "description": "Identify the discovery commands and scripts that were run", "techniques": ["T1082", "T1087", "T1069", "T1057"], "actions": ["query_process_events", "analyze_process_tree", "query_script_blocks"]},
+      {"id": "account_enumeration", "description": "Check which accounts and groups were enumerated or used", "techniques": ["T1087.002", "T1078"], "actions": ["query_user_auth_events", "list_local_accounts"]},
+      {"id": "network_discovery", "description": "Look for network scanning or share enumeration", "techniques": ["T1046", "T1135", "T1018"], "actions": ["query_network_connections", "analyze_network_flows"]},
+      {"id": "compromise_verification", "description": "Decide whether the host or account is compromised", "actions": ["verify_host_compromise", "verify_account_compromise"]}
+    ],
+    "system_impact": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "destructive_activity", "description": "Identify the destructive commands or tools (wipers, service stops, recovery inhibition)", "techniques": ["T1485", "T1489", "T1490", "T1561"], "actions": ["query_process_events", "analyze_process_tree"]},
+      {"id": "affected_data", "description": "Scope deleted or altered files", "techniques": ["T1565"], "actions": ["review_file_integrity", "select_suspicious_files"]},
+      {"id": "service_disruption", "description": "Check stopped or altered services and scheduled tasks", "techniques": ["T1489"], "actions": ["query_service_task_events", "list_scheduled_tasks"]},
+      {"id": "spread_assessment", "description": "Assess how many hosts are affected", "actions": ["assess_scope"]},
+      {"id": "compromise_verification", "description": "Confirm the compromise before any containment", "actions": ["verify_host_compromise"]}
+    ],
+    "data_exfiltration": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "transfer_analysis", "description": "Quantify the outbound transfer", "techniques": ["T1041", "T1048"]},
+      {"id": "destination_reputation", "description": "Check the destination's reputation", "actions": ["ip_reputation", "domain_reputation"]},
+      {"id": "data_identification", "description": "Identify what data was staged or accessed", "techniques": ["T1005", "T1530", "T1537"]},
+      {"id": "account_involvement", "description": "Identify the account behind the transfer", "techniques": ["T1078"]},
+      {"id": "compromise_verification", "description": "Decide whether exfiltration really occurred", "actions": ["verify_host_compromise", "verify_account_compromise", "verify_malicious_indicator"]}
+    ],
+    "denial_of_service": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "traffic_characterisation", "description": "Characterise the attack traffic", "techniques": ["T1498", "T1499"]},
+      {"id": "source_analysis", "description": "Identify and assess the sources", "actions": ["ip_reputation", "query_ip_connections", "query_web_logs_by_source"]},
+      {"id": "service_impact", "description": "Measure the impact on the service", "actions": ["query_web_logs", "review_host_alerts"]}
+    ],
+    "web_application_attack": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "request_analysis", "description": "Analyse the malicious requests", "techniques": ["T1190"]},
+      {"id": "webshell_check", "description": "Check for web shells or dropped files", "techniques": ["T1505.003"], "actions": ["scan_file_yara"]},
+      {"id": "source_reputation", "description": "Check the attacker's source", "actions": ["ip_reputation"]},
+      {"id": "post_exploitation", "description": "Look for commands run by the web server process", "techniques": ["T1059"], "actions": ["analyze_process_tree"]},
+      {"id": "compromise_verification", "description": "Decide whether the server is compromised", "actions": ["verify_host_compromise", "verify_malicious_indicator"]}
+    ],
+    "command_and_control_persistence": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "beacon_analysis", "description": "Confirm and characterise beaconing", "techniques": ["T1071", "T1071.004", "T1571", "T1095"]},
+      {"id": "destination_reputation", "description": "Check the C2 destination's reputation", "actions": ["ip_reputation", "domain_reputation"]},
+      {"id": "persistence_mechanism", "description": "Identify the persistence mechanism", "techniques": ["T1053", "T1053.005", "T1547.001", "T1543.003"]},
+      {"id": "implant_identification", "description": "Identify the implant binary and process", "actions": ["analyze_process_tree", "file_hash_reputation", "scan_file_yara"]},
+      {"id": "compromise_verification", "description": "Decide whether the host is compromised", "actions": ["verify_host_compromise", "verify_malicious_indicator"]}
+    ],
+    "unknown": [
+      {"id": "triage", "description": "Triage the alert and extract entities", "actions": ["triage_alert", "extract_entities"]},
+      {"id": "evidence_collection", "description": "Collect basic host telemetry", "actions": ["query_process_events", "query_network_connections", "review_host_alerts"]},
+      {"id": "scope", "description": "Estimate what is affected", "actions": ["assess_scope"]}
+    ]
+  }
+}

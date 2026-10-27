@@ -1,0 +1,35 @@
+{
+  "version": "cade-log-sources-1.1",
+  "note": "Host log sources and the evidence category of each event (paper Section 6.1: process creation = Sysmon 1 and Security 4688; network connections = Sysmon 3; file activity = Sysmon 11; registry activity = Sysmon 12-14; authentication = Security 4624, 4625, 4648; script execution = PowerShell 4104; service and scheduled-task activity = Security 4697, 4698). 'channel' is the Windows event-log channel (winlog.channel in Winlogbeat/ECS); 'keywords' are names that identify the source in free text, needed for Sysmon's small event ids. 'names' describe events for the intent model's event digest (including events outside the seven categories); they never create evidence.",
+  "sources": [
+    {
+      "name": "Sysmon",
+      "channel": "Microsoft-Windows-Sysmon/Operational",
+      "keywords": ["sysmon"],
+      "events": {"1": "process_telemetry", "3": "network_traffic", "11": "file_activity",
+                 "12": "registry", "13": "registry", "14": "registry"},
+      "names": {"1": "process created", "3": "network connection", "7": "image (DLL) loaded",
+                "8": "remote thread created", "10": "process accessed another process", "11": "file created",
+                "12": "registry key created or deleted", "13": "registry value set", "14": "registry key renamed",
+                "22": "DNS query", "23": "file deleted"}
+    },
+    {
+      "name": "Windows Security",
+      "channel": "Security",
+      "keywords": ["security", "microsoft-windows-security-auditing"],
+      "events": {"4688": "process_telemetry", "4624": "authentication", "4625": "authentication",
+                 "4648": "authentication", "4697": "scheduled_tasks_services", "4698": "scheduled_tasks_services"},
+      "names": {"1102": "audit log cleared", "4624": "successful logon", "4625": "failed logon",
+                "4648": "logon with explicit credentials", "4672": "special privileges assigned to new logon",
+                "4688": "process created", "4697": "service installed", "4698": "scheduled task created",
+                "4720": "user account created", "4732": "member added to security-enabled local group"}
+    },
+    {
+      "name": "PowerShell",
+      "channel": "Microsoft-Windows-PowerShell/Operational",
+      "keywords": ["powershell"],
+      "events": {"4104": "script_execution"},
+      "names": {"4104": "PowerShell script block executed"}
+    }
+  ]
+}

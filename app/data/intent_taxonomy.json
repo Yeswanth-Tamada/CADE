@@ -1,0 +1,126 @@
+{
+  "version": "cade-intents-1.1",
+  "note": "Implementation-defined intent taxonomy. Labels must be lowercase snake_case and 'unknown' must remain. 'tactics' are the MITRE ATT&CK tactics (x_mitre_shortname) each intent investigates; together the intents cover the eight evaluation tactics of the paper (execution, persistence, privilege escalation, defense evasion, credential access, discovery, lateral movement, impact). ATT&CK v20 split defense evasion into 'stealth' and 'defense-impairment', so defense_evasion lists all three. Each relevant evidence category is either critical ('critical_evidence') or supporting (the rest), as in the paper's ontology (Section 6.1).",
+  "intents": [
+    {
+      "label": "suspicious_process_execution",
+      "name": "Suspicious process execution",
+      "description": "Unusual or suspicious process creation, script or command execution on an endpoint whose purpose is not yet established.",
+      "tactics": ["execution"],
+      "relevant_evidence": ["process_telemetry", "command_line", "script_execution", "file_activity", "network_traffic", "security_alert"],
+      "critical_evidence": ["process_telemetry", "command_line"]
+    },
+    {
+      "label": "malware_investigation",
+      "name": "Malware investigation",
+      "description": "Suspected malicious file or binary present or executed on a system (excluding ransomware, which has its own label).",
+      "tactics": ["execution", "persistence"],
+      "relevant_evidence": ["file_activity", "process_telemetry", "indicators_of_compromise", "network_traffic", "memory", "security_alert"],
+      "critical_evidence": ["file_activity", "process_telemetry"]
+    },
+    {
+      "label": "ransomware_investigation",
+      "name": "Ransomware investigation",
+      "description": "Mass file encryption, ransom notes, shadow-copy deletion or other indicators of ransomware.",
+      "tactics": ["impact"],
+      "relevant_evidence": ["file_activity", "process_telemetry", "command_line", "indicators_of_compromise", "network_traffic", "memory"],
+      "critical_evidence": ["file_activity", "process_telemetry"]
+    },
+    {
+      "label": "phishing_investigation",
+      "name": "Phishing investigation",
+      "description": "Suspicious or malicious email, links or attachments delivered to users.",
+      "tactics": ["initial-access"],
+      "relevant_evidence": ["email", "dns", "network_traffic", "indicators_of_compromise", "user_account", "file_activity"],
+      "critical_evidence": ["email"]
+    },
+    {
+      "label": "credential_compromise",
+      "name": "Credential compromise",
+      "description": "Brute force, password spraying, credential theft or suspicious use of valid accounts.",
+      "tactics": ["credential-access"],
+      "relevant_evidence": ["authentication", "user_account", "network_traffic", "cloud_audit", "process_telemetry"],
+      "critical_evidence": ["authentication"]
+    },
+    {
+      "label": "lateral_movement",
+      "name": "Lateral movement",
+      "description": "An adversary moving between internal systems, e.g. via remote services, admin shares or remote execution.",
+      "tactics": ["lateral-movement"],
+      "relevant_evidence": ["authentication", "network_traffic", "process_telemetry", "scheduled_tasks_services", "user_account"],
+      "critical_evidence": ["authentication", "network_traffic"]
+    },
+    {
+      "label": "privilege_escalation",
+      "name": "Privilege escalation",
+      "description": "An adversary gaining higher privileges on a system, e.g. UAC bypass, exploited services, token manipulation or new privileged accounts.",
+      "tactics": ["privilege-escalation"],
+      "relevant_evidence": ["process_telemetry", "authentication", "scheduled_tasks_services", "registry", "command_line", "security_alert"],
+      "critical_evidence": ["process_telemetry", "authentication"]
+    },
+    {
+      "label": "defense_evasion",
+      "name": "Defense evasion",
+      "description": "Disabling or tampering with security tools, clearing logs, obfuscated scripts, masquerading or proxy execution to avoid detection.",
+      "tactics": ["defense-evasion", "stealth", "defense-impairment"],
+      "relevant_evidence": ["process_telemetry", "registry", "script_execution", "file_activity", "command_line", "security_alert"],
+      "critical_evidence": ["process_telemetry", "registry"]
+    },
+    {
+      "label": "discovery",
+      "name": "Discovery",
+      "description": "Reconnaissance from inside the environment: system, account, group, process, share or network enumeration.",
+      "tactics": ["discovery"],
+      "relevant_evidence": ["process_telemetry", "command_line", "script_execution", "authentication", "network_traffic"],
+      "critical_evidence": ["process_telemetry"]
+    },
+    {
+      "label": "data_exfiltration",
+      "name": "Data exfiltration",
+      "description": "Unauthorised transfer of data out of the environment.",
+      "tactics": ["exfiltration", "collection"],
+      "relevant_evidence": ["network_traffic", "dns", "file_activity", "cloud_audit", "user_account"],
+      "critical_evidence": ["network_traffic"]
+    },
+    {
+      "label": "system_impact",
+      "name": "Destructive impact",
+      "description": "Destruction or disruption other than ransomware encryption: data or disk wiping, stopped services, inhibited recovery, defacement or removed accounts.",
+      "tactics": ["impact"],
+      "relevant_evidence": ["process_telemetry", "file_activity", "scheduled_tasks_services", "command_line", "security_alert"],
+      "critical_evidence": ["process_telemetry", "file_activity"]
+    },
+    {
+      "label": "denial_of_service",
+      "name": "Denial of service / availability",
+      "description": "Attacks degrading availability, such as volumetric DDoS or resource exhaustion.",
+      "tactics": ["impact"],
+      "relevant_evidence": ["network_traffic", "web_server_logs", "security_alert"],
+      "critical_evidence": ["network_traffic"]
+    },
+    {
+      "label": "web_application_attack",
+      "name": "Web application attack",
+      "description": "Exploitation attempts against web applications, e.g. SQL injection, web shells or path traversal.",
+      "tactics": ["initial-access", "persistence"],
+      "relevant_evidence": ["web_server_logs", "network_traffic", "process_telemetry", "file_activity", "security_alert"],
+      "critical_evidence": ["web_server_logs"]
+    },
+    {
+      "label": "command_and_control_persistence",
+      "name": "Command-and-control or persistence",
+      "description": "Beaconing to adversary infrastructure or mechanisms that keep adversary access (run keys, scheduled tasks, services).",
+      "tactics": ["command-and-control", "persistence"],
+      "relevant_evidence": ["network_traffic", "dns", "registry", "scheduled_tasks_services", "process_telemetry", "indicators_of_compromise"],
+      "critical_evidence": ["network_traffic", "scheduled_tasks_services"]
+    },
+    {
+      "label": "unknown",
+      "name": "Unknown / insufficient information",
+      "description": "The incident does not contain enough information to determine an intent with reasonable confidence.",
+      "tactics": [],
+      "relevant_evidence": [],
+      "critical_evidence": []
+    }
+  ]
+}

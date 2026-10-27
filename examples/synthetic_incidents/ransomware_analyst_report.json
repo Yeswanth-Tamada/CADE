@@ -1,0 +1,20 @@
+{
+  "source": "analyst_description",
+  "title": "SYNTHETIC: Files renamed with .lockd extension on file server",
+  "description": "SYNTHETIC. Analyst report: users report they cannot open documents on file server FS-02. Hundreds of files in \\\\FS-02\\shared\\finance were renamed with the extension .lockd and a file README_RESTORE.txt appeared in each folder demanding payment. The Windows event log on FS-02 shows 'vssadmin delete shadows /all /quiet' executed at 02:13 by account svc-backup. The originating workstation is not yet known.",
+  "occurred_at": "2026-10-17T02:13:00+05:30",
+  "severity": "critical",
+  "observables": {
+    "hosts": [
+      "FS-02"
+    ],
+    "users": [
+      "svc-backup"
+    ]
+  },
+  "attributes": {
+    "ticket": "SYN-2026-0042",
+    "synthetic": true,
+    "note": "SYNTHETIC test data created for CADE development. Not a real incident."
+  }
+}

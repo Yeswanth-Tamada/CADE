@@ -1,0 +1,23 @@
+{
+  "version": "cade-availability-1.0",
+  "note": "Per-deployment evidence availability profile (paper Section 4, 'requestability'): for each evidence category, the probability that it can be obtained on request in THIS environment. These are implementation defaults for a mid-sized SOC with EDR + SIEM, not values from the paper. Adjust them to your deployment. The simulator also uses them as the probability that a simulated read-only tool call returns data.",
+  "availability": {
+    "process_telemetry": 0.9,
+    "command_line": 0.8,
+    "script_execution": 0.7,
+    "file_activity": 0.75,
+    "network_traffic": 0.85,
+    "dns": 0.8,
+    "authentication": 0.9,
+    "user_account": 0.85,
+    "email": 0.6,
+    "web_server_logs": 0.7,
+    "memory": 0.2,
+    "registry": 0.6,
+    "scheduled_tasks_services": 0.7,
+    "cloud_audit": 0.5,
+    "indicators_of_compromise": 0.9,
+    "security_alert": 0.85,
+    "other": 0.3
+  }
+}

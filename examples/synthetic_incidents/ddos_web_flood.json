@@ -1,0 +1,8 @@
+{
+  "source": "siem_alert",
+  "title": "SYNTHETIC: HTTP flood against the customer portal",
+  "description": "SYNTHETIC. The load balancer reports 48,000 requests per second against web server WEB-PORTAL-01, about 60 times normal, mostly GET requests for /search from roughly 3,000 source addresses including 192.0.2.10 and 192.0.2.44. Response latency rose to 9 seconds and error rates to 35 percent. Upstream provider traffic statistics were not provided.",
+  "severity": "critical",
+  "observables": {"hosts": ["WEB-PORTAL-01"], "ips": ["192.0.2.10", "192.0.2.44"]},
+  "attributes": {"rule_id": "LB-DOS-001", "synthetic": true, "note": "SYNTHETIC test data created for CADE development. Not a real incident."}
+}

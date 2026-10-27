@@ -1,0 +1,13 @@
+{
+  "incident_id": "SYN-EDR-0001",
+  "source": "siem_alert",
+  "title": "SYNTHETIC: Office application spawned encoded PowerShell",
+  "description": "SYNTHETIC. EDR alert on host WS-FIN-042: WINWORD.EXE spawned powershell.exe -NoP -W Hidden -enc SQBFAFgAIAAoAE4AZQB3AC0A under user jdoe. Seconds later the host connected to 203.0.113.45 on port 443 and resolved cdn-update[.]example. A file dropped to C:\\Users\\jdoe\\AppData\\Local\\Temp\\upd.dll has MD5 0987ace2bf850aacc7630a3b8aacfc40.",
+  "occurred_at": "2026-10-19T08:15:00Z",
+  "severity": "high",
+  "attributes": {
+    "rule_id": "EDR-1042",
+    "synthetic": true,
+    "note": "SYNTHETIC test data created for CADE development. Not a real incident."
+  }
+}

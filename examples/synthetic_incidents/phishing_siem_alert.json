@@ -1,0 +1,20 @@
+{
+  "source": "siem_alert",
+  "title": "SYNTHETIC: Suspicious attachment delivered to finance user",
+  "description": "SYNTHETIC. Email gateway alert: message from billing@invoices-secure.example to j.doe@corp.example with subject 'Overdue invoice 8841' carried attachment Invoice_8841.docm (SHA-256 c351c3428777662736769ea34da562dc2b00831dcfdafd4969e92e426e12e2c1). The sender domain invoices-secure.example was registered 3 days ago. The gateway delivered the message. It is not known whether the user opened the attachment.",
+  "occurred_at": "2026-10-18T09:42:00Z",
+  "severity": "medium",
+  "observables": {
+    "users": [
+      "j.doe@corp.example"
+    ],
+    "domains": [
+      "invoices-secure.example"
+    ]
+  },
+  "attributes": {
+    "rule_id": "MAILGW-ATTACH-MACRO",
+    "synthetic": true,
+    "note": "SYNTHETIC test data created for CADE development. Not a real incident."
+  }
+}
