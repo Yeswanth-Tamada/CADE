@@ -116,7 +116,9 @@ evidence.
   20 nodes, B = 20, τ = 0.3 (Jaccard), m = 5, 3 judgments, plateau < 0.01 over 3 generations, LinUCB d = 9 and
   α = 1.0 with a 20-incident bootstrap, ≤ 1 request per incident, λc/λℓ/λq = 0.6/0.3/0.1, and the models qwen3:14b
   (generator) and gemma3:12b (judge). Implementation choices are listed in README §7. `routing_similarity_sharpness` =
-  1.0 is exactly Eq. 2.
+  1.0 is exactly Eq. 2. Eq. 1–7 are never altered: ρ's obtainability is thresholded at `routing_tau`
+  (`routing_requestability`), and the LinUCB context is min-max scaled over the bootstrap incidents
+  (`bandit_feature_scaling`); both are choices where the paper is silent.
 
 ## Running
 

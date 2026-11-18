@@ -138,6 +138,10 @@ class Settings(BaseSettings):
     routing_top_n: int = Field(default=10, ge=1, le=100)
     # A missing critical category counts as obtainable for Cov+ when its availability is >= tau
     routing_tau: float = Field(default=0.5, ge=0.0, le=1.0)
+    # rho = mean obtainability over the missing critical categories. "threshold": a category is obtainable
+    # (1) when its availability is >= tau, else 0 -- the same test Cov+ uses; "mean": the raw availability
+    # probabilities are averaged (rho then never reaches 1, so Eq. 5 never lets a request win).
+    routing_requestability: str = Field(default="threshold", pattern=r"^(threshold|mean)$")
     # The paper caps evidence requests at one per incident
     max_evidence_rounds: int = Field(default=1, ge=0, le=5)
     # 1.0 = the paper's Eq. 2 exactly. > 1 sharpens the similarity distribution before the entropy
@@ -154,6 +158,9 @@ class Settings(BaseSettings):
     bandit_bootstrap_incidents: int = Field(default=20, ge=0, le=10_000)
     # Library size enters the context as n / (n + scale)
     bandit_library_size_scale: float = Field(default=50.0, gt=0.0)
+    # Min-max scale each context feature with its range over the bootstrap incidents (fixed afterwards,
+    # like L_max). The paper does not state an input scaling; False = the raw context.
+    bandit_feature_scaling: bool = True
     # Simulated runs produce synthetic telemetry; by default they do not train the router.
     bandit_learn_from_simulated: bool = False
     # Reward (Eq. 9): r = 1_ret * [lc * IC_exec + ll * (1 - latency / L_max)] - lq * c_q(a)

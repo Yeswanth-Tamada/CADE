@@ -84,14 +84,14 @@ def _run_bootstrap(router, learner, vocabulary, start_id: int = 1, count: int = 
     return decisions
 
 
-def _reference(decisions, latency_max: float) -> LinUCBPolicy:
-    """A fresh policy fed the paper's Eq. 9 rewards directly, oldest first."""
+def _reference(decisions, latency_max: float, learner: RoutingLearner) -> LinUCBPolicy:
+    """A fresh policy fed the paper's Eq. 9 rewards directly, oldest first (contexts on the learner's bootstrap scale)."""
     policy = LinUCBPolicy()
     for d in decisions:
         index = (d.decision_id - 1) % 20
         value = terminal_reward(retained=True, coverage=COVERAGE[index], latency_seconds=LATENCIES[index],
                                 latency_max_seconds=latency_max, weights=RewardWeights()).value  # fmt: skip
-        policy.update(d.action, d.features, value)
+        policy.update(d.action, learner.context(d.features), value)
     return policy
 
 
@@ -135,10 +135,11 @@ def test_bootstrap_rule_lmax_buffering_precision_and_the_state_incident_21_start
     assert [stored[d.decision_id] for d in decisions] == pytest.approx([v for _, v in applied], abs=1e-12)
     assert not repository.provisional() and all(r.components["latency_max_seconds"] == latency_max for r in repository.all())
     # (6) incident 21 is routed by LinUCB from exactly the corrected state
-    assert _same(learner.policy, _reference(decisions, latency_max))
+    assert _same(learner.policy, _reference(decisions, latency_max, learner))
     nxt = router.score("INC-21", _candidates(vocabulary, 0.77), set(), {})
     assert nxt.policy == "linucb"
-    reference = _reference(decisions, latency_max).scores(nxt.features, [SYNTH, REUSE])
+    assert learner.context(nxt.features) != nxt.features  # the decision keeps the raw context; the bandit sees it scaled
+    reference = _reference(decisions, latency_max, learner).scores(learner.context(nxt.features), [SYNTH, REUSE])
     assert nxt.ucb == {arm.value: round(score.ucb, 6) for arm, score in reference.items()}
 
 
@@ -158,7 +159,7 @@ def test_uninterrupted_restarted_and_fresh_learners_reach_the_same_state(repo_fa
     _run_bootstrap(_router(vocabulary, resumed), resumed, vocabulary, start_id=12, count=9)
 
     assert _same(straight.policy, resumed.policy)  # (7) restarted == uninterrupted
-    assert _same(straight.policy, _reference(decisions, percentile(LATENCIES, 90)))  # (7) == a fresh policy fed Eq. 9
+    assert _same(straight.policy, _reference(decisions, percentile(LATENCIES, 90), straight))  # (7) == a fresh policy fed Eq. 9
 
 
 def test_replaying_twice_and_crediting_twice_never_duplicates_an_update(repo_factory, vocabulary):

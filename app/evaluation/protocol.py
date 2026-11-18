@@ -195,6 +195,7 @@ def fresh_learner(settings: Settings, database_path: Path, *, legacy_bootstrap: 
         enabled=True, bootstrap=settings.bandit_bootstrap_incidents, size_scale=settings.bandit_library_size_scale,
         weights=weights_of(settings), latency_max_seconds=None,
         latency_fallback_seconds=settings.reward_latency_fallback_seconds, learn_from_simulated=True,
+        feature_scaling=settings.bandit_feature_scaling and not legacy_bootstrap,
     )  # fmt: skip
 
 

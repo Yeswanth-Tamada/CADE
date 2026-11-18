@@ -136,7 +136,8 @@ def build_components(
     # The learned router logs rewards from the first incident; with routing_policy="rule" it never chooses.
     learner = RoutingLearner.from_settings(settings, BanditRepository(database))
     notes["routing_state"] = learner.state_warning()  # stale state is reported, never changed silently
-    router = Router(library, vocabulary, availability, w=settings.routing_w, k=settings.routing_k,
+    router = Router(library, vocabulary, availability, requestability=settings.routing_requestability,
+                    w=settings.routing_w, k=settings.routing_k,
                     top_n=settings.routing_top_n, tau=settings.routing_tau,
                     sharpness=settings.routing_similarity_sharpness, taxonomy=taxonomy, learner=learner,
                     library_size=library.__len__)  # fmt: skip

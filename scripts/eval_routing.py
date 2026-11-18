@@ -248,7 +248,7 @@ class Env:
         s = self.settings
         return Router(FilteredSource(self.library, scenario.withheld), self.vocabulary, self.availability,
                       w=s.routing_w, k=s.routing_k, top_n=s.routing_top_n, tau=s.routing_tau, sharpness=self.sharpness,
-                      taxonomy=self.taxonomy, learner=learner,
+                      taxonomy=self.taxonomy, learner=learner, requestability=s.routing_requestability,
                       library_size=lambda: len(self.library) - len(scenario.withheld))  # fmt: skip
 
     def same_tactic(self, a: str, b: str) -> bool:

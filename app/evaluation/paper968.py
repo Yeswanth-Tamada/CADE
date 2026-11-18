@@ -427,6 +427,7 @@ class PaperEnv:
         source = _Source(self.library, withheld)
         router = Router(source, self.vocabulary, AvailabilityProfile(version="paper968"), w=s.routing_w, k=s.routing_k,
                         top_n=s.routing_top_n, tau=s.routing_tau, sharpness=self.sharpness, learner=learner,
+                        requestability="mean",  # of the scenario's obtainability: binary marks, or the profile diagnostic
                         library_size=lambda: len(self.library) - len(withheld), requirements=self._requirements)  # fmt: skip
         return router, source
 

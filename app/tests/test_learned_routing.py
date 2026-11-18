@@ -130,7 +130,7 @@ def test_response_chain_reaches_back_to_round_one():
 
 
 def _learner(repository, **changes) -> RoutingLearner:
-    options = dict(enabled=True, bootstrap=2, latency_max_seconds=60.0, learn_from_simulated=False)
+    options = dict(enabled=True, bootstrap=2, latency_max_seconds=60.0, learn_from_simulated=False, feature_scaling=False)
     return RoutingLearner(repository, LinUCBPolicy(), **{**options, **changes})
 
 
@@ -148,6 +148,37 @@ def test_requests_are_credited_with_the_terminal_reward_less_their_cost(reposito
     _, again = learner.credit(incident_id="INC-1", run_id="RUN-1", chain=chain, terminal_arm=REUSE, retained=True,
                               execution_coverage=1.0, latency_seconds=0.0, synthetic=False)  # fmt: skip
     assert again == [] and learner.policy.arms[REUSE].pulls == 1
+
+
+def test_context_scaling_is_fitted_on_the_bootstrap_decisions_and_defers_their_rewards(repository):
+    """Min-max over the bootstrap incidents' contexts, fixed afterwards; raw features stay in the log."""
+    learner = _learner(repository, feature_scaling=True)  # bootstrap = 2, L_max configured
+    low = [0.2, 0.2, 1.0, 0.0, 0.0, 0.5, 0.70, 0.5, 1.0]
+    high = [0.8, 0.8, 1.0, 1.0, 1.0, 0.5, 0.90, 0.5, 1.0]
+    assert learner.context(low) == low  # no scale before the bootstrap is over
+    learner.credit(incident_id="INC-S1", run_id="RUN-S1", chain=[_decision(30, REUSE, 1, features=low)], terminal_arm=REUSE,
+                   retained=True, execution_coverage=1.0, latency_seconds=0.0, synthetic=False)  # fmt: skip
+    assert learner.policy.arms[REUSE].pulls == 0 and len(repository.provisional()) == 1  # held back until the scale exists
+    learner.credit(incident_id="INC-S2", run_id="RUN-S2", chain=[_decision(31, SYNTH, 1, features=high)],
+                   terminal_arm=SYNTH, retained=True, execution_coverage=1.0, latency_seconds=0.0, synthetic=False)  # fmt: skip
+    assert learner.active and not repository.provisional()
+    assert learner.policy.arms[REUSE].pulls == 1 and learner.policy.arms[SYNTH].pulls == 1
+    # varied features are mapped onto [0, 1] and clipped; constant ones and the bias are left alone
+    assert learner.context(low) == pytest.approx([0, 0, 1.0, 0, 0, 0.5, 0, 0.5, 1.0])
+    assert learner.context(high) == pytest.approx([1, 1, 1.0, 1, 1, 0.5, 1, 0.5, 1.0])
+    middle = [0.5, 0.95, 0.9, 0.5, 0.5, 0.9, 0.80, 0.6, 1.0]
+    assert learner.context(middle) == pytest.approx([0.5, 1.0, 0.9, 0.5, 0.5, 0.9, 0.5, 0.6, 1.0])
+    assert [r.features for r in repository.all()] == [low, high]  # the log keeps the raw contexts
+    # the arms are a replay of the log on that scale, and a restart reproduces both
+    expected = LinUCBPolicy()
+    for r in repository.all():
+        expected.update(r.arm, learner.context(r.features), r.reward)
+    restarted = _learner(repository, feature_scaling=True)
+    restarted.load()
+    for arm in (REUSE, SYNTH):
+        assert learner.policy.arms[arm].b == pytest.approx(expected.arms[arm].b)
+        assert restarted.policy.arms[arm].b == pytest.approx(expected.arms[arm].b)
+    assert restarted.context(middle) == learner.context(middle) and restarted.state_warning() is None
 
 
 def test_simulated_runs_and_decisions_without_context_do_not_train(repository):

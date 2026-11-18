@@ -19,6 +19,15 @@ arrives, every provisional reward is rescored with the final L_max and applied i
 logged, so the bandit learns from exactly the paper's Eq. 9 reward. The rule chooses throughout the
 bootstrap, so deferring these updates changes no routing decision.
 
+**Context scaling** (``feature_scaling``; the paper does not state an input scaling). The features
+of Eq. 8's context differ widely in spread -- coverage spans [0, 1] while the top similarity moves
+within a few hundredths -- and with the ridge term fixed the bandit cannot weight a narrow feature.
+So, like L_max, each feature's range is taken from the decisions of the first ``bootstrap`` rewarded
+incidents and fixed: x_i -> (x_i - lo_i) / (hi_i - lo_i), clipped to [0, 1]; a feature that did not
+vary in the bootstrap (and the bias) is left as it is. Decisions and rewards always store the raw
+features; the scale is recomputed from the reward log, so it needs no storage of its own. With
+scaling on, bootstrap rewards are held back until the scale exists even when L_max is configured.
+
 State written by earlier versions is never changed silently. :meth:`RoutingLearner.audit` (run at
 start-up; a finding is logged and reported by ``/health``) detects rewards that were applied with a
 superseded L_max -- before 2026-10-26 bootstrap rewards were applied at once with the fallback -- and
@@ -98,6 +107,7 @@ class RoutingLearner:
         latency_max_seconds: Optional[float] = None,
         latency_fallback_seconds: float = 600.0,
         learn_from_simulated: bool = False,
+        feature_scaling: bool = True,
     ) -> None:
         self.repository = repository
         self.policy = policy
@@ -108,6 +118,8 @@ class RoutingLearner:
         self.latency_max_seconds = latency_max_seconds
         self.latency_fallback_seconds = latency_fallback_seconds
         self.learn_from_simulated = learn_from_simulated
+        self.feature_scaling = feature_scaling
+        self._scale: Optional[tuple[np.ndarray, np.ndarray]] = None  # (lo, hi) per feature, once the bootstrap is over
         self.rewarded_incidents = 0
         self._latencies: list[float] = []
         self._lock = threading.Lock()
@@ -123,6 +135,7 @@ class RoutingLearner:
             latency_max_seconds=settings.reward_latency_max_seconds,
             latency_fallback_seconds=settings.reward_latency_fallback_seconds,
             learn_from_simulated=settings.bandit_learn_from_simulated,
+            feature_scaling=settings.bandit_feature_scaling,
         )  # fmt: skip
         learner.load()
         return learner
@@ -131,7 +144,8 @@ class RoutingLearner:
         self.policy.arms.update(self.repository.load_arms())
         self.rewarded_incidents = self.repository.rewarded_incidents()
         self._latencies = self.repository.first_latencies(self.bootstrap)
-        if self.latency_max_final:  # e.g. stopped between the last bootstrap reward and its replay
+        self._scale = self._fit_scale(self.repository.all())
+        if self.bootstrap_final:  # e.g. stopped between the last bootstrap reward and its replay
             with self._lock:
                 self._finalize_bootstrap()
         self.last_audit = self.audit()
@@ -143,19 +157,42 @@ class RoutingLearner:
         audit = getattr(self, "last_audit", None)
         return audit.warning() if audit else None
 
+    # --- context scaling ------------------------------------------------------------------------
+
+    def _fit_scale(self, stored: list[RoutingReward]) -> Optional[tuple[np.ndarray, np.ndarray]]:
+        """(lo, hi) per feature over every credited decision of the first ``bootstrap`` rewarded incidents."""
+        if not self.feature_scaling or not self.bootstrap:
+            return None
+        runs = [r.run_id for r in stored if r.terminal][: self.bootstrap]
+        if len(runs) < self.bootstrap:
+            return None
+        chosen = set(runs)
+        rows = np.array([r.features for r in stored if r.run_id in chosen and r.features], dtype=float)
+        return rows.min(axis=0), rows.max(axis=0)
+
+    def context(self, features: list[float]) -> list[float]:
+        """The bandit's view of a raw context vector (unchanged until the bootstrap scale exists)."""
+        if self._scale is None or not features:
+            return features
+        lo, hi = self._scale
+        x = np.asarray(features, dtype=float)
+        varied = (hi - lo) > 1e-9
+        varied[-1] = False  # the bias
+        return np.where(varied, np.clip((x - lo) / np.where(varied, hi - lo, 1.0), 0.0, 1.0), x).tolist()
+
     # --- auditing and rebuilding stored state -----------------------------------------------------
 
     def _replay(self, rewards: list[RoutingReward]) -> LinUCBPolicy:
         policy = LinUCBPolicy(alpha=self.policy.alpha, ridge=self.policy.ridge, dimension=self.policy.dimension)
         for reward in rewards:
-            policy.update(reward.arm, reward.features, reward.reward)
+            policy.update(reward.arm, self.context(reward.features), reward.reward)
         return policy
 
     def audit(self) -> StateAudit:
         """Compare the stored rewards and arms with the current protocol (read-only)."""
         stored = self.repository.all()
         applied = [r for r in stored if not r.components.get("provisional")]
-        final = self.latency_max() if self.latency_max_final else None
+        final = self.latency_max() if self.bootstrap_final else None
         stale = tuple(r.decision_id for r in applied
                       if final is None or abs(float(r.components.get("latency_max_seconds", -1.0)) - final) > _TOLERANCE)  # fmt: skip
         replay = self._replay(applied)
@@ -224,6 +261,12 @@ class RoutingLearner:
         """L_max no longer changes: it is configured, or every bootstrap latency has been observed."""
         return self.latency_max_seconds is not None or not self.bootstrap or len(self._latencies) >= self.bootstrap
 
+    @property
+    def bootstrap_final(self) -> bool:
+        """Rewards can be applied: L_max is final and, with context scaling, the bootstrap scale exists."""
+        scale_ready = not self.feature_scaling or not self.bootstrap or self._scale is not None
+        return self.latency_max_final and scale_ready
+
     def latency_max(self) -> float:
         if self.latency_max_seconds is not None:
             return self.latency_max_seconds
@@ -246,7 +289,7 @@ class RoutingLearner:
         now = datetime.now(timezone.utc)
         terminal, earlier = chain[-1], chain[:-1]
         with self._lock:
-            provisional = not self.latency_max_final
+            provisional = not self.bootstrap_final
             reward = terminal_reward(retained=retained, coverage=execution_coverage, latency_seconds=latency_seconds,
                                      latency_max_seconds=self.latency_max(), weights=self.weights)  # fmt: skip
             credits: list[tuple[StoredRoutingDecision, RoutingAction, Reward, bool]] = [(terminal, terminal_arm, reward, True)]
@@ -258,7 +301,7 @@ class RoutingLearner:
                 return reward, []
             if not provisional:
                 for decision, arm, credit, _ in pending:
-                    self.policy.update(arm, decision.features, credit.value)
+                    self.policy.update(arm, self.context(decision.features), credit.value)
             flag = {"provisional": True} if provisional else {}
             rewards = [RoutingReward(decision_id=d.decision_id, incident_id=incident_id, run_id=run_id, arm=arm,
                                      terminal=is_terminal, reward=credit.value, features=d.features,
@@ -269,14 +312,16 @@ class RoutingLearner:
                 self.rewarded_incidents = self.repository.rewarded_incidents()
                 if len(self._latencies) < self.bootstrap:
                     self._latencies.append(latency_seconds)
-            if provisional and self.latency_max_final:
+                if self._scale is None:
+                    self._scale = self._fit_scale(self.repository.all())
+            if provisional and self.bootstrap_final:
                 final = self._finalize_bootstrap()
                 stored = [final.get(r.decision_id, r) for r in stored]
                 reward = terminal_reward(retained=retained, coverage=execution_coverage, latency_seconds=latency_seconds,
                                          latency_max_seconds=self.latency_max(), weights=self.weights)  # fmt: skip
         log_event(logger, "routing rewards credited", incident_id=incident_id, operation="feedback", stage="routing",
                   outcome="credited", rewards=len(stored), reward=round(reward.value, 4),
-                  bandit_active=self.active, provisional=provisional and not self.latency_max_final)  # fmt: skip
+                  bandit_active=self.active, provisional=provisional and not self.bootstrap_final)  # fmt: skip
         return reward, stored
 
     def _finalize_bootstrap(self) -> dict[int, RoutingReward]:
@@ -288,7 +333,7 @@ class RoutingLearner:
         final = []
         for reward in provisional:
             rescored = self._rescore(reward, latency_max, provisional=False)
-            self.policy.update(rescored.arm, rescored.features, rescored.reward)
+            self.policy.update(rescored.arm, self.context(rescored.features), rescored.reward)
             final.append(rescored)
         self.repository.finalize(final, self.policy.arms)
         log_event(logger, "routing bootstrap rewards finalized", operation="feedback", stage="routing",

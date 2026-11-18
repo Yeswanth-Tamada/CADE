@@ -16,6 +16,9 @@ Implementation choices where the paper is silent (documented in the README):
   the category critical or the incident's intent marks it critical in the ontology (paper
   Section 6.1), see ``Vocabulary.required_evidence``.
 * Cov+ adds the missing critical categories whose availability is at least ``tau``.
+* rho is the mean obtainability over the missing critical categories, a category being obtainable
+  (1) when its availability is at least ``tau`` and 0 otherwise (``requestability="threshold"``,
+  the default); ``"mean"`` averages the availability probabilities instead.
 * With no candidates (empty library) Cov = 0 and H = 1, so synthesis wins.
 * Categories already requested without success are passed as ``unobtainable`` (availability 0).
 * Ties are broken towards the cheaper action: reuse, then evidence request, then synthesis.
@@ -108,6 +111,7 @@ class Router:
         top_n: int = 10,
         tau: float = 0.5,
         sharpness: float = 1.0,
+        requestability: str = "threshold",
         taxonomy: Optional[IntentTaxonomy] = None,
         learner: Optional[RoutingLearner] = None,
         library_size: Callable[[], int] = lambda: 0,
@@ -118,6 +122,9 @@ class Router:
         self.availability = availability
         self.w, self.k, self.top_n, self.tau = w, k, top_n, tau
         self.sharpness = sharpness
+        if requestability not in ("threshold", "mean"):
+            raise ValueError("requestability must be 'threshold' or 'mean'")
+        self.requestability = requestability
         self.taxonomy = taxonomy
         self.learner = learner
         self.library_size = library_size
@@ -169,7 +176,7 @@ class Router:
             success = U.smoothed_success(top.successes, top.executions, self.k)
         missing = critical - available
         unmet = U.unmet_fraction(critical, available) if top else 0.0
-        rho = U.requestability(missing, availability)
+        rho = U.requestability(missing, availability, self.tau if self.requestability == "threshold" else None)
         requestable = U.obtainable(missing, availability, self.tau)
         counterfactual = U.evidence_coverage(critical, supporting, available | requestable, self.w) if top else 0.0
 
@@ -195,10 +202,11 @@ class Router:
                                       self.learner.size_scale)  # fmt: skip
             allowed = [RoutingAction.SYNTHESIZE] + ([RoutingAction.REUSE] if top else []) + (
                 [RoutingAction.REQUEST_EVIDENCE] if allow_request and requestable else [])
-            arm_scores = self.learner.policy.scores(features, allowed)
+            context = self.learner.context(features)  # scaled for the bandit; the decision keeps the raw features
+            arm_scores = self.learner.policy.scores(context, allowed)
             ucb = {arm.value: round(s.ucb, 6) for arm, s in arm_scores.items()}
             if self.learner.active:
-                action, policy = self.learner.policy.select(features, allowed), "linucb"
+                action, policy = self.learner.policy.select(context, allowed), "linucb"
         rationale = self._rationale(action, top, terms, scores, missing, requestable)
         if policy == "linucb":
             rationale = (f"The learned policy (LinUCB) chose {action.value} (upper confidence bound "

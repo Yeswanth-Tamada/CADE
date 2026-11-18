@@ -261,7 +261,13 @@ paper result.
    (registry, script blocks, service/task creation).
 3. **R_c / R_s of a playbook** are the evidence categories its actions consume; critical if any action marks the
    category critical **or the incident's intent marks it critical**. **A** is the set of categories observed so far.
-4. **Cov⁺** adds the missing critical categories whose availability is ≥ τ (default 0.5).
+4. **Cov⁺** adds the missing critical categories whose availability is ≥ τ (default 0.5). **ρ** is the mean
+   obtainability over the missing critical categories, a category counting as obtainable (1) when its availability
+   is ≥ τ and 0 otherwise — the same test, and what the paper benchmark's 'marked obtainable' does. Averaging the
+   raw availability probabilities instead (`CADE_ROUTING_REQUESTABILITY=mean`, the behaviour before 2026-11-16)
+   keeps ρ·M below 1, so (1 − ρM) in Eq. 5 never reaches 0 and, with H ≈ 1 (item 6), a request can never win:
+   on the paper benchmark with the deployment profile the rule requested in 0 of 32 request scenarios, against 27
+   with the thresholded ρ.
 5. **Empty library.** With no candidates, Cov = 0 and H = 1, so the decision is synthesize.
 6. **Routing entropy (important).** Eq. 2 normalises the *raw* cosine similarities of the top N = 10 candidates.
    Measured over the 11 seed playbooks:
@@ -303,7 +309,14 @@ paper result.
     ŝ < 0.35) are defaults, not tuned results. K is unclamped by default (`CADE_SEED_K_MIN/MAX` are optional guards),
     and `CADE_FITNESS_THRESHOLD` (default 0) can add a fitness requirement to the full-coverage stop.
 13. **Learned routing.** The context x is Cov, Cov⁺, H, ρ, M, ŝ, the top candidate's similarity and the library size
-    n/(n + 50), plus a bias (d = 9, all in [0, 1]). The bandit only considers arms that can act (reuse needs a
+    n/(n + 50), plus a bias (d = 9, all in [0, 1]). **Context scaling** (`CADE_BANDIT_FEATURE_SCALING`, default on;
+    the paper states no input scaling): each feature is min-max scaled with its range over the decisions of the
+    bootstrap incidents and clipped to [0, 1]; the range is fixed when the bootstrap ends, like L_max, and a
+    feature that did not vary there is left as it is. Without it the top similarity, which moves within about
+    0.15, cannot earn a useful weight under ridge λ = 1 (item 17). Decisions and the reward log keep the raw
+    features, and bootstrap rewards are held back until the scale exists. Learner state trained before this change
+    is reported as inconsistent at start-up and is only rebuilt by `scripts/rebuild_bandit_state.py`. The bandit
+    only considers arms that can act (reuse needs a
     candidate, a request needs obtainable evidence and the per-incident cap not reached). Rewards are credited when
     the analyst submits feedback on an executed run; a run blocked before executing is not credited, and simulated runs
     do not train the router unless `CADE_BANDIT_LEARN_FROM_SIMULATED=true` (as for the library). The router's state
@@ -379,19 +392,24 @@ paper result.
       designated related technique of the tactic, and R_c / R_s come from each stored playbook's own intent
       (`Router(requirements=...)`). Execution goals are the recording's critical categories (`--goals all` as a
       sensitivity). 8 sparse cells coincide with another cell's evidence and 3 reuse a recording from another cell
-      (thin recordings); all are flagged. Results: LinUCB 66.7 ± 8.5%, rule 65.6%, reward +9.1 ± 7.6%, 10/96 labels
-      not uniquely reward-optimal; the paper reports ≈ 90%, 73.5% and 14%.
+      (thin recordings); all are flagged. Results with context scaling (2026-11-16): LinUCB 83.1 ± 2.6% (86.6%
+      after the bootstrap; REUSE / REQUEST / GENERATE recall 86 / 86 / 78%), rule 65.6%, reward +19.1 ± 3.7%, 10/96
+      labels not uniquely reward-optimal; held-out orderings (seeds 10–19) 82.1 ± 3.9%. Without scaling: LinUCB
+      66.7 ± 8.5%, reward +9.1 ± 7.6%. The paper reports ≈ 90%, 73.5% and 14%.
+    - *The two extended benchmarks' numbers below predate context scaling and the thresholded ρ and were not rerun.*
     - **Legacy extended** (`scripts/eval_routing.py --benchmark legacy`): the original 123 SYNTHETIC intent-level
       scenarios, unchanged. Known defect: only 7 of 40 "weak" scenarios retrieve a same-tactic candidate. With the
       corrected protocol: LinUCB 57.5 ± 4.9%, rule 54.5%, reward +49.9 ± 5.6% (before: 56.7%, +49.0%).
     - **Corrected extended** (`--benchmark corrected`): weak cells keep one designated same-tactic playbook; 30 weak
       scenarios that cannot be valid weak matches are excluded and listed. 93 scenarios (28/16/49): LinUCB
       53.4 ± 2.4%, rule 66.7%, reward +17.6 ± 6.4%.
-    - **What limits LinUCB here:** what the rule experienced in the 20 bootstrap decisions decides each ordering
-      (REUSE recall 9–91% on the paper benchmark): the only feature separating a suitable playbook from another
+    - **What limited LinUCB before context scaling:** what the rule experienced in the 20 bootstrap decisions
+      decided each ordering (REUSE recall 9–91% on the paper benchmark): the only feature separating a suitable playbook from another
       tactic's is the top similarity, whose useful range (≈ 0.15) needs a coefficient that ridge λ = 1 on unscaled
       features suppresses at this sample size (λ is CADE's choice, A_a = I; the paper does not state it). A diagnostic
-      run with λ = 0.01 gives 76.6 ± 2.8%; it is not adopted. Causes of the gap to the paper, ranked with evidence:
+      run with λ = 0.01 gives 76.6 ± 2.8%; it is not adopted. Scaling the context instead (item 13) keeps λ = 1 and
+      gives the 83.1% above; a full-information linear fit on the scaled features picks the label on 92 of 96
+      scenarios, against 64 on the raw ones. Causes of the gap to the paper, ranked with evidence:
       `reports/2026-10-26_routing_benchmarks/discrepancy_analysis/REPORT.md`.
 
 ## 8. Phase 1 stabilisation (done before Phases 2–9)
@@ -476,8 +494,9 @@ examples/         SYNTHETIC incidents (10)
 - The paper's evaluation (benchmark, baselines, ablation runs, statistics) is not implemented. The
   `CADE_COVERAGE_*`, `CADE_ROUTING_POLICY` and `CADE_OS_JUDGE_MODE` switches exist so the ablations could be run.
 - **Routing with the exact Eq. 2** gives H ≈ 1 (raw cosine similarities), so the rule reuses only when coverage is
-  complete (§7 items 6 and 17). LinUCB's gains are small and unstable across orderings on the paper-matched benchmark,
-  and every routing result rests on simulated execution and assumed latencies (§7 item 17).
+  complete, and requests evidence only when all of the top playbook's critical evidence is missing and obtainable
+  (§7 items 4, 6 and 17). LinUCB reaches 83% on the paper-matched benchmark against the paper's ≈ 90%, and every
+  routing result rests on simulated execution and assumed latencies (§7 item 17).
 - The learned router needs real, executed and reviewed incidents: in the default simulate mode it stays on the
   bootstrap rule. A low-volume deployment may never leave the bootstrap period, and the linear reward model misses
   feature interactions (paper §8).

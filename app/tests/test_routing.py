@@ -112,10 +112,18 @@ def test_request_evidence_when_critical_evidence_is_missing_but_obtainable(vocab
     assert decision.terms.coverage == 0.0 and decision.terms.unmet_fraction == 1.0
     assert decision.terms.counterfactual_coverage == pytest.approx(1.0)
     assert set(decision.missing_critical) == set(required.critical) == set(decision.requestable)
-    expected_rho = sum(availability.of(c) for c in required.critical) / len(required.critical)
-    assert decision.scores.request_evidence == pytest.approx(expected_rho)
-    assert decision.scores.synthesize == pytest.approx(1 - expected_rho)
+    # every missing critical category is obtainable (availability >= tau), so rho = 1 and Eq. 5 gives U_gen = 0
+    assert decision.terms.requestability == 1.0
+    assert decision.scores.request_evidence == pytest.approx(1.0)
+    assert decision.scores.synthesize == pytest.approx(0.0)
     assert "obtainable" in decision.rationale
+    # requestability="mean" averages the availability probabilities instead
+    mean_router = Router(StaticCandidateSource([candidate(playbook)]), vocabulary, availability, w=0.7, k=3, top_n=10,
+                         tau=0.5, requestability="mean")  # fmt: skip
+    mean = mean_router.score("INC-2", mean_router.source.retrieve(None, 10), set(required.supporting), availability.availability)
+    expected_rho = sum(availability.of(c) for c in required.critical) / len(required.critical)
+    assert mean.scores.request_evidence == pytest.approx(expected_rho)
+    assert mean.scores.synthesize == pytest.approx(1 - expected_rho)
 
 
 def test_synthesize_when_the_candidate_does_not_fit_and_evidence_is_unobtainable(vocabulary, availability):

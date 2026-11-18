@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Iterable, Mapping, Sequence
+from typing import Optional
 
 from app.schemas.enums import EvidenceCategory
 
@@ -60,10 +61,21 @@ def unmet_fraction(critical: set, available: set) -> float:
     return len(critical - available) / len(critical) if critical else 0.0
 
 
-def requestability(missing: Iterable[EvidenceCategory], availability: Mapping[EvidenceCategory, float]) -> float:
-    """rho: mean per-deployment availability over the missing critical categories (0 if none are missing)."""
+def requestability(missing: Iterable[EvidenceCategory], availability: Mapping[EvidenceCategory, float],
+                   tau: Optional[float] = None) -> float:  # fmt: skip
+    """rho: mean obtainability over the missing critical categories (0 if none are missing).
+
+    With ``tau`` a category's obtainability is 1 when its availability is at least ``tau`` and 0
+    otherwise (the test :func:`obtainable` applies for Cov+), so rho is the obtainable fraction and
+    reaches 1 when everything missing can be requested. Without it the availability probabilities
+    themselves are averaged.
+    """
     missing = list(missing)
-    return sum(availability.get(c, 0.0) for c in missing) / len(missing) if missing else 0.0
+    if not missing:
+        return 0.0
+    if tau is None:
+        return sum(availability.get(c, 0.0) for c in missing) / len(missing)
+    return sum(1.0 for c in missing if availability.get(c, 0.0) >= tau) / len(missing)
 
 
 def obtainable(missing: Iterable[EvidenceCategory], availability: Mapping[EvidenceCategory, float],
