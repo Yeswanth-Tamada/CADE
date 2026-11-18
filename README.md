@@ -204,7 +204,7 @@ show which tools are `real`, `simulated` or `unavailable`.
 | Elastic | `CADE_ELASTIC_URL`, `CADE_ELASTIC_API_KEY`, `CADE_ELASTIC_INDEX_PATTERN`; `CADE_KIBANA_URL` for isolation | ECS `term` filters only (no query-string interpolation) |
 | osquery | `CADE_OSQUERY_BINARY` | the CADE host only; fixed SQL; other hosts are refused |
 | YARA | `CADE_YARA_BINARY`, `CADE_YARA_RULES_PATH`, `CADE_YARA_SCAN_ROOTS` | only files resolving inside the scan roots |
-| Sigma | `CADE_SIGMA_RULES_DIR` + Elastic; `pip install -r requirements-tools.txt` | every rule tagged `attack.<technique>` (up to 250) → pySigma (≥ 1.5) → Elastic `_msearch`. Rule values are lowercased, so the index must store strings lowercased (keyword + lowercase normalizer) for Sigma's case-insensitive matching |
+| Sigma | `CADE_SIGMA_RULES_DIR` + Elastic; `pip install -r requirements-tools.txt` | every rule tagged `attack.<technique>` (up to 250) → pySigma (≥ 1.5) → Elastic `_msearch`. Rule values are lowercased, so the index must store strings lowercased (keyword + lowercase normalizer) for Sigma's case-insensitive matching. `CADE_SIGMA_FIELD_MAPPING=auditbeat` (lab option, not in the paper) maps SigmaHQ's Linux rules onto Elastic Auditbeat events (`process.executable`, `process.title`, `process.args`, …); auditd `a0..a9` lose their position and the record `type` is dropped |
 
 Every adapter does the following:
 - validates and canonicalises inputs before any call;

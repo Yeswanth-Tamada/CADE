@@ -155,7 +155,8 @@ def build_real_tools(settings: Settings) -> dict[str, SecurityTool]:
                                  scan_roots=[settings.resolve_path(p) for p in settings.yara_scan_roots],
                                  timeout_seconds=settings.tool_timeout_seconds)  # fmt: skip
     if settings.sigma_rules_dir:
-        tools["sigma"] = SigmaTool(rules_dir=settings.resolve_path(settings.sigma_rules_dir), elastic=elastic)
+        tools["sigma"] = SigmaTool(rules_dir=settings.resolve_path(settings.sigma_rules_dir), elastic=elastic,
+                                   field_mapping=settings.sigma_field_mapping)  # fmt: skip
     return tools
 
 

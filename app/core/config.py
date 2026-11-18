@@ -211,6 +211,9 @@ class Settings(BaseSettings):
     yara_rules_path: Optional[Path] = None
     yara_scan_roots: list[Path] = Field(default_factory=list)  # files outside these are never scanned
     sigma_rules_dir: Optional[Path] = None
+    # How Sigma rule fields are named in the index: "none" = as written in the rules (the paper's Windows
+    # recordings); "auditbeat" = SigmaHQ Linux rules mapped onto Elastic Auditbeat events (lab deployment).
+    sigma_field_mapping: str = Field(default="none", pattern=r"^(none|auditbeat)$")
 
     # --- controlled execution (safety gates; see app/execution/executor.py) ---------------------
     # An extra gate for destructive actions against REAL tools. It never replaces per-node analyst

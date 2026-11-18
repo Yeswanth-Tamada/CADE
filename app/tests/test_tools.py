@@ -587,6 +587,73 @@ detection:
     assert "powershell.exe" in query and "\\-enc" in query and "PowerShell" not in query
 
 
+_LINUX_PROCESS_RULE = """
+title: Decode Base64 Encoded Text
+logsource: {product: linux, category: process_creation}
+detection:
+    selection:
+        Image|endswith: '/base64'
+        CommandLine|contains: ' -d'
+    condition: selection
+"""
+
+
+def test_sigma_auditbeat_mapping_maps_process_creation_to_auditbeat_fields():
+    pytest.importorskip("sigma.processing.transformations")
+    from app.tools.sigma import make_converter
+
+    [query] = make_converter("auditbeat")(_LINUX_PROCESS_RULE)
+    assert "event.action:executed" in query
+    assert "process.executable:*\\/base64" in query and "process.title:*\\ \\-d*" in query
+    assert "Image" not in query and "CommandLine" not in query
+    # the default mapping is unchanged: fields as written in the rule
+    [plain] = make_converter("none")(_LINUX_PROCESS_RULE)
+    assert "Image:" in plain and "CommandLine:" in plain and "event.action" not in plain
+
+
+def test_sigma_auditbeat_mapping_turns_execve_arguments_into_process_args_and_drops_the_record_type():
+    pytest.importorskip("sigma.processing.transformations")
+    from app.tools.sigma import make_converter
+
+    execve = """
+title: Remove Immutable File Attribute
+logsource: {product: linux, service: auditd}
+detection:
+    selection:
+        type: 'EXECVE'
+        a0|contains: 'chattr'
+        a1|contains: '-i'
+    condition: selection
+"""
+    [query] = make_converter("auditbeat")(execve)
+    assert query == "process.args:*chattr* AND process.args:*\\-i*"
+
+    syscall = """
+title: Disable dmesg via syslog
+logsource: {product: linux, service: auditd}
+detection:
+    selection:
+        type: 'SYSCALL'
+        SYSCALL: 'syslog'
+        a0: '5'
+    condition: selection
+"""
+    [query] = make_converter("auditbeat")(syscall)
+    assert "auditd.data.syscall:syslog" in query and "auditd.data.a0:5" in query
+    assert "type" not in query and "process.args" not in query
+
+
+def test_sigma_field_mapping_is_validated_and_wired_from_settings(settings, tmp_path: Path):
+    from app.tools.registry import build_real_tools
+    from app.tools.sigma import make_converter
+
+    with pytest.raises(ValueError):
+        make_converter("splunk")
+    configured = settings.model_copy(update={"sigma_rules_dir": tmp_path, "sigma_field_mapping": "auditbeat"})
+    assert build_real_tools(configured)["sigma"].field_mapping == "auditbeat"
+    assert build_real_tools(settings.model_copy(update={"sigma_rules_dir": tmp_path}))["sigma"].field_mapping == "none"
+
+
 async def test_sigma_without_elastic_is_unavailable(tmp_path: Path):
     with pytest.raises(ToolUnavailableError):
         await SigmaTool(rules_dir=tmp_path, elastic=None).invoke(req("hunt_technique", A.TECHNIQUE_ID, "T1053.005"))
