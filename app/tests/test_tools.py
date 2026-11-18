@@ -643,6 +643,32 @@ detection:
     assert "type" not in query and "process.args" not in query
 
 
+async def test_sigma_auditbeat_mapping_bounds_unfielded_keyword_terms(tmp_path: Path):
+    # An unbounded keywords query (every field of every index) ran the lab's Elasticsearch out of heap.
+    (tmp_path / "keywords.yml").write_text("tags: [attack.t1059.004]")
+    bodies: list = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        lines = request.content.decode().strip().split("\n")
+        bodies.extend(json.loads(line) for line in lines[1::2])
+        return httpx.Response(200, json={"responses": [{"hits": {"hits": []}}] * (len(lines) // 2)})
+
+    def query_strings():
+        return [f["query_string"] for b in bodies for f in b["query"]["bool"]["filter"] if "query_string" in f]
+
+    elastic = ElasticTool(url="https://es.test", api_key="k", transport=httpx.MockTransport(handler))
+    tool = SigmaTool(rules_dir=tmp_path, elastic=elastic, converter=lambda text: ["*wget\\ http*"],
+                     tag_reader=lambda text: ["attack.t1059.004"], field_mapping="auditbeat")  # fmt: skip
+    await tool.invoke(req("hunt_technique", A.TECHNIQUE_ID, "T1059.004"))
+    assert query_strings() == [{"query": "*wget\\ http*", "fields": ["message", "process.title"]}]
+
+    bodies.clear()  # the default mapping keeps query_string's own defaults
+    tool = SigmaTool(rules_dir=tmp_path, elastic=elastic, converter=lambda text: ["*wget\\ http*"],
+                     tag_reader=lambda text: ["attack.t1059.004"])  # fmt: skip
+    await tool.invoke(req("hunt_technique", A.TECHNIQUE_ID, "T1059.004"))
+    assert query_strings() == [{"query": "*wget\\ http*"}]
+
+
 def test_sigma_field_mapping_is_validated_and_wired_from_settings(settings, tmp_path: Path):
     from app.tools.registry import build_real_tools
     from app.tools.sigma import make_converter

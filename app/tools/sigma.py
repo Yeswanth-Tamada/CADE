@@ -61,6 +61,12 @@ _AUDITBEAT = {
 }
 _ARGS = [f"a{i}" for i in range(10)]
 
+# Sigma "keywords" rules (no field) become unfielded Lucene terms, which query_string expands over every
+# field of every index: with Auditbeat's thousands of mapped fields and dozens of leading wildcards that
+# one query exhausted a 2 GB Elasticsearch heap. Under the Auditbeat mapping they search these instead:
+# the raw log line (syslog/auth via Filebeat) and the full command line.
+_UNFIELDED_TERMS_SEARCH = {"auditbeat": ["message", "process.title"]}
+
 
 def _pipeline(field_mapping: str):
     from sigma.processing.conditions import (  # type: ignore[import-not-found]
@@ -185,7 +191,8 @@ class SigmaTool(SecurityTool):
         hits, rejected = [], 0
         for start in range(0, len(searches), _SEARCHES_PER_CALL):
             batch = searches[start:start + _SEARCHES_PER_CALL]
-            results = await self.elastic.search_many([[window, {"query_string": {"query": query}}] for _, query in batch],
+            options = {"fields": _UNFIELDED_TERMS_SEARCH[self.field_mapping]} if self.field_mapping in _UNFIELDED_TERMS_SEARCH else {}
+            results = await self.elastic.search_many([[window, {"query_string": {"query": query, **options}}] for _, query in batch],
                                                      10, ("@timestamp", "host.name", "event.category"))  # fmt: skip
             for (rule_name, _), rows in zip(batch, results):
                 if rows is None:
