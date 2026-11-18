@@ -93,6 +93,10 @@ def _pipeline(field_mapping: str):
                            transformation=DropDetectionItemTransformation(),
                            rule_conditions=[LogsourceCondition(product="linux", category="network_connection")],
                            field_name_conditions=[IncludeFieldCondition(fields=["Initiated"])]),
+            # Without "Initiated" a rule like "a shell with a network connection" would match every shell start.
+            ProcessingItem(identifier="cade_auditbeat_network_only",
+                           transformation=AddConditionTransformation({"event.category": "network"}),
+                           rule_conditions=[LogsourceCondition(product="linux", category="network_connection")]),
             ProcessingItem(identifier="cade_auditbeat_executed",
                            transformation=AddConditionTransformation({"event.action": "executed"}),
                            rule_conditions=[LogsourceCondition(product="linux", category="process_creation")]),

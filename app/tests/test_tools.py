@@ -606,6 +606,17 @@ def test_sigma_auditbeat_mapping_maps_process_creation_to_auditbeat_fields():
     assert "event.action:executed" in query
     assert "process.executable:*\\/base64" in query and "process.title:*\\ \\-d*" in query
     assert "Image" not in query and "CommandLine" not in query
+    network = """
+title: Back Connect Shell via /dev/tcp
+logsource: {product: linux, category: network_connection}
+detection:
+    selection:
+        Image|endswith: '/bash'
+        Initiated: 'true'
+    condition: selection
+"""
+    [query] = make_converter("auditbeat")(network)
+    assert "event.category:network" in query and "process.executable:*\\/bash" in query and "Initiated" not in query
     # the default mapping is unchanged: fields as written in the rule
     [plain] = make_converter("none")(_LINUX_PROCESS_RULE)
     assert "Image:" in plain and "CommandLine:" in plain and "event.action" not in plain
