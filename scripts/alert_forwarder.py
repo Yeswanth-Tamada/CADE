@@ -10,8 +10,10 @@ Design notes:
 - stdlib only (urllib); runs under the CADE venv but needs no extra packages.
 - ES is read with CADE's read-only API key; CADE is driven with a dedicated,
   limited key (analyst[,live_executor]).
-- Per-rule cooldown + a start watermark stop it re-firing on the same burst or
-  on historical Test 1/2 data.
+- Per-rule watermarks stop it re-firing on the same events: a rule only looks at
+  events newer than the moment it last fired (or, for a rule that has never
+  fired, than the moment the forwarder first knew about it), so historical
+  data is ignored. A per-rule cooldown additionally rate-limits new bursts.
 - It NEVER submits feedback (that trains the library/router -- left to a human).
 - Destructive plan steps stay gated by CADE (approval + verification); AUTO_EXECUTE
   only ever runs read-only queries and raises manual tasks.
@@ -75,8 +77,23 @@ def load_state() -> dict:
             return json.load(open(STATE_FILE))
         except Exception:
             pass
-    # watermark = now, so the first run ignores historical attack data
-    return {"started_at": datetime.now(timezone.utc).isoformat(), "last_fired": {}}
+    return {"started_at": _now_iso(), "last_fired": {}, "watermarks": {}}
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def init_watermarks(state: dict) -> None:
+    """Give every rule a watermark; a rule without one starts at now, so it ignores historical data.
+
+    State files written before per-rule watermarks existed only had ``started_at`` (which never
+    moved), so their rules re-fired on the same old events after every cooldown; they start at now too.
+    """
+    marks = state.setdefault("watermarks", {})
+    state.setdefault("last_fired", {})
+    for rule in RULES:
+        marks.setdefault(rule.__name__, _now_iso())
 
 
 def save_state(state: dict):
@@ -210,24 +227,26 @@ def main():
     if not ES_KEY or not CADE_KEY:
         raise SystemExit("missing ES or CADE key file")
     state = load_state()
-    log(f"forwarder started; watermark {state['started_at']}; auto_execute={AUTO_EXECUTE}")
+    init_watermarks(state)
+    log(f"forwarder started; watermarks {state['watermarks']}; auto_execute={AUTO_EXECUTE}")
     save_state(state)
     while True:
         try:
             now = time.time()
-            since = state["started_at"]  # only consider events after startup
             for rule in RULES:
                 name = rule.__name__
                 last = state["last_fired"].get(name, 0)
                 if now - last < COOLDOWN_SECONDS:
                     continue
+                checked_at = _now_iso()  # taken before the query, so no event can fall between two windows
                 try:
-                    inc = rule(since)
+                    inc = rule(state["watermarks"][name])
                 except Exception as e:
                     log(f"rule {name} error: {e}"); continue
                 if inc:
                     log(f"DETECTED [{inc['rule']}] -> {inc['title']}")
                     state["last_fired"][name] = now
+                    state["watermarks"][name] = checked_at  # these events are handled; never match them again
                     save_state(state)
                     drive_cade(inc)
         except Exception as e:
