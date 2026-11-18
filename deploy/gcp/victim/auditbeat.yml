@@ -1,0 +1,21 @@
+# CADE lab: correlated Linux process/audit events for Sigma (process_creation and auditd rules).
+# auditd keeps owning the kernel audit rules (see auditctl -l); Auditbeat only listens (multicast),
+# so auditd + Filebeat keep working unchanged.
+auditbeat.modules:
+- module: auditd
+  socket_type: multicast
+  resolve_ids: true
+  failure_mode: log
+  backlog_limit: 8192
+  include_raw_message: false
+  include_warnings: false
+
+processors:
+  - add_host_metadata: ~
+
+output.elasticsearch:
+  hosts: ["http://10.160.0.2:9200"]
+  api_key: "${ES_API_KEY}"   # in the Auditbeat keystore (auditbeat keystore list)
+setup.ilm.enabled: true
+setup.template.enabled: true
+logging.level: warning

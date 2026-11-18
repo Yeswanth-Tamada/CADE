@@ -4,8 +4,9 @@ The demo testbed (not part of paper 968): two VMs in project `cade-lab-512612`, 
 
 ```
 victim VM (10.160.0.3)                  cade VM (10.160.0.2)                        laptop
-auditd -> Filebeat -------------------> Elasticsearch (Docker, :9200)
-                                          |  polled every 15 s
+auditd -> Filebeat -------------------> Elasticsearch (Docker, :9200)   filebeat-*  (one doc per audit record)
+kernel audit -> Auditbeat ------------->                                 auditbeat-* (one event per command)
+                                          |  polled every 15 s            ^ Sigma hunts (CADE_SIGMA_FIELD_MAPPING=auditbeat)
                                         cade-forwarder  (scripts/alert_forwarder.py)
                                           |  rule fires -> submit -> analyze -> respond
                                         cade.service    (CADE API, 127.0.0.1:8000) <--- tunnel ---> Ollama :11434
@@ -14,6 +15,13 @@ auditd -> Filebeat -------------------> Elasticsearch (Docker, :9200)
 
 - **victim**: auditd watches command execution, `/etc/passwd`, `/etc/shadow`, `/etc/sudoers`, cron and systemd
   units; Filebeat ships the events to Elasticsearch on the cade VM. No CADE code runs there.
+  Auditbeat 8.17 ([victim/auditbeat.yml](victim/auditbeat.yml)) listens to the same kernel audit stream in
+  multicast mode (auditd keeps the rules) and sends one correlated event per command (executable, full
+  command line, arguments, user) to `auditbeat-*`. Sigma's Linux rules (`lab/sigma/rules/linux` on the cade
+  VM) are mapped onto these events. Its Elasticsearch API key (`auditbeat-victim`, write to `auditbeat-*`
+  only) is in the Auditbeat keystore, not the config file. CADE's read key also covers `auditbeat-*`.
+- **VirusTotal**: an online lookup service; CADE on the cade VM calls it with the key in its `.env`.
+  Nothing is installed for it.
 - **cade**: runs CADE from `~/cade` (a copy of this repo, no git) with its own `.env`, `cade.db` and `.venv`,
   plus the detection forwarder. The forwarder has three rules (SSH brute force, new account, sudoers edit).
   It never approves destructive steps and never sends feedback.
