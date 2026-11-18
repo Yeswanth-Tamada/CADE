@@ -1,0 +1,14 @@
+[Unit]
+Description=CADE detection forwarder
+After=network.target cade.service
+[Service]
+User=yeswanth
+WorkingDirectory=/home/yeswanth/cade
+Environment=FWD_ES_KEY_FILE=/home/yeswanth/fwd_es_key.txt
+Environment=FWD_CADE_KEY_FILE=/home/yeswanth/forwarder_key.txt
+Environment=FWD_AUTO_EXECUTE=true
+ExecStart=/home/yeswanth/cade/.venv/bin/python /home/yeswanth/cade/scripts/alert_forwarder.py
+Restart=on-failure
+RestartSec=5
+[Install]
+WantedBy=multi-user.target

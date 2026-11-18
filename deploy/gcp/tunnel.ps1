@@ -10,10 +10,23 @@
 # Leave the window open while you work; Ctrl+C closes the tunnel.
 
 param(
-    [string]$HostIp = "34.100.133.180",
+    [string]$HostIp = "",               # empty = look up the VM's current external IP with gcloud
     [string]$User = "yeswanth",
-    [string]$Key = "$env:USERPROFILE\.ssh\google_compute_engine"
+    [string]$Key = "$env:USERPROFILE\.ssh\google_compute_engine",
+    [string]$Instance = "cade",
+    [string]$Zone = "asia-south1-a"
 )
+
+# The VM has no reserved address, so its external IP changes every time it is started.
+if (-not $HostIp) {
+    $HostIp = (gcloud compute instances describe $Instance --zone $Zone `
+        --format="value(networkInterfaces[0].accessConfigs[0].natIP)" 2>$null | Out-String).Trim()
+    if (-not $HostIp) {
+        Write-Error "Could not get the external IP of '$Instance'. Is it running? (gcloud compute instances start $Instance --zone $Zone)"
+        exit 1
+    }
+}
+Write-Host "Connecting to $User@$HostIp ($Instance)"
 
 try {
     Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/tags" -TimeoutSec 5 | Out-Null
@@ -21,10 +34,11 @@ try {
     Write-Warning "Ollama is not answering on this laptop; CADE's LLM steps will fail until it does."
 }
 
-Write-Host "Tunnel open. Console: http://127.0.0.1:8800/console/  (Ctrl+C to close)"
+Write-Host "Opening tunnel. If no error appears, the console is at http://127.0.0.1:8800/console/  (Ctrl+C to close)"
 ssh -N -i $Key `
     -o StrictHostKeyChecking=accept-new `
     -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 `
     -R 11434:127.0.0.1:11434 `
     -L 127.0.0.1:8800:127.0.0.1:8000 `
     "$User@$HostIp"
+exit $LASTEXITCODE
