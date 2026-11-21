@@ -56,6 +56,10 @@ class Settings(BaseSettings):
     # Ollama "think" for reasoning models (Qwen3, DeepSeek-R1, ...): unset = auto (off for those families, not sent
     # for other models); true/false forces it for every model.
     ollama_think: Optional[bool] = None
+    # Ollama context window in tokens. Unset = Ollama's default (4096 today). Synthesis prompts use about 3,200
+    # tokens including the answer (measured 2026-11-21), so the default fits; raise it (e.g. 8192) if the Ollama log
+    # shows "truncated = 1". A larger window needs more (GPU) memory.
+    ollama_num_ctx: Optional[int] = Field(default=None, ge=2048, le=131072)
     llm_request_timeout_seconds: float = Field(default=120.0, gt=0, le=1800)
     llm_health_timeout_seconds: float = Field(default=3.0, gt=0, le=60)
     llm_max_attempts: int = Field(default=2, ge=1, le=5)

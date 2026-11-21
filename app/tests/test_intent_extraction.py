@@ -447,6 +447,21 @@ async def test_ollama_client_switches_off_thinking_for_reasoning_models(model, t
     assert response.content == '{"ok": true}'
 
 
+async def test_ollama_client_sends_the_context_window_only_when_configured():
+    bodies = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json={"message": {"content": "{}"}})
+
+    for num_ctx in (None, 8192):
+        client = OllamaClient(base_url="http://ollama.test", model="llama3.2:3b", timeout_seconds=5, num_ctx=num_ctx,
+                              transport=httpx.MockTransport(handler))  # fmt: skip
+        await client.generate_json(system_prompt="s", user_prompt="u", json_schema={"type": "object"})
+        await client.aclose()
+    assert "num_ctx" not in bodies[0]["options"] and bodies[1]["options"]["num_ctx"] == 8192
+
+
 @pytest.mark.parametrize(
     "handler,error",
     [

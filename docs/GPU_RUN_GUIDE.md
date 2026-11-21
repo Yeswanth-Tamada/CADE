@@ -61,6 +61,8 @@ CADE_VECTOR_INDEX=faiss
 ```
 
 Qwen3's "thinking" mode is switched off automatically (it would slow every call down and disturb the JSON answers).
+CADE's prompts fit Ollama's default 4,096-token context window (about 3,200 tokens are used); only if Ollama's log
+(`%LOCALAPPDATA%\Ollama\server.log`) shows `truncated = 1` add `CADE_OLLAMA_NUM_CTX=8192` to `.env`.
 
 ## 3. Check the setup (~5 minutes)
 

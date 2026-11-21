@@ -90,8 +90,10 @@ class OllamaClient(LLMClient):
         health_timeout_seconds: float = 3.0,
         temperature: float = 0.0,
         think: Optional[bool] = None,
+        num_ctx: Optional[int] = None,
         transport: Optional[httpx.AsyncBaseTransport] = None,
     ) -> None:
+        self.num_ctx = num_ctx  # context window in tokens; None = Ollama's default (4096 in current versions)
         self.model = model
         self.timeout_seconds = timeout_seconds
         self.health_timeout_seconds = health_timeout_seconds
@@ -118,6 +120,8 @@ class OllamaClient(LLMClient):
         }
         if self.think is not None:
             payload["think"] = self.think
+        if self.num_ctx is not None:
+            payload["options"]["num_ctx"] = self.num_ctx
         started = time.perf_counter()
         try:
             response = await self._client.post("/api/chat", json=payload, timeout=self.timeout_seconds)
@@ -195,6 +199,7 @@ def build_llm_client(settings: Settings, model: Optional[str] = None) -> LLMClie
         health_timeout_seconds=settings.llm_health_timeout_seconds,
         temperature=settings.llm_temperature,
         think=settings.ollama_think,
+        num_ctx=settings.ollama_num_ctx,
     )
 
 
