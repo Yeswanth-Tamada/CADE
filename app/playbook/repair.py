@@ -52,13 +52,35 @@ class PlaybookRepairer:
                     if shared and not any(e[0] == source and e[1] == target for e in draft.edges):
                         draft.add_edge(source, target, shared[0])
 
-        # 2. respect the node cap, leaving room for a verification step and the report
+        # 2-5 run until the node cap holds: wiring missing inputs (3) and adding verification or the report (4, 5)
+        # can insert steps, so a draft trimmed to just under the cap may exceed it again. Each retry trims by the
+        # overshoot, so a long draft converges instead of being discarded.
         cap = self.validator.node_cap
-        while len(draft.nodes) > max(1, cap - 2):
+        target = max(1, cap - 2)  # leave room for a verification step and the report
+        for _ in range(cap):
+            self._trim(draft, target)
+            self._satisfy_inputs(draft, initial, rng)
+            # 4. destructive actions need a verification of their target upstream -- or they go
+            for node_id in [n for n in draft.nodes if draft.action(n).destructive]:
+                if node_id in draft.nodes and not draft.ensure_verification(node_id, initial, rng=rng):
+                    draft.remove_node(node_id)
+            # 5. a terminal action exists and every step leads to it
+            if draft.nodes:
+                draft.ensure_terminal()
+            if len(draft.nodes) <= cap or target <= 1:
+                break
+            target = max(1, target - (len(draft.nodes) - cap))
+
+    @staticmethod
+    def _trim(draft: Draft, target: int) -> None:
+        """2. Drop steps from the end (never the report) until at most ``target`` remain."""
+        while len(draft.nodes) > target:
             removable = [n for n in reversed(list(draft.nodes)) if not draft.action(n).terminal]
             draft.remove_node(removable[0] if removable else next(reversed(list(draft.nodes))))
 
-        # 3. satisfy every input (removing nodes whose inputs cannot be met), until stable
+    @staticmethod
+    def _satisfy_inputs(draft: Draft, initial: frozenset[str], rng: Optional[random.Random]) -> None:
+        """3. Satisfy every input (removing nodes whose inputs cannot be met), until stable."""
         for _ in range(len(draft.nodes) + 1):
             changed = False
             for node_id in draft.topological_order():
@@ -68,12 +90,3 @@ class PlaybookRepairer:
                         changed = True
             if not changed:
                 break
-
-        # 4. destructive actions need a verification of their target upstream -- or they go
-        for node_id in [n for n in draft.nodes if draft.action(n).destructive]:
-            if node_id in draft.nodes and not draft.ensure_verification(node_id, initial, rng=rng):
-                draft.remove_node(node_id)
-
-        # 5. a terminal action exists and every step leads to it
-        if draft.nodes:
-            draft.ensure_terminal()

@@ -58,10 +58,19 @@ class PlaybookCandidate(BaseModel):
     steps: list[CandidateStep] = Field(min_length=1, max_length=30)
 
 
-def candidate_schema(vocabulary: Vocabulary) -> dict[str, Any]:
-    """JSON schema with the action field restricted to the vocabulary (Ollama structured outputs)."""
+MAX_CANDIDATE_STEPS = 18  # rule 6 of the generation prompt; two below the 20-node cap, for verification and report
+
+
+def candidate_schema(vocabulary: Vocabulary, max_steps: int = MAX_CANDIDATE_STEPS) -> dict[str, Any]:
+    """JSON schema with the action field restricted to the vocabulary (Ollama structured outputs).
+
+    The step list is capped at ``max_steps`` in the schema sent to the model, so constrained decoding enforces the
+    prompt's "at most 18 steps"; without it a small model can run on to 30 steps (often the action list in
+    order), which repair then has to cut down. Parsing (:class:`PlaybookCandidate`) stays lenient.
+    """
     schema = copy.deepcopy(PlaybookCandidate.model_json_schema())
     schema["$defs"]["CandidateStep"]["properties"]["action"]["enum"] = sorted(vocabulary.actions)
+    schema["properties"]["steps"]["maxItems"] = max_steps
     return schema
 
 

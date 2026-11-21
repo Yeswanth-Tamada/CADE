@@ -23,7 +23,8 @@ from app.schemas.playbook import Playbook, PlaybookOrigin
 from app.synthesis.constructive import ConstructiveGenerator
 from app.synthesis.context import SynthesisContext
 from app.synthesis.generator import CandidateGenerator, candidate_to_playbook
-from app.synthesis.prompts import DATA_END, DATA_START, PlaybookCandidate, build_generation_prompt, candidate_schema
+from app.synthesis.prompts import (DATA_END, DATA_START, GENERATION_SYSTEM_PROMPT, PlaybookCandidate,
+                                   build_generation_prompt, candidate_schema)
 from app.synthesis.seeding import AdaptiveSeeder, agglomerate
 from app.tests.conftest import good_output, make_incident
 from app.tests.test_playbook_dag import seeds
@@ -103,6 +104,8 @@ def test_schema_restricts_actions_to_the_vocabulary(vocabulary):
     schema = candidate_schema(vocabulary)
     assert schema["title"] == "PlaybookCandidate"
     assert set(schema["$defs"]["CandidateStep"]["properties"]["action"]["enum"]) == set(vocabulary.actions)
+    # the prompt's "at most 18 steps" is enforced by constrained decoding, not only asked for
+    assert schema["properties"]["steps"]["maxItems"] == 18 and "At most 18 steps" in GENERATION_SYSTEM_PROMPT
 
 
 def test_generation_prompt_carries_intent_evidence_examples_and_directive(context, vocabulary, coverage):

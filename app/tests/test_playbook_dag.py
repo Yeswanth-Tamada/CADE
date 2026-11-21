@@ -243,6 +243,18 @@ def test_repair_drops_unknown_actions_and_discards_hopeless_candidates(repairer)
     assert repairer.repair(pb("n1:launch_missiles")) is None
 
 
+def test_repair_keeps_the_cap_when_wiring_adds_producers(vocabulary):
+    """A long draft of steps that each need a producer: trimming to cap-2 and then wiring inputs used to overshoot
+    the cap (21 > 20 in a real llama3.2:3b draft) and the candidate was discarded; repair now converges."""
+    validator = PlaybookValidator(vocabulary, node_cap=20)
+    needy = ["analyze_process_tree", "analyze_auth_patterns", "analyze_network_flows", "domain_reputation",
+             "file_hash_reputation", "ip_reputation", "analyze_email_artifacts", "scan_file_yara",
+             "select_suspicious_files", "hunt_technique_sigma", "query_web_logs_by_source"]  # fmt: skip
+    many = pb("n0:extract_entities " + " ".join(f"n{i + 1}:{a}" for i, a in enumerate(needy * 3)))
+    repaired = PlaybookRepairer(validator).repair(many, ("host_id", "user_id"))
+    assert repaired is not None and len(repaired.nodes) <= 20 and validator.validate(repaired, ("host_id", "user_id")).valid
+
+
 def test_repair_respects_the_node_cap(vocabulary):
     validator = PlaybookValidator(vocabulary, node_cap=8)
     many = pb(" ".join(f"n{i}:triage_alert" for i in range(1, 15)) + " n15:generate_incident_report",
