@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from dataclasses import dataclass
 from typing import Optional
 
@@ -192,6 +193,7 @@ class LLMSoundnessJudge:
         self.schema = SoundnessJudgement.model_json_schema()
         self._cache: dict[tuple[str, str], SoundnessResult] = {}
         self.calls = 0
+        self.seconds = 0.0  # wall-clock time spent in judge calls (paper Section 7.4: judging share of synthesis)
 
     def cached(self, playbook: Playbook, intent_label: str) -> Optional[SoundnessResult]:
         return self._cache.get((playbook.structural_hash(), intent_label))
@@ -207,6 +209,7 @@ class LLMSoundnessJudge:
         scores: list[float] = []
         for _ in range(self.samples):
             self.calls += 1
+            started = time.perf_counter()
             try:
                 response = await self.llm.generate_json(system_prompt=JUDGE_SYSTEM_PROMPT, user_prompt=user_prompt,
                                                         json_schema=self.schema, temperature=self.temperature)  # fmt: skip
@@ -214,6 +217,8 @@ class LLMSoundnessJudge:
             except (CADEError, ValueError, ValidationError) as exc:
                 log_event(logger, "judge sample unusable", level=logging.WARNING, operation="judge",
                           stage="fitness", outcome="discarded", error_category=type(exc).__name__)  # fmt: skip
+            finally:
+                self.seconds += time.perf_counter() - started
         if scores:
             result = SoundnessResult(score=sum(scores) / len(scores), source="llm", samples=len(scores))
         else:

@@ -15,14 +15,11 @@ relied on it is flagged ``synthetic_basis``.
 
 from __future__ import annotations
 
-import random
 import secrets
-from dataclasses import asdict
 from typing import Optional
 
 from app.bootstrap import CADEComponents
 from app.core.config import Settings
-from app.core.errors import SynthesisError
 from app.core.logging import get_logger, log_event
 from app.core.threads import run_sync
 from app.routing.router import build_query
@@ -39,7 +36,7 @@ from app.services.jobs import Progress
 from app.storage.response_repository import ResponseRepository
 from app.storage.routing_repository import RoutingRepository
 from app.synthesis.context import SynthesisContext
-from app.synthesis.prompts import GENERATION_PROMPT_VERSION
+from app.synthesis.pipeline import run_synthesis
 from app.tools.artifacts import entity_artifacts
 
 logger = get_logger("response")
@@ -152,45 +149,18 @@ class ResponseService:
         components = self.components
         context = SynthesisContext.from_incident(incident, evidence, include_simulated=self.include_simulated)
         seed = self.settings.random_seed if self.settings.random_seed is not None else secrets.randbits(32)
-        rng = random.Random(seed)
         query = build_query(incident, evidence, include_simulated=self.include_simulated)
         examples = [c.playbook for c in await run_sync(components.library.retrieve, query, self.settings.generation_examples)
                     if c.playbook.intent_label == incident.intent.label][: self.settings.generation_examples]  # fmt: skip
 
-        pool, generation = await components.generator.generate(context, examples, rng)
-        selection = components.seeder.select(pool, context.intent_label, context.available, rng,
-                                             adaptive=self.settings.coverage_init)  # fmt: skip
-        if not selection.seeds:
-            raise SynthesisError("no admissible candidate playbook could be generated", incident_id=incident.incident_id)
-        engine = components.new_engine()
-        if self.settings.directed_mutation_llm and self.settings.coverage_variation:
-            # gap-directed additions use the generator's proposed action for each gap the seeds leave open
-            open_gaps = {gap for seed_candidate in selection.seeds for gap in seed_candidate.profile.gaps()}
-            ordered = [gap for gap in components.coverage.all_gaps(context.intent_label) if gap in open_gaps]
-            engine.operators.proposals = await components.generator.propose_gap_actions(context, ordered)
-        result = await engine.run(selection.seeds, context.intent_label, context.available, rng,
-                                  incident_id=incident.incident_id)  # fmt: skip
-        best = result.best
-        synthesis = {
-            "prompt_version": GENERATION_PROMPT_VERSION,
-            "generator": {"provider": generation.provider, "model": generation.model},
-            "judge_model": components.judge_llm.model if components.judge_llm else None,
-            "generation": asdict(generation),
-            "seeding": {"pool": selection.pool_size, "admissible": selection.admissible,
-                        "duplicates": selection.duplicates, "clusters": selection.clusters, "k": selection.k,
-                        "adaptive": selection.adaptive},
-            "gap_proposals": {f"{gap.kind}:{gap.key}": action for gap, action in engine.operators.proposals.items()},
-            "evolution": {"termination": result.termination, "generations": result.generations,
-                          "evaluations": result.evaluations, "judge_calls": result.judge_calls,
-                          "duration_ms": round(result.duration_ms, 1), "operators": result.operator_counts,
-                          "history": [asdict(h) for h in result.history],
-                          "config": asdict(components.engine_config)},
-            "random_seed": seed,
-            "examples": [p.name for p in examples],
-        }  # fmt: skip
+        run = await run_synthesis(generator=components.generator, seeder=components.seeder,
+                                  new_engine=components.new_engine, coverage=components.coverage, settings=self.settings,
+                                  context=context, examples=examples, seed=seed,
+                                  judge_model=components.judge_llm.model if components.judge_llm else None)  # fmt: skip
+        best, synthesis = run.best, run.info
         log_event(logger, "playbook synthesized", incident_id=incident.incident_id, operation="synthesize",
-                  stage="complete", outcome=result.termination, fitness=round(best.fitness, 4),
-                  generations=result.generations, k=selection.k)  # fmt: skip
+                  stage="complete", outcome=synthesis["evolution"]["termination"], fitness=round(best.fitness, 4),
+                  generations=synthesis["evolution"]["generations"], k=synthesis["seeding"]["k"])  # fmt: skip
         return await components.plan_service.create_plan(
             incident, best.playbook, source=PlanSource.SYNTHESIZED, actor=actor,
             routing_decision_id=decision.decision_id if decision else None, fitness=best.scores.model_dump(),
