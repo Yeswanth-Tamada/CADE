@@ -27,6 +27,9 @@ kernel audit -> Auditbeat ------------->                                 auditbe
   It never approves destructive steps and never sends feedback.
 - **LLM**: CADE on the VM has no model of its own. It calls the laptop's Ollama through the tunnel, so
   incidents are only analysed while the laptop is on and `tunnel.ps1` is running.
+- **Mode**: `CADE_APP_ENV=production` (no interactive API docs, API keys required) and `CADE_EXECUTION_MODE=live`
+  (playbook steps really query Elasticsearch, Sigma and VirusTotal). Destructive actions stay off
+  (`CADE_ALLOW_DESTRUCTIVE_LIVE=false`) and always need an approver and a confirmed verification.
 
 ## Everyday use
 
@@ -40,6 +43,26 @@ gcloud compute instances stop cade victim --zone asia-south1-a       # when done
 The VMs have no reserved address, so their external IPs change on every start; both scripts look the
 current IP up with gcloud. SSH is only allowed from the IPs in the `cade-allow-ssh` firewall rule. If your
 home IP changes, add the new one there (keep the others).
+
+## Simulating attacks on the victim (Atomic Red Team)
+
+The victim has Red Canary's [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team): small, safe
+scripts that each imitate one ATT&CK technique (PowerShell 7, the `invoke-atomicredteam` runner from the
+PowerShell Gallery, test definitions in `/opt/AtomicRedTeam/atomics`). There is no real malware in the lab;
+detections work on behaviour, so these tests produce realistic traces for Auditbeat, Sigma and CADE.
+
+```bash
+# on the victim (ssh yeswanth@<victim IP>)
+sudo pwsh -c "Import-Module invoke-atomicredteam; Invoke-AtomicTest T1082 -PathToAtomicsFolder /opt/AtomicRedTeam/atomics -ShowDetailsBrief"
+sudo pwsh -c "Import-Module invoke-atomicredteam; Invoke-AtomicTest T1082 -TestNumbers 3 -ShowDetails -PathToAtomicsFolder /opt/AtomicRedTeam/atomics"   # read it first
+sudo pwsh -c "Import-Module invoke-atomicredteam; Invoke-AtomicTest T1082 -TestNumbers 3 -PathToAtomicsFolder /opt/AtomicRedTeam/atomics"
+sudo pwsh -c "Import-Module invoke-atomicredteam; Invoke-AtomicTest T1082 -TestNumbers 3 -Cleanup -PathToAtomicsFolder /opt/AtomicRedTeam/atomics"
+```
+
+Always read a test with `-ShowDetails` before running it: some tests change the system (create users, edit
+cron, stop services) and some download tools. Prefer discovery tests for demos and run `-Cleanup` afterwards.
+Checked on 2026-11-21: T1082-3 ("List OS Information") was found by CADE's Sigma hunt
+(`lnx_auditd_system_info_discovery`).
 
 ## Updating the code on the VM
 
