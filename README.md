@@ -17,8 +17,11 @@ for this implementation, and section numbers below refer to it.
 > - controlled execution with approvals, verification and audit
 > - an analyst console
 >
-> **Not implemented:** the paper's evaluation (the 96-scenario Splunk Attack Data benchmark, baselines, ablation runs,
-> statistics). No experimental result from the paper is claimed for this implementation.
+> **Evaluation: built, partly run, execution still simulated.** The 96-scenario benchmark (Table 2), the routing
+> protocol (10 orderings), the four baselines and the scorer ablation (Table 4), Fig. 2, the Fig. 4b costs and the
+> library-growth experiment (Fig. 4a) are implemented (§9). Only the routing benchmark has been run, with simulated
+> execution. No playbook is yet executed against indexed Splunk logs, so no experimental result from the paper is
+> claimed for this implementation; see `docs/PAPER_TEXT_CORRECTIONS.md`.
 >
 > **Simulation is the default.** Every security-tool call is answered by a deterministic simulator and labelled
 > SYNTHETIC unless you switch to live mode and configure real tools. This is a research/reference system, not a
@@ -445,6 +448,22 @@ python scripts/eval_routing.py --benchmark legacy --learned            # legacy 
 python scripts/eval_routing.py --benchmark corrected --learned         # weak-match semantics enforced (§7 item 17)
 ```
 
+Experiments with the configured models (hours to days on CPU, much faster on a GPU; every synthesized playbook is
+cached under `reports/quality_cache/<generator>__<judge>/`, shared by all three, so runs resume and reuse each other):
+
+```powershell
+python scripts/eval_routing_generated.py --time-test                    # one real synthesis: how long it takes here
+python scripts/eval_routing_generated.py --out-dir reports/<dir>/routing_generated   # LinUCB with REAL synthesized playbooks
+python scripts/eval_quality_paper.py --out-dir reports/<dir>/quality `
+    --routing-results reports/<dir>/routing_generated/results.json      # Table 4, Fig. 2, Fig. 4b, scorer ablation
+python scripts/eval_library_growth.py --out-dir reports/<dir>/growth     # Fig. 4a
+# add --mock to any of them to check the wiring offline (NOT a result)
+```
+
+In all three, execution is still simulated (a goal counts as answered when the returned playbook reads that evidence
+category and it is in hand; no logs are loaded), incidents are the templated summary plus the evidence profile, and
+the library is generated (one playbook per technique). Each report lists every departure from the paper.
+
 The suite covers the Phase 1 pipeline and regressions, security (401/403 on every route, audit, append-only log,
 production checks), tool adapters (mocked HTTP and subprocess), enrichment honesty, DAG validity and repair, fitness,
 generation and adaptive K, evolution operators, selection and termination, Eq. 1–9 (rule, LinUCB, reward and the
@@ -462,10 +481,11 @@ app/
   enrichment/     evidence enrichment and the availability profile
   playbook/       action vocabulary, typed DAG builder, validator, repair
   fitness/        coverage (IC, EA), OS judges, fitness evaluator
-  synthesis/      LLM candidate generation, constructive fallback, adaptive-K seeding
+  synthesis/      LLM candidate generation, constructive fallback, adaptive-K seeding, the shared synthesis pipeline
   evolution/      operators, selection, the CADE engine
   routing/        Eq. 1–7 (rule), LinUCB bandit (Eq. 8), reward (Eq. 9), router and learner
-  evaluation/     routing benchmarks: online protocol, metrics, reports, the paper-matched 96-scenario benchmark
+  evaluation/     online protocol, metrics, reports, the paper-matched 96-scenario benchmark, real-synthesis routing
+                  (generated.py), playbook quality and baselines (quality.py), library growth (growth.py)
   library/        embedder, vector index, self-evolving library
   execution/      internal steps and the gated executor
   services/       use cases: incidents, evidence, plans, response orchestration, jobs, audit
@@ -474,7 +494,10 @@ app/
   data/           taxonomy, vocabulary, goals, availability, seed playbooks, ATT&CK bundle (fetched)
 scripts/          demo_workflow.py, demo_full_pipeline.py, check_live_extraction.py, fetch_attack_dataset.py,
                   check_tools.py, load_attack_data.py, eval_intent.py, eval_routing.py, eval_routing_paper.py,
-                  build_paper_catalog.py
+                  eval_routing_generated.py, eval_quality_paper.py, eval_library_growth.py, build_paper_catalog.py,
+                  alert_forwarder.py (lab VM detection bridge)
+deploy/gcp/       lab VM tunnel, deploy script, systemd units, victim Auditbeat config (see deploy/gcp/README.md)
+docs/             PAPER_TEXT_CORRECTIONS.md, GPU_RUN_GUIDE.md (running the experiments on a GPU laptop)
 examples/         SYNTHETIC incidents (10)
 ```
 
@@ -491,12 +514,15 @@ examples/         SYNTHETIC incidents (10)
   regardless, and the analyst can correct a wrong label. Wider deterministic grounding (e.g. public Sigma rules)
   or a larger local model would help; neither is done.
 - Grounding is lexical: a true but paraphrased excerpt is downgraded.
-- The paper's evaluation (benchmark, baselines, ablation runs, statistics) is not implemented. The
-  `CADE_COVERAGE_*`, `CADE_ROUTING_POLICY` and `CADE_OS_JUDGE_MODE` switches exist so the ablations could be run.
+- The paper's evaluation is built (§9) but **execution is simulated** everywhere: no playbook runs against indexed
+  Splunk logs, and incidents carry no events (the paper's execution-backed evaluation needs Elasticsearch with the
+  recordings loaded). The library is generated, not converted from published playbooks. Statistical tests beyond
+  mean ± std over orderings are not implemented.
 - **Routing with the exact Eq. 2** gives H ≈ 1 (raw cosine similarities), so the rule reuses only when coverage is
   complete, and requests evidence only when all of the top playbook's critical evidence is missing and obtainable
-  (§7 items 4, 6 and 17). LinUCB reaches 83% on the paper-matched benchmark against the paper's ≈ 90%, and every
-  routing result rests on simulated execution and assumed latencies (§7 item 17).
+  (§7 items 4, 6 and 17). LinUCB reaches 83% on the paper-matched benchmark against the paper's ≈ 90% with
+  simulated execution and assumed latencies (§7 item 17); the run with real synthesized playbooks
+  (`eval_routing_generated.py`) has not been completed yet.
 - The learned router needs real, executed and reviewed incidents: in the default simulate mode it stays on the
   bootstrap rule. A low-volume deployment may never leave the bootstrap period, and the linear reward model misses
   feature interactions (paper §8).
