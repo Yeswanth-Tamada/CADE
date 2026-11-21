@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     llm_provider: LLMProvider = LLMProvider.OLLAMA
     ollama_base_url: str = "http://127.0.0.1:11434"
     ollama_model: str = "llama3.2:3b"
+    # Ollama "think" for reasoning models (Qwen3, DeepSeek-R1, ...): unset = auto (off for those families, not sent
+    # for other models); true/false forces it for every model.
+    ollama_think: Optional[bool] = None
     llm_request_timeout_seconds: float = Field(default=120.0, gt=0, le=1800)
     llm_health_timeout_seconds: float = Field(default=3.0, gt=0, le=60)
     llm_max_attempts: int = Field(default=2, ge=1, le=5)

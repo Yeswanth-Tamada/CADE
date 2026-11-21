@@ -425,6 +425,28 @@ async def test_ollama_client_sends_structured_output_request():
     assert seen["body"]["messages"][0]["role"] == "system"
 
 
+@pytest.mark.parametrize("model,think,sent", [
+    ("llama3.2:3b", None, "absent"),  # plain model: no "think" field (older Ollama versions reject unknown models' think)
+    ("qwen3:14b", None, False),  # reasoning family: thinking switched off automatically
+    ("deepseek-r1:8b", None, False),
+    ("qwen3:14b", True, True),  # explicit setting wins
+])  # fmt: skip
+async def test_ollama_client_switches_off_thinking_for_reasoning_models(model, think, sent):
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["body"] = json.loads(request.content)
+        # a reasoning model that thinks anyway: the <think> block must not reach the JSON parser
+        return httpx.Response(200, json={"message": {"content": '<think>\nhmm\n</think>\n{"ok": true}'}})
+
+    client = OllamaClient(base_url="http://ollama.test", model=model, timeout_seconds=5, think=think,
+                          transport=httpx.MockTransport(handler))  # fmt: skip
+    response = await client.generate_json(system_prompt="s", user_prompt="u", json_schema={"type": "object"})
+    await client.aclose()
+    assert seen["body"].get("think", "absent") == sent
+    assert response.content == '{"ok": true}'
+
+
 @pytest.mark.parametrize(
     "handler,error",
     [

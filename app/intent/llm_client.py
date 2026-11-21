@@ -89,12 +89,17 @@ class OllamaClient(LLMClient):
         timeout_seconds: float,
         health_timeout_seconds: float = 3.0,
         temperature: float = 0.0,
+        think: Optional[bool] = None,
         transport: Optional[httpx.AsyncBaseTransport] = None,
     ) -> None:
         self.model = model
         self.timeout_seconds = timeout_seconds
         self.health_timeout_seconds = health_timeout_seconds
         self.temperature = temperature
+        # Reasoning models (e.g. Qwen3) "think" before answering by default: many extra output tokens, which is
+        # slow on CPU and can disturb the JSON answer. None = auto: turn thinking off for known reasoning
+        # families; other models get no "think" field at all (older Ollama versions and plain models).
+        self.think = (False if is_reasoning_model(model) else None) if think is None else think
         self._client = httpx.AsyncClient(base_url=base_url.rstrip("/"), transport=transport)
 
     async def generate_json(
@@ -111,6 +116,8 @@ class OllamaClient(LLMClient):
             "format": json_schema,
             "options": {"temperature": self.temperature if temperature is None else temperature},
         }
+        if self.think is not None:
+            payload["think"] = self.think
         started = time.perf_counter()
         try:
             response = await self._client.post("/api/chat", json=payload, timeout=self.timeout_seconds)
@@ -138,6 +145,7 @@ class OllamaClient(LLMClient):
             raise LLMResponseError("Ollama returned an unexpected response envelope") from None
         if not isinstance(content, str):
             raise LLMResponseError("Ollama returned non-text message content")
+        content = _THINK_BLOCK.sub("", content).strip()  # a reasoning model that ignored think=false
         return LLMResponse(content=content, model=str(data.get("model") or self.model), duration_ms=duration_ms)
 
     async def health(self) -> LLMHealth:
@@ -155,6 +163,16 @@ class OllamaClient(LLMClient):
 
     async def aclose(self) -> None:
         await self._client.aclose()
+
+
+_THINK_BLOCK = re.compile(r"<think>.*?</think>", re.DOTALL)
+_REASONING_FAMILIES = ("qwen3", "deepseek-r1", "gpt-oss", "magistral", "phi4-reasoning")
+
+
+def is_reasoning_model(model: str) -> bool:
+    """Models that think before answering unless told not to (Ollama ``think``)."""
+    name = model.split("/")[-1].lower()
+    return name.startswith(_REASONING_FAMILIES)
 
 
 def _error_text(response: httpx.Response) -> str:
@@ -176,6 +194,7 @@ def build_llm_client(settings: Settings, model: Optional[str] = None) -> LLMClie
         timeout_seconds=settings.llm_request_timeout_seconds,
         health_timeout_seconds=settings.llm_health_timeout_seconds,
         temperature=settings.llm_temperature,
+        think=settings.ollama_think,
     )
 
 
