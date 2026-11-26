@@ -2,14 +2,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CADE Live Wall</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Projector wall for the CADE demo: the incident, CADE's analysis, routing decision, evolved plan and execution results, read from the CADE API or from a recorded run.">
+<meta name="description" content="Projector wall for the CADE demo: the incident, CADE's analysis, routing decision, evolved plan and execution results, read live from the CADE API.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: a stacked "operations wall" — testbed row, CADE's pipeline, the three decision panels,
-   the response DAG with a step inspector, then what the run found. Every value comes from the CADE API
-   (live) or from a recording of it (replay); the only typed-in text is the testbed description. */
+   the response DAG with a step inspector, then what the run found. Every value comes live from the CADE API;
+   the only typed-in text is the testbed description. */
 :root{
   --bg:#eaeef5; --surface:#ffffff; --surface-2:#f3f6fb; --border:#d3dbe8;
   --fg:#111722; --muted:#586274; --faint:#8793a5;
@@ -75,10 +75,6 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .phase[data-tone=ok] .dot{background:var(--ok)}
 @keyframes blink{50%{opacity:.25}}
 
-.seg{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:var(--surface)}
-.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;font-size:13px;
-  padding:7px 14px;cursor:pointer}
-.seg button[aria-pressed=true]{background:var(--accent);color:#fff}
 .btn{border:1px solid var(--border);background:var(--surface);color:var(--fg);font:inherit;font-weight:600;
   padding:8px 14px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
 .btn:hover{border-color:var(--accent)}
@@ -93,15 +89,12 @@ input[type=password],input[type=text],select,textarea{font:inherit;padding:8px 1
   border:1px solid var(--border);background:var(--surface);color:var(--muted);white-space:nowrap}
 .tag.live{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,var(--border))}
 .tag.sim{background:color-mix(in srgb,var(--run) 16%,var(--surface));color:var(--run);border-color:color-mix(in srgb,var(--run) 40%,var(--border))}
-.tag.replay{background:color-mix(in srgb,var(--sim) 16%,var(--surface));color:var(--sim);border-color:color-mix(in srgb,var(--sim) 45%,var(--border))}
 .tag.bad{background:color-mix(in srgb,var(--attack) 14%,var(--surface));color:var(--attack);border-color:color-mix(in srgb,var(--attack) 40%,var(--border))}
 .tag[hidden]{display:none}
 
 /* banners */
 .banner{border-radius:var(--r);padding:11px 15px;margin-top:12px;font-size:13px;border:1px solid var(--border);background:var(--surface)}
 .banner b{font-family:var(--fdisplay);letter-spacing:.4px}
-.banner.replay{border:2px solid var(--sim);background:color-mix(in srgb,var(--sim) 10%,var(--surface))}
-.banner.replay b{color:var(--sim);font-size:15px}
 .banner .tb{color:var(--muted)}
 .banner p{margin:3px 0 0}
 
@@ -322,13 +315,9 @@ details summary{cursor:pointer;font-size:12px;color:var(--accent);font-weight:60
   <div class="wrap">
     <div class="logo"><i></i><b>CADE</b> <span>Response Wall</span></div>
     <div class="spacer"></div>
-    <span id="src-tag" class="tag replay">Replay</span>
+    <span class="tag live">Live API</span>
     <span id="exec-tag" class="tag" hidden></span>
     <div class="phase" id="phase" data-tone="idle"><span class="dot"></span><span id="phase-label">Standing by</span></div>
-    <div class="seg" role="group" aria-label="Data source">
-      <button id="m-replay" aria-pressed="true">Replay</button>
-      <button id="m-live" aria-pressed="false">Live</button>
-    </div>
     <button class="btn ghost" id="theme">Theme</button>
   </div>
 </div>
@@ -396,8 +385,6 @@ details summary{cursor:pointer;font-size:12px;color:var(--accent);font-weight:60
 
 </div>
 
-<input type="file" id="rec-file" accept="application/json,.json" hidden>
-
 <dialog id="inc-dlg" class="incdlg" aria-labelledby="inc-dlg-h">
   <form method="dialog" id="inc-form">
     <h2 id="inc-dlg-h">New incident</h2>
@@ -459,7 +446,6 @@ const tdiff=(a,b)=>(a&&b)?Date.parse(b)-Date.parse(a):null;
 const clock=iso=>{if(!iso)return "–";const d=new Date(iso);return isNaN(d)?"–":d.toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"});};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const splitList=s=>(s||"").split(/[,\s]+/).map(x=>x.trim()).filter(Boolean);
-const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
 
 /* ---------- glyphs ---------- */
 const ICON={
@@ -532,9 +518,8 @@ function mapPhase(p){
 
 /* =======================================================================
    VIEW — one pure function turns an API snapshot into what the wall shows.
-   Live mode and replay both go through it, so they can never disagree.
    snapshot = {inc: GET /incidents/{id}, resp: GET /incidents/{id}/response, ev: GET /incidents/{id}/evidence,
-               health: GET /health, vocab: GET /vocabulary, busy, progress, replay}
+               health: GET /health, vocab: GET /vocabulary, busy, progress}
    ======================================================================= */
 function view(snap){
   const V={};
@@ -544,7 +529,7 @@ function view(snap){
   V.result=V.analysis&&V.analysis.result||null;
   V.analysisFailed=!!(V.analysis&&V.analysis.extraction_status==="failed")||(!!V.incident&&V.incident.status==="analysis_failed");
   V.evidence=snap.ev||null; V.health=snap.health||null;
-  V.busy=snap.busy||null; V.progress=snap.progress||""; V.replay=!!snap.replay;
+  V.busy=snap.busy||null; V.progress=snap.progress||"";
   V.vocab={}; for(const a of (snap.vocab&&snap.vocab.actions)||[]) V.vocab[a.id]=a;
   const R=snap.resp||{};
   V.decisions=R.decisions||[]; V.plans=R.plans||[]; V.runs=R.runs||[];
@@ -569,8 +554,7 @@ function view(snap){
   }):[];
   V.edges=V.plan?(V.plan.playbook.edges||[]).map(e=>({source:e.source||e.from,target:e.target||e.to,artifact:e.artifact})):[];
   V.unapproved=V.nodes.filter(n=>n.destructive&&!n.approval);
-  V.partial=V.run&&V.run._partial||null;
-  V.planState=!V.plan?null:V.partial?"executing (replay)":V.run?"executed":(V.plan.status==="executing"||V.busy==="execute")?"executing":V.unapproved.length?"awaiting approval":"ready";
+  V.planState=!V.plan?null:V.run?"executed":(V.plan.status==="executing"||V.busy==="execute")?"executing":V.unapproved.length?"awaiting approval":"ready";
   // execution tallies, in execution order
   V.results=(V.run&&V.run.node_results)||[];
   V.counts={}; for(const n of V.nodes) if(n.r) V.counts[n.st.s]=(V.counts[n.st.s]||0)+1;
@@ -582,7 +566,7 @@ function view(snap){
 
 /* the one-line status in the top bar — derived only from recorded outcomes */
 function headline(V){
-  if(!V.incident) return {tone:"idle",text:MODE==="live"?(LIVE.polling?"No incident yet":"Not connected"):"No recording loaded"};
+  if(!V.incident) return {tone:"idle",text:LIVE.polling?"No incident yet":"Not connected"};
   if(V.analysisFailed) return {tone:"bad",text:"Analysis failed"};
   if(!V.result) return (V.busy==="analyze"||V.incident.status==="analyzing")?{tone:"work",text:"Analysing the incident…"}:{tone:"idle",text:"Incident received · not analysed yet"};
   if(V.awaitingEvidence) return {tone:"warn",text:"Waiting for evidence: "+(V.pendingDecision.requestable||[]).map(human).join(", ")};
@@ -593,7 +577,6 @@ function headline(V){
     if(V.unapproved.length) return {tone:"warn",text:`Plan ready · ${V.unapproved.length} host-changing step(s) await approval · not executed`};
     return {tone:"idle",text:"Plan ready · not executed"};
   }
-  if(V.partial) return {tone:"work",text:`Replaying the run · step ${V.partial.k} of ${V.partial.n}`};
   if(V.run.status==="blocked") return {tone:"bad",text:"Run blocked before any step ran"};
   const ok=V.counts.ok||0, tot=V.nodes.length;
   const base=V.run.status==="completed"?"Run completed":"Run completed with issues";
@@ -627,15 +610,14 @@ function pipeline(V){
   let es="idle",esub="queries and lookups";
   if(V.run){
     const m=V.run.synthetic||V.run.mode!=="live"?"simulated":"live tools";
-    if(V.partial){es="active";esub=`${m} · replaying`;}
-    else if(V.run.status==="blocked"){es="fail";esub="blocked";}
+    if(V.run.status==="blocked"){es="fail";esub="blocked";}
     else if(V.run.status==="completed_with_issues"){es="warn";esub=`${m} · with issues`;}
     else {es="done";esub=`${m} · completed`;}
   } else if(V.planState==="executing"){es="active";esub="running";}
   else if(V.plan){esub="not executed";}
   st("execute","Execute",es,esub);
   let ls="idle",lsub="analyst feedback";
-  if(V.run&&!V.partial){
+  if(V.run){
     if(V.run.feedback){ls="done";lsub=V.run.feedback.findings_retained?"findings retained":"not retained";}
     else lsub="no feedback recorded";
   }
@@ -663,9 +645,6 @@ function render(){
 }
 
 function renderTop(V){
-  const src=$("#src-tag");
-  src.className="tag "+(MODE==="live"?"live":"replay");
-  src.textContent=MODE==="live"?"Live API":"Replay · recorded";
   const ex=$("#exec-tag");
   if(V.run){
     const real=V.run.mode==="live"&&!V.run.synthetic;
@@ -673,7 +652,7 @@ function renderTop(V){
     ex.textContent=real?"Execution: live tools · real data":V.run.mode==="live"?"Execution: live mode · includes synthetic data":"Execution: simulated · synthetic results";
     ex.hidden=false;
   } else if(V.health&&V.health.playbooks){
-    ex.className="tag"; ex.textContent=`${V.replay?"At recording, server":"Server"} executes in ${V.health.playbooks.execution_mode} mode`; ex.hidden=false;
+    ex.className="tag"; ex.textContent=`Server executes in ${V.health.playbooks.execution_mode} mode`; ex.hidden=false;
   } else ex.hidden=true;
   const hl=headline(V);
   $("#phase").setAttribute("data-tone",hl.tone);
@@ -682,12 +661,6 @@ function renderTop(V){
 
 function renderBanner(V){
   const b=$("#banner"); const kids=[];
-  if(MODE==="replay"&&REPLAY.rec){
-    const r=REPLAY.rec;
-    kids.push(h("div",{class:"banner replay"},h("b",{},"REPLAY of a recorded CADE run — this is not happening now."),
-      h("p",{},`Recorded ${clock(r.recorded_at)} from ${r.origin||"an unknown source"} · incident ${r.incident&&r.incident.incident?r.incident.incident.incident_id:"?"}. `,
-        "Steps appear one at a time; real durations are shown in the panels.")));
-  }
   const models=[];
   const syn=V.plan&&V.plan.synthesis;
   if(V.analysis) models.push(`intent ${V.analysis.model_name}`);
@@ -716,7 +689,7 @@ function renderNet(V){
   const eq=V.toolCalls.elastic||0, eh=V.toolHits.elastic||0;
   $("#s-es").textContent=`${TESTBED.logs}, shipped continuously · `+(V.run?`${eq} quer${eq===1?"y":"ies"} by this run, ${eh} returned data`:"not queried for this incident yet");
   const vt=V.toolCalls.virustotal||0;
-  const conf=V.health&&V.health.playbooks?`${V.replay?"when recorded, the ":""}server executes in ${V.health.playbooks.execution_mode} mode`:"";
+  const conf=V.health&&V.health.playbooks?`server executes in ${V.health.playbooks.execution_mode} mode`:"";
   $("#s-cade").textContent=[conf,V.run?`VirusTotal lookups by this run: ${vt}`:""].filter(Boolean).join(" · ")||"—";
   const syn=V.plan&&V.plan.synthesis;
   const used=[V.analysis?`intent: ${V.analysis.model_name}`:null,syn&&syn.generator?`generator: ${syn.generator.model}`:null,syn&&syn.judge_model?`judge: ${syn.judge_model}`:null].filter(Boolean);
@@ -758,7 +731,7 @@ function evidenceRows(V){
 }
 function renderIncident(V){
   const el=$("#c-incident"), t=head("1–2","Incident and understanding");
-  if(!V.incident){el.replaceChildren(t,note(MODE==="live"?"Connect, then pick or submit an incident.":"Load a recording to replay it."));return;}
+  if(!V.incident){el.replaceChildren(t,note("Connect, then pick or submit an incident."));return;}
   const I=V.incident, kids=[t,
     h("div",{class:"ttl"},I.title||"(untitled incident)"),
     h("div",{class:"meta"},h("span",{class:"mono"},I.incident_id)," · ",SOURCE_TEXT[I.source]||human(I.source),I.severity?` · severity ${I.severity}`:""," · received ",clock(I.received_at)),
@@ -932,7 +905,7 @@ function renderDag(V){
     h("span",{title:"the tool answer came from the simulator"},h("b",{style:"color:var(--sim);font-size:10px"},"SIM"),"synthetic result"));
   $("#dag-note").textContent=V.plan?`${V.plan.plan_id} · ${V.planState}`:"";
   if(!V.nodes.length){
-    const msg=!V.incident?(MODE==="live"?"Connect to CADE to follow an incident.":"Load a recording to replay it.")
+    const msg=!V.incident?"Connect to CADE to follow an incident."
       :V.awaitingEvidence?"CADE requested evidence instead of planning.":V.busy==="respond"?"CADE is building the plan…":"No plan for this incident yet.";
     host.replaceChildren(h("div",{class:"empty"},h("div",{class:"k"},"No plan to show"),h("div",{},msg)));
     host.style.width="";host.style.height="";return;
@@ -1012,33 +985,29 @@ function renderExec(V){
     kids.push(note(V.planState==="executing"?"CADE is executing the plan…":"This plan has not been executed."));
     if(V.unapproved.length) kids.push(h("div",{class:"warnbox"},`${V.unapproved.length} host-changing step(s) have no approval: `,
       V.unapproved.map(n=>n.label).join(", "),". If the plan runs as it is, CADE skips them."));
-    if(V.health&&V.health.playbooks) kids.push(note(`${V.replay?"When this was recorded, the":"The"} server was configured to execute in ${V.health.playbooks.execution_mode} mode.`));
+    if(V.health&&V.health.playbooks) kids.push(note(`The server is configured to execute in ${V.health.playbooks.execution_mode} mode.`));
     el.replaceChildren(...kids);return;
   }
   const run=V.run, real=run.mode==="live"&&!run.synthetic;
   kids.push(h("div",{class:"chips",style:"margin-bottom:8px"},
     h("span",{class:"tag "+(real?"live":"sim")},run.mode==="live"?"live mode":"simulate mode"),
     h("span",{class:"tag "+(run.synthetic?"sim":"live")},run.synthetic?"synthetic results":"real tool results"),
-    V.partial?h("span",{class:"tag replay"},`replay · step ${V.partial.k} of ${V.partial.n}`):
-      h("span",{class:"tag "+(run.status==="completed"?"live":run.status==="blocked"?"bad":"sim")},human(run.status))));
+    h("span",{class:"tag "+(run.status==="completed"?"live":run.status==="blocked"?"bad":"sim")},human(run.status))));
   kids.push(kv([["Run",h("span",{class:"mono"},run.run_id)],["Started by",run.started_by||"–"],["Started",clock(run.started_at)],
-    ["Duration",V.partial?"–":dur(tdiff(run.started_at,run.completed_at))]]));
-  if(!V.partial){
-    kids.push(h("div",{class:"big",style:"margin-top:10px"},h("div",{},h("div",{class:"v"},run.execution_coverage!=null?pctS(run.execution_coverage):"–"),h("div",{class:"ey"},"IC_exec")),
-      h("div",{class:"note",style:"margin:0;max-width:300px"},run.execution_coverage!=null?"Share of the intent's goals answered by an executed step that returned data (§6.2; feeds the Eq. 9 reward).":"Not computed for this run.")));
-  }
+    ["Duration",dur(tdiff(run.started_at,run.completed_at))]]));
+  kids.push(h("div",{class:"big",style:"margin-top:10px"},h("div",{},h("div",{class:"v"},run.execution_coverage!=null?pctS(run.execution_coverage):"–"),h("div",{class:"ey"},"IC_exec")),
+    h("div",{class:"note",style:"margin:0;max-width:300px"},run.execution_coverage!=null?"Share of the intent's goals answered by an executed step that returned data (§6.2; feeds the Eq. 9 reward).":"Not computed for this run.")));
   kids.push(h("h4",{},"Step outcomes"),h("div",{class:"chips"},Object.keys(NODE_STATES).filter(k=>V.counts[k]).map(k=>
     h("span",{class:"chip",style:`--sc:${STATE_COLOR[k]}`},h("span",{class:"stchip"},h("i",{})),`${NODE_STATES[k].label}: ${V.counts[k]}`))));
   const cl=containmentLines(V);
   kids.push(h("h4",{},"Host-changing steps"),cl.length?h("ul",{class:"reportl"},cl):note("This plan has none."),
     note("Paper 968 (§6.1, §8): actions on live hosts are validated but not executed in the evaluation."));
   if(run.block_reason) kids.push(h("div",{class:"warnbox"},"Blocked: ",run.block_reason));
-  if(!V.partial&&(run.report||[]).length) kids.push(det("report",`Run report (${run.report.length} lines)`,h("ul",{class:"reportl"},run.report.map(l=>h("li",{},l)))));
+  if((run.report||[]).length) kids.push(det("report",`Run report (${run.report.length} lines)`,h("ul",{class:"reportl"},run.report.map(l=>h("li",{},l)))));
   // learning
   const L=h("div",{class:"learn"},h("h4",{style:"margin-top:0"},"Learning (analyst feedback)"));
   const fb=run.feedback;
-  if(V.partial) L.append(note("Shown when the replayed run has finished."));
-  else if(fb){
+  if(fb){
     const lo=fb.library_outcome||{};
     L.append(kv([["Findings retained",fb.findings_retained?"yes":"no"],["Incident resolved",fb.resolved?"yes":"no"],
       ["Library",`${human(lo.action)}${lo.entry_id?` · ${lo.entry_id}`:""}${lo.executions!=null?` · ${lo.successes}/${lo.executions} successful`:""}`],
@@ -1046,7 +1015,7 @@ function renderExec(V){
       ["Recorded by",`${fb.submitted_by} · ${clock(fb.submitted_at)}`]]),...[lo.reason?note(`Library: ${lo.reason}.`):null,fb.notes?note(`Notes: ${fb.notes}`):null].filter(Boolean));
   } else {
     L.append(note("No analyst feedback recorded: CADE has not learned anything from this run."));
-    if(MODE==="live") L.append(h("div",{class:"grp",style:"margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"},
+    L.append(h("div",{class:"grp",style:"margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"},
       h("button",{class:"btn warn",type:"button",onclick:openFeedback,disabled:FB.busy},FB.busy?"Recording…":"Retain findings…"),
       h("span",{class:"runstat"},FB.stat)));
   }
@@ -1070,60 +1039,6 @@ function renderFeed(V){
         r.reason&&r.status!=="succeeded"&&!f.some(x=>x.includes(r.reason))?h("div",{class:"tgt"},"reason: "+r.reason):null));
   });
   el.replaceChildren(t,...(rows.length?rows:[note("The run has no step results.")]));
-}
-
-/* =======================================================================
-   REPLAY — plays back a recording of real API responses (no invented data).
-   A recording is what Live mode's "Save recording" downloads.
-   ======================================================================= */
-const REPLAY={rec:null,stages:[],i:0,timer:null,playing:false,speed:1,msg:""};
-function replayStages(rec){
-  const inc=rec.incident, R=rec.response||{}, plans=R.plans||[], runs=R.runs||[], decisions=R.decisions||[];
-  const plan=last(plans), run=plan?last(runs.filter(r=>r.plan_id===plan.plan_id)):null;
-  const base={health:rec.health||null,vocab:rec.vocabulary||null,replay:true};
-  const ev=rec.evidence||null, none={decisions:[],plans:[],runs:[]};
-  const S=[];
-  const push=(label,delay,snap)=>S.push({label,delay,snap:{...base,...snap}});
-  push("Incident submitted",0,{inc:{incident:inc.incident,latest_analysis:null},resp:none});
-  if(!inc.latest_analysis) return S;
-  push("Analysis",2000,{inc,ev,resp:none});
-  const decs=plan?decisions.filter(d=>Date.parse(d.created_at)<=Date.parse(plan.created_at)):decisions;
-  decs.forEach((d,i)=>push(`Routing decision${decs.length>1?` ${i+1} of ${decs.length}`:""}`,2200,{inc,ev,resp:{decisions:decs.slice(0,i+1),plans:[],runs:[]}}));
-  if(!plan) return S;
-  const before={decisions:decs,plans:[plan],runs:[]};
-  push("Plan",2400,{inc,ev,resp:before});
-  if(run){
-    const n=run.node_results.length;
-    for(let k=1;k<=n;k++) push(`Execution: step ${k} of ${n}`,k===1?1800:600,{inc,ev,resp:{...before,runs:[{...run,node_results:run.node_results.slice(0,k),
-      status:null,execution_coverage:null,report:[],feedback:null,completed_at:null,_partial:{k,n}}]}});
-    push("Run finished",900,{inc,ev,resp:{...before,runs:[{...run,feedback:null}]}});
-    if(run.feedback) push("Analyst feedback",1800,{inc,ev,resp:{...before,runs:[run]}});
-  }
-  if(decisions.length>decs.length) push("Later routing decision",1800,{inc,ev,resp:{decisions,plans:[plan],runs:run?[run]:[]}});
-  return S;
-}
-function loadRecording(rec,from){
-  if(!rec||rec.format!=="cade-wall-recording/1"||!rec.incident||!rec.incident.incident){
-    REPLAY.msg=`${from}: not a CADE wall recording (expected format cade-wall-recording/1).`;renderControls();return false;}
-  replayPause(); REPLAY.rec=rec; REPLAY.stages=replayStages(rec); REPLAY.i=0; SEL=null; OPEN.clear();
-  const plans=(rec.response&&rec.response.plans)||[];
-  REPLAY.msg=`Loaded ${from}.`+(plans.length>1?` It holds ${plans.length} plans; the latest plan and its run are replayed.`:"");
-  render(); renderControls(); return true;
-}
-function replaySchedule(){
-  clearTimeout(REPLAY.timer);
-  if(!REPLAY.playing||REPLAY.i>=REPLAY.stages.length-1){REPLAY.playing=false;renderControls();return;}
-  const next=REPLAY.stages[REPLAY.i+1];
-  REPLAY.timer=setTimeout(()=>{REPLAY.i++;render();renderControls();replaySchedule();},Math.max(60,next.delay/REPLAY.speed));
-}
-function replayPlay(){ if(!REPLAY.stages.length)return; if(REPLAY.i>=REPLAY.stages.length-1)REPLAY.i=0; REPLAY.playing=true; render(); replaySchedule(); renderControls(); }
-function replayPause(){ REPLAY.playing=false; clearTimeout(REPLAY.timer); renderControls(); }
-function replayStep(d){ replayPause(); REPLAY.i=Math.max(0,Math.min(REPLAY.stages.length-1,REPLAY.i+d)); render(); renderControls(); }
-function replayEnd(){ replayPause(); REPLAY.i=Math.max(0,REPLAY.stages.length-1); render(); renderControls(); }
-async function tryDefaultRecording(){
-  // a recording placed next to this page (e.g. app/web/static/demo-recording.json) loads automatically
-  if(location.protocol==="file:")return;
-  try{const res=await fetch("demo-recording.json",{cache:"no-store"}); if(res.ok) loadRecording(await res.json(),"demo-recording.json");}catch(e){}
 }
 
 /* =======================================================================
@@ -1193,14 +1108,11 @@ function renderIfChanged(){
   if(sig===LIVE.sig)return; LIVE.sig=sig; render();
 }
 function currentSnap(){
-  if(MODE==="live"){
-    const s=LIVE.snap||{}, mine=CLIENT.incident&&s.incId===CLIENT.incident;
-    return {...s,busy:mine?CLIENT.busy:null,progress:mine?CLIENT.progress:""};
-  }
-  return REPLAY.stages.length?REPLAY.stages[REPLAY.i].snap:{};
+  const s=LIVE.snap||{}, mine=CLIENT.incident&&s.incId===CLIENT.incident;
+  return {...s,busy:mine?CLIENT.busy:null,progress:mine?CLIENT.progress:""};
 }
 function setBusy(stage,progress){CLIENT.busy=stage;CLIENT.progress=progress||"";CLIENT.since=Date.now();LIVE.sig="";render();}
-setInterval(()=>{ if(MODE==="live"&&CLIENT.busy) setRunStat(`${CLIENT.incident} · ${CLIENT.progress||CLIENT.busy} · ${Math.round((Date.now()-CLIENT.since)/1000)} s`); },1000);
+setInterval(()=>{ if(CLIENT.busy) setRunStat(`${CLIENT.incident} · ${CLIENT.progress||CLIENT.busy} · ${Math.round((Date.now()-CLIENT.since)/1000)} s`); },1000);
 
 function openIncidentDialog(){
   if(!LIVE.polling){setLiveStat("Connect first.");return;}
@@ -1237,21 +1149,10 @@ async function runIncident(sub,autoExec){
   }catch(err){ setBusy(null); setRunStat("stopped: "+err.message); }
   finally{ LIVE.sig=""; renderControls(); if(LIVE.polling){clearTimeout(LIVE.timer);liveTick();} }
 }
-function saveRecording(){
-  const s=LIVE.snap;
-  if(!s.inc){setLiveStat("Nothing to save yet: no incident is shown.");return;}
-  const rec={format:"cade-wall-recording/1",recorded_at:new Date().toISOString(),origin:`${location.origin} (CADE API)`,
-    incident:s.inc,response:s.resp||{decisions:[],plans:[],runs:[]},evidence:s.ev||null,health:s.health||null,vocabulary:s.vocab||null};
-  const url=URL.createObjectURL(new Blob([JSON.stringify(rec,null,1)],{type:"application/json"}));
-  const a=h("a",{href:url,download:`cade-recording-${s.incId}.json`}); document.body.append(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),2000);
-  setLiveStat(`saved cade-recording-${s.incId}.json`);
-}
-
 /* ---------- explicit analyst feedback (the only write this page makes besides submitting/running an incident) ---------- */
 function openFeedback(){
   const V=CUR, run=V&&V.run;
-  if(MODE!=="live"||!run||run._partial||run.feedback||FB.busy)return;
+  if(!run||run.feedback||FB.busy)return;
   const fx=[
     h("p",{class:"note",style:"margin-top:0"},"Run ",h("b",{class:"mono"},run.run_id)," of plan ",h("span",{class:"mono"},run.plan_id),
       ` · ${run.mode} mode · ${run.synthetic?"synthetic results":"real tool results"} · ${human(run.status)}`),
@@ -1280,46 +1181,19 @@ async function submitFeedback(runId){
 /* ---------- controls ---------- */
 function renderControls(){
   const c=$("#controls");
-  if(MODE==="replay"){
-    const n=REPLAY.stages.length, at=n?REPLAY.stages[REPLAY.i]:null, end=n&&REPLAY.i>=n-1;
-    c.replaceChildren(
-      h("div",{class:"grp"},h("button",{class:"btn",onclick:()=>$("#rec-file").click()},"Load recording…")),
-      h("div",{class:"grp"},
-        h("button",{class:"btn primary",onclick:()=>REPLAY.playing?replayPause():replayPlay(),disabled:!n},REPLAY.playing?"❚❚ Pause":(end?"↻ Replay":"▶ Play")),
-        h("button",{class:"btn",onclick:()=>replayStep(-1),disabled:!n||REPLAY.i===0},"‹ Back"),
-        h("button",{class:"btn",onclick:()=>replayStep(1),disabled:!n||end},"Step ›"),
-        h("button",{class:"btn",onclick:replayEnd,disabled:!n||end},"End")),
-      h("div",{class:"grp"},h("span",{class:"ey"},"Speed"),
-        ...[0.5,1,2].map(sp=>h("button",{class:"btn"+(REPLAY.speed===sp?" primary":""),onclick:()=>{REPLAY.speed=sp;renderControls();if(REPLAY.playing)replaySchedule();}},sp+"×"))),
-      h("div",{class:"grp"},h("span",{class:"runstat"},at?`stage ${REPLAY.i+1} / ${n}: ${at.label}`:"no recording loaded")));
-    $("#scrim").textContent=(REPLAY.msg?REPLAY.msg+" ":"")+"Replay plays back a recording of real CADE API responses, saved in Live mode with “Save recording”. It needs no VM or network. Nothing in it is happening now.";
-  } else {
-    c.replaceChildren(
-      h("form",{class:"liveform",onsubmit:e=>{e.preventDefault();liveConnect();}},
-        h("input",{type:"password",id:"api-key",placeholder:"CADE API key (cade_…)",autocomplete:"off",value:(()=>{try{return sessionStorage.getItem("cade-key")||"";}catch(e){return "";}})()}),
-        h("select",{id:"inc-sel",onchange:e=>{LIVE.incident=e.target.value||null;SEL=null;setLiveStat("switching…");if(LIVE.polling){clearTimeout(LIVE.timer);liveTick();}}},
-          h("option",{value:""},"latest incident"),
-          LIVE.incident?h("option",{value:LIVE.incident,selected:true},LIVE.incident):null),
-        h("button",{class:"btn primary",type:"submit"},LIVE.polling?"Reconnect":"Connect"),
-        LIVE.polling?h("button",{class:"btn",type:"button",onclick:liveStop},"Stop"):null),
-      h("div",{class:"grp"},
-        h("button",{class:"btn primary",type:"button",onclick:openIncidentDialog,disabled:!LIVE.polling||!!CLIENT.busy},CLIENT.busy?"Running…":"+ New incident"),
-        h("button",{class:"btn",type:"button",onclick:saveRecording,disabled:!LIVE.polling},"Save recording"),
-        h("span",{class:"runstat",id:"run-stat"},CLIENT.stat)),
-      h("div",{class:"grp"},h("span",{class:"scrim",id:"live-stat"},LIVE.stat)));
-    $("#scrim").textContent="Live mode polls CADE every 2 s and shows the real incident, decision, plan and run. It only reaches the API when this page is opened from CADE itself (http://127.0.0.1:8800/console/demo.html through the tunnel). “Save recording” downloads the shown incident for Replay.";
-  }
-}
-
-/* ---------- mode switch ---------- */
-let MODE="replay";
-function setMode(m){
-  MODE=m; store.set("cade-wall-mode",m); SEL=null;
-  $("#m-replay").setAttribute("aria-pressed",String(m==="replay"));
-  $("#m-live").setAttribute("aria-pressed",String(m==="live"));
-  if(m==="replay"){ liveStop(); }
-  else { replayPause(); LIVE.sig=""; }
-  render(); renderControls();
+  c.replaceChildren(
+    h("form",{class:"liveform",onsubmit:e=>{e.preventDefault();liveConnect();}},
+      h("input",{type:"password",id:"api-key",placeholder:"CADE API key (cade_…)",autocomplete:"off",value:(()=>{try{return sessionStorage.getItem("cade-key")||"";}catch(e){return "";}})()}),
+      h("select",{id:"inc-sel",onchange:e=>{LIVE.incident=e.target.value||null;SEL=null;setLiveStat("switching…");if(LIVE.polling){clearTimeout(LIVE.timer);liveTick();}}},
+        h("option",{value:""},"latest incident"),
+        LIVE.incident?h("option",{value:LIVE.incident,selected:true},LIVE.incident):null),
+      h("button",{class:"btn primary",type:"submit"},LIVE.polling?"Reconnect":"Connect"),
+      LIVE.polling?h("button",{class:"btn",type:"button",onclick:liveStop},"Stop"):null),
+    h("div",{class:"grp"},
+      h("button",{class:"btn primary",type:"button",onclick:openIncidentDialog,disabled:!LIVE.polling||!!CLIENT.busy},CLIENT.busy?"Running…":"+ New incident"),
+      h("span",{class:"runstat",id:"run-stat"},CLIENT.stat)),
+    h("div",{class:"grp"},h("span",{class:"scrim",id:"live-stat"},LIVE.stat)));
+  $("#scrim").textContent="The wall polls CADE every 2 s and shows the real incident, decision, plan and run. It only reaches the API when this page is opened from CADE itself (http://127.0.0.1:8800/console/demo.html through the tunnel).";
 }
 
 /* ---------- theme toggle ---------- */
@@ -1333,13 +1207,6 @@ $("#theme").addEventListener("click",()=>{
 /* ---------- wiring + boot ---------- */
 $("#g-atk").innerHTML=ICON.attacker; $("#g-vic").innerHTML=ICON.victim; $("#g-es").innerHTML=ICON.store;
 $("#g-cade").innerHTML=ICON.cade; $("#g-llm").innerHTML=ICON.llm;
-$("#m-replay").addEventListener("click",()=>setMode("replay"));
-$("#m-live").addEventListener("click",()=>setMode("live"));
-$("#rec-file").addEventListener("change",async e=>{
-  const f=e.target.files&&e.target.files[0]; if(!f)return;
-  try{ loadRecording(JSON.parse(await f.text()),f.name); }catch(err){ REPLAY.msg=`${f.name}: ${err.message}`; renderControls(); }
-  e.target.value="";
-});
 $("#inc-dlg").addEventListener("close",()=>{
   if($("#inc-dlg").returnValue!=="run"||CLIENT.busy)return;
   const description=$("#f-desc").value.trim();
@@ -1357,7 +1224,5 @@ $("#fb-dlg").addEventListener("close",()=>{
   submitFeedback(d.dataset.run);
 });
 
-MODE=store.get("cade-wall-mode")==="live"?"live":"replay";
-setMode(MODE);
-tryDefaultRecording();
+render(); renderControls();
 </script>

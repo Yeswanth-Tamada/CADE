@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CADE Live</title>
+<style>
+/* CADE live screen: shows what CADE is doing with the newest incident, one stage at a time.
+   No replay and no playback controls; the screen follows the real API. Fixed 1600x900 canvas scaled to the window.
+   Its one write is the analyst confirming a finished run's findings on the last stage (needs an analyst key). */
+:root{
+  --bg:#080d1c; --card:#111a35; --card2:#17224a; --line:#26335f; --line2:#33427a;
+  --text:#eef2ff; --muted:#a3aed0; --faint:#66729a;
+  --red:#ff5d6c; --green:#2fd38e; --amber:#ffb547; --blue:#4cc3ff; --violet:#a98bff; --grey:#8a95b8;
+}
+:root[data-theme="light"]{
+  --bg:#eef2f9; --card:#ffffff; --card2:#f1f4fb; --line:#d7deec; --line2:#c4cee3;
+  --text:#0c1430; --muted:#46557a; --faint:#8a95b2;
+  --red:#dc3346; --green:#119c63; --amber:#c97f00; --blue:#1586cf; --violet:#7454e8; --grey:#7d88a6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+.mono{font-family:"Cascadia Mono",Consolas,"SFMono-Regular",Menlo,monospace}
+.num{font-variant-numeric:tabular-nums}
+
+#vp{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#stage{width:1600px;height:900px;flex:none;position:relative;transform-origin:center center}
+#top{position:absolute;left:56px;right:56px;top:22px;height:48px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .ic{width:34px;height:34px;color:var(--blue)}
+.brand b{font-size:28px;letter-spacing:.06em}
+.brand .tagline{font-size:18px;color:var(--muted);margin-left:6px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;font-size:15px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;border:1.5px solid currentColor;color:var(--green)}
+.pill i{width:9px;height:9px;border-radius:50%;background:currentColor}
+.pill.off{color:var(--faint)}
+
+/* stage tracker */
+#rail{position:absolute;left:150px;right:150px;top:96px;height:112px;display:flex}
+.rs{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:0;padding:0;cursor:pointer}
+.rs::before{content:"";position:absolute;top:31px;right:calc(50% + 40px);width:calc(100% - 80px);height:4px;border-radius:2px;background:var(--line)}
+.rs:first-child::before{display:none}
+.rs[data-s="done"]::before,.rs[data-s="active"]::before{background:var(--green)}
+.rc{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;border:2.5px solid var(--line2);color:var(--faint);background:var(--card);position:relative}
+.rc .ic{width:32px;height:32px}
+.rl{font-size:19px;font-weight:650;color:var(--faint)}
+.rs[data-s="ready"] .rc{border-color:var(--muted);color:var(--muted)}
+.rs[data-s="ready"] .rl{color:var(--muted)}
+.rs[data-s="done"] .rc{border-color:var(--green);color:var(--green)}
+.rs[data-s="done"] .rl,.rs[data-s="active"] .rl{color:var(--text)}
+.rs[data-s="active"] .rc{border-color:var(--blue);color:#fff;background:var(--blue)}
+.rs[data-tone="warn"][data-s="active"] .rc{background:var(--amber);border-color:var(--amber)}
+.rs[data-tone="fail"][data-s="active"] .rc{background:var(--red);border-color:var(--red)}
+.rs[data-s="na"]{opacity:.35}
+.rs .tick{position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;border:3px solid var(--bg)}
+.rs .tick .ic{width:13px;height:13px;stroke-width:3.4}
+
+/* scene */
+#scene{position:absolute;left:64px;right:64px;top:226px;bottom:52px}
+.sh{margin:0 0 22px}
+.sh h1{font-size:44px;line-height:1.1;margin:0;font-weight:750}
+.sh p{font-size:22px;color:var(--muted);margin:8px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px 30px;position:relative}
+.ey{font-size:15px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.row{display:flex;gap:28px}
+.grow{flex:1;min-width:0}
+.center{display:flex;align-items:center;justify-content:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.chips{display:flex;flex-wrap:wrap;gap:12px}
+.chip{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:14px;background:var(--card2);border:1px solid var(--line);font-size:21px;font-weight:600}
+.chip .ic{width:24px;height:24px;color:var(--muted)}
+.chip.sev-high,.chip.sev-critical{color:var(--red)}
+.chip.sev-medium{color:var(--amber)}
+.chip.sev-low{color:var(--blue)}
+.tech{display:inline-flex;align-items:baseline;gap:12px;padding:12px 20px;border-radius:14px;background:var(--card2);border:1.5px solid var(--red)}
+.tech b{font-size:22px;color:var(--red)} .tech span{font-size:22px;font-weight:600}
+.tech.unv{opacity:.6;border-style:dashed}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.tile{border-radius:16px;padding:12px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
+  font-size:16.5px;font-weight:650;line-height:1.15;border:2px solid var(--line);background:var(--card2);color:var(--muted)}
+.tile .ic{width:30px;height:30px}
+.tile[data-t="have"]{border-color:var(--green);color:var(--text)} .tile[data-t="have"] .ic{color:var(--green)}
+.tile[data-t="need"]{border-color:var(--red);color:var(--text)} .tile[data-t="need"] .ic{color:var(--red)}
+.tile[data-t="ask"]{border-color:var(--amber);color:var(--text)} .tile[data-t="ask"] .ic{color:var(--amber)}
+.tile[data-t="nice"]{border-style:dashed;opacity:.75}
+.tile[data-t="more"]{border-style:dashed;justify-content:center;font-size:22px;color:var(--faint)}
+.legend{display:flex;gap:26px;margin-top:18px;font-size:17px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:9px}
+.legend i{width:16px;height:16px;border-radius:5px;border:2px solid}
+.meter{height:16px;border-radius:9px;background:var(--card2);border:1px solid var(--line);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:9px;background:var(--c,var(--blue))}
+.mrow{display:grid;grid-template-columns:1fr 84px;gap:6px 16px;align-items:center;margin-bottom:16px}
+.mrow .ml{font-size:21px;font-weight:650;grid-column:1/-1;display:flex;align-items:baseline;gap:10px}
+.mrow .ml small{font-size:14px;color:var(--faint);font-weight:700;letter-spacing:.08em}
+.mrow .mv{font-size:24px;font-weight:750;text-align:right}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-size:15px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid currentColor}
+.badge .ic{width:16px;height:16px}
+.badge.ok{color:var(--green)} .badge.sim{color:var(--violet)} .badge.warn{color:var(--amber)} .badge.info{color:var(--blue)}
+.stat{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:18px;padding:16px 20px}
+.stat .v{font-size:38px;font-weight:780;line-height:1}
+.stat .k{font-size:17px;color:var(--muted);margin-top:8px;font-weight:600}
+.big{font-size:44px;font-weight:780;line-height:1.1}
+.note{font-size:17px;color:var(--faint);margin-top:14px}
+
+/* big round icon used on several scenes */
+.disc{width:180px;height:180px;flex:none;border-radius:50%;border:3px solid var(--c);color:var(--c);display:grid;place-items:center;background:var(--card)}
+.disc .ic{width:92px;height:92px}
+
+.alert-wrap{display:flex;align-items:center;gap:70px;height:100%;padding:0 60px 40px}
+.alert-ey{font-size:20px;font-weight:800;letter-spacing:.16em;color:var(--red);text-transform:uppercase}
+.alert-title{font-size:52px;font-weight:780;line-height:1.12;margin:14px 0 30px;max-width:1000px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.alert-meta{font-size:20px;color:var(--muted);margin-top:26px}
+
+.busy{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding-bottom:60px;text-align:center}
+.spinner{width:110px;height:110px;border-radius:50%;border:8px solid var(--line);border-top-color:var(--blue);animation:spin 1.4s linear infinite}
+.busy .bt{font-size:36px;font-weight:720}
+.busy .bs{font-size:22px;color:var(--muted)}
+
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.opt{border-radius:24px;padding:24px 26px 20px;background:var(--card);border:2px solid var(--line);display:flex;flex-direction:column;gap:14px;position:relative}
+.opt .oi{width:68px;height:68px;border-radius:20px;display:grid;place-items:center;background:var(--card2);color:var(--muted)}
+.opt .oi .ic{width:38px;height:38px}
+.opt .ol{font-size:27px;font-weight:720;line-height:1.15}
+.opt .os{display:flex;justify-content:space-between;font-size:16px;color:var(--faint);font-weight:650}
+.opt.lose{opacity:.42}
+.opt.win{border-color:var(--blue)}
+.opt.win .oi{background:var(--blue);color:#fff}
+.opt .stamp{position:absolute;top:-17px;right:24px;background:var(--blue);color:#fff;font-size:15px;font-weight:800;letter-spacing:.12em;padding:7px 16px;border-radius:999px;display:flex;gap:6px;align-items:center}
+.opt .stamp .ic{width:16px;height:16px;stroke-width:3}
+.why{display:flex;gap:26px;margin-top:26px}
+.why .reason{font-size:25px;font-weight:620;line-height:1.35}
+
+.donut{position:relative;display:grid;place-items:center}
+.donut svg{transform:rotate(-90deg)}
+.donut .trk{stroke:var(--line)}
+.donut .dv{position:absolute;text-align:center}
+.donut .dv b{display:block;font-size:64px;font-weight:800;line-height:1}
+.donut .dv>span{font-size:17px;color:var(--muted);font-weight:650}
+.chart text{font-size:14px;fill:var(--faint)}
+.chart .gl{stroke:var(--line)} .chart .ln{fill:none;stroke:var(--violet);stroke-width:4}
+.chart .pt{fill:var(--violet)} .chart .pv{font-size:16px;fill:var(--text);font-weight:700}
+
+.dagbox{flex:1;min-width:0;padding:20px}
+.dag{width:100%;height:100%;display:block}
+.edge{fill:none;stroke:var(--line2);stroke-width:2}
+.edge.on{stroke:var(--green);stroke-width:2.6}
+.nd .nb{fill:var(--card2);stroke:var(--sc);stroke-width:2}
+.nd .nc{fill:var(--sc)}
+.nd .ng{color:#fff}
+.nd .nt{font-size:15px;font-weight:650;fill:var(--text)}
+.nd[data-s="pending"] .nb{stroke-dasharray:5 5;fill:transparent;stroke:var(--line2)}
+.nd[data-s="pending"] .nt{fill:var(--faint)}
+.nd[data-s="pending"] .nc{fill:var(--line2)}
+.nd .shd{color:var(--amber)}
+.side{width:430px;flex:none;display:flex;flex-direction:column;gap:16px}
+.cnt{display:flex;align-items:center;gap:14px;padding:5px 0;font-size:19px;font-weight:620}
+.cnt .cd{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--sc);color:#fff;flex:none}
+.cnt .cd .ic{width:19px;height:19px;stroke-width:2.8}
+.cnt .cl{flex:1}
+.cnt .cv{font-size:28px;font-weight:800}
+
+.res-head{display:flex;align-items:center;gap:20px}
+.res-ic{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;color:#fff;background:var(--sc);flex:none}
+.res-ic .ic{width:42px;height:42px;stroke-width:2.6}
+.tl{display:flex;height:46px;border-radius:12px;overflow:hidden;margin-top:12px;gap:3px}
+.tl div{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:750;font-size:16px;min-width:0;white-space:nowrap;overflow:hidden}
+.learn-ic{width:120px;height:120px;border-radius:30px;display:grid;place-items:center;flex:none;background:var(--card2)}
+.learn-ic .ic{width:66px;height:66px}
+.act{display:inline-flex;align-items:center;gap:12px;padding:16px 30px;border-radius:16px;border:0;background:var(--blue);color:#fff;font-size:22px;font-weight:750;cursor:pointer}
+.act .ic{width:24px;height:24px;stroke-width:2.8}
+
+#foot{position:absolute;left:64px;right:64px;bottom:14px;display:flex;justify-content:space-between;gap:30px;font-size:15px;color:var(--faint)}
+#foot span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* one-time connect screen (before the demo starts) and the analyst's confirm dialog (end of a run) */
+#connect,#confirm{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:5}
+#confirm{background:rgba(4,8,20,.78);z-index:6}
+#connect[hidden],#confirm[hidden]{display:none}
+#connect form,#confirm form{width:440px;display:flex;flex-direction:column;gap:14px;background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:28px}
+#confirm form{width:520px}
+#connect h2,#confirm h2{margin:0;font-size:24px}
+#connect p,#confirm p{margin:0;color:var(--muted);font-size:15px;line-height:1.45}
+#connect input{background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:11px 12px}
+#connect button,#confirm button{background:var(--blue);border:0;border-radius:10px;padding:11px 18px;color:#fff;font-weight:700;cursor:pointer}
+#confirm button.sec{background:var(--card2);color:var(--text);border:1px solid var(--line2)}
+#confirm button:disabled{opacity:.5;cursor:default}
+#confirm label{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;cursor:pointer}
+#confirm input{width:18px;height:18px;accent-color:var(--blue)}
+#confirm .btns{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+#connect .err,#confirm .err{color:var(--red)}
+</style>
+</head>
+<body>
+<div id="vp"><div id="stage">
+  <header id="top">
+    <div class="brand"><span id="logo"></span><b>CADE</b><span class="tagline">Incident response, step by step</span></div>
+    <div id="pills"></div>
+  </header>
+  <nav id="rail" aria-label="Stages"></nav>
+  <main id="scene"></main>
+  <footer id="foot"><span id="foot-l"></span><span id="foot-r"></span></footer>
+</div></div>
+
+<div id="connect" hidden>
+  <form id="c-form">
+    <h2>Connect to CADE</h2>
+    <p>Enter a CADE API key once before the demo. It stays in this browser tab only. An analyst key also lets you
+      confirm the findings when a run has finished.</p>
+    <input id="c-key" type="password" autocomplete="off" placeholder="cade_…" aria-label="CADE API key">
+    <button type="submit">Connect</button>
+    <p class="err" id="c-err"></p>
+  </form>
+</div>
+
+<div id="confirm" hidden>
+  <form id="f-form">
+    <h2>Confirm the findings</h2>
+    <p>Do this after checking what the run found. CADE accepts it once per run and it cannot be undone.</p>
+    <label><input type="checkbox" id="f-kept"> The findings are useful: keep them</label>
+    <label><input type="checkbox" id="f-resolved"> The incident is resolved</label>
+    <p>Only with both ticked is the playbook saved to the library, so a similar alert can reuse it. The router is
+      also rewarded for its decision, more when the findings are kept.</p>
+    <div class="btns"><button type="button" class="sec" id="f-cancel">Cancel</button><button type="submit" id="f-ok">Confirm</button></div>
+    <p class="err" id="f-err"></p>
+  </form>
+</div>
+
+<script>
+"use strict";
+/* Everything on this screen comes from CADE's live API. The screen follows the newest incident created after it was
+   opened (minus a short grace period), so an old incident is not shown before the attack happens.
+   Nothing is invented: a stage is shown as done only when CADE has recorded it. */
+
+/* ---------- helpers ---------- */
+function h(tag,attrs,...kids){
+  const el=document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs||{})){
+    if(v==null||v===false) continue;
+    if(k.startsWith("on")) el.addEventListener(k.slice(2),v);
+    else if(k==="class") el.className=v;
+    else el.setAttribute(k,v===true?"":String(v));
+  }
+  for(const c of kids.flat(Infinity)){ if(c==null||c===false) continue; el.append(c instanceof Node?c:document.createTextNode(String(c))); }
+  return el;
+}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const last=a=>a&&a.length?a[a.length-1]:null;
+const uniq=a=>[...new Set(a)];
+const human=s=>String(s==null?"":s).replace(/_/g," ");
+const cap=s=>{s=human(s);return s.charAt(0).toUpperCase()+s.slice(1);};
+const pct=x=>typeof x==="number"?`${Math.round(x*100)}%`:"–";
+const f2=x=>typeof x==="number"?x.toFixed(2):"–";
+const tdiff=(a,b)=>(a&&b)?Date.parse(b)-Date.parse(a):null;
+const dur=ms=>{
+  if(typeof ms!=="number"||!isFinite(ms)||ms<0) return "–";
+  const s=ms/1000; if(s<1) return `${Math.max(1,Math.round(ms))} ms`;
+  if(s<90) return `${s<10?s.toFixed(1):Math.round(s)} s`;
+  const m=s/60; return m<90?`${m<10?m.toFixed(1):Math.round(m)} min`:`${(m/60).toFixed(1)} h`;
+};
+const clockT=iso=>{const d=new Date(iso||"");return isNaN(d)?"":d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});};
+const css=v=>`var(--${v})`;
+
+/* ---------- icons (24x24 line icons) ---------- */
+const IC={
+  shieldCheck:'<path d="M12 3 5 6v5.5c0 4.2 2.9 7.6 7 9.5 4.1-1.9 7-5.3 7-9.5V6l-7-3Z"/><path d="m9 12 2.2 2.2L15.5 10"/>',
+  alert:'<path d="M12 3.8 2.8 19.8h18.4L12 3.8Z"/><path d="M12 10v4.6"/><circle cx="12" cy="17.2" r=".7" fill="currentColor"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/>',
+  fork:'<circle cx="6" cy="5" r="2"/><circle cx="18" cy="5" r="2"/><circle cx="12" cy="19" r="2"/><path d="M6 7v1.5c0 3 6 3.5 6 8.5M18 7v1.5c0 3-6 3.5-6 8.5"/>',
+  dag:'<circle cx="5" cy="6" r="2.2"/><circle cx="5" cy="18" r="2.2"/><circle cx="19" cy="12" r="2.2"/><path d="M7.1 6.9 16.9 11M7.1 17.1 16.9 13"/>',
+  play:'<circle cx="12" cy="12" r="9"/><path d="M10 8.6v6.8l5.6-3.4L10 8.6Z" fill="currentColor"/>',
+  book:'<path d="M4 19V5.5A2.5 2.5 0 0 1 6.5 3H20v14H6.5A2.5 2.5 0 0 0 4 19.5 2.5 2.5 0 0 0 6.5 22H20"/><path d="M8 7.5h8"/>',
+  sparkle:'<path d="M11 3.5 12.9 9l5.6 1.9-5.6 1.9L11 18.4l-1.9-5.6-5.6-1.9L9.1 9 11 3.5Z"/><path d="M19 15v5M16.5 17.5h5"/>',
+  ask:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .9-1 1.6v.4"/><circle cx="12" cy="16.9" r=".7" fill="currentColor"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  x:'<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+  dash:'<path d="M6 12h12"/>',
+  user:'<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/>',
+  bang:'<path d="M12 5.5v8.5"/><circle cx="12" cy="18.3" r=".9" fill="currentColor"/>',
+  skip:'<path d="M6 6.5l8 5.5-8 5.5v-11Z"/><path d="M17.5 6v12"/>',
+  shield:'<path d="M12 3 5 6v5.5c0 4.2 2.9 7.6 7 9.5 4.1-1.9 7-5.3 7-9.5V6l-7-3Z"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  host:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/>',
+  cpu:'<rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3v3M14 3v3M10 18v3M14 18v3M3 10h3M3 14h3M18 10h3M18 14h3"/>',
+  code:'<path d="m8.5 8-4 4 4 4M15.5 8l4 4-4 4M13.5 5.5l-3 13"/>',
+  terminal:'<rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="m7 9.5 3 2.5-3 2.5M12.5 15H17"/>',
+  network:'<circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M11 7 6 17M13 7l5 10M7.2 19h9.6"/>',
+  file:'<path d="M6 3h8l4 4v14H6V3Z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8.5-8.5M16 6l2.5 2.5M14 8l2 2"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/>',
+  server:'<rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><path d="M8 7.5h.01M8 16.5h.01"/>',
+  chip:'<rect x="4" y="6" width="16" height="12" rx="1.5"/><path d="M8 10h8M8 14h5M7 3v3M12 3v3M17 3v3M7 18v3M12 18v3M17 18v3"/>',
+  db:'<ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/>',
+  cloud:'<path d="M7 18.5h10.5a4 4 0 0 0 .4-8 6 6 0 0 0-11.6 1.6A3.3 3.3 0 0 0 7 18.5Z"/>',
+  target:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+  bell:'<path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  dots:'<circle cx="6" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="18" cy="12" r="1.4" fill="currentColor"/>',
+  radar:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12 18 6"/>'
+};
+const svgIcon=(name,cls,sw)=>`<svg class="ic ${cls||""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw||1.9}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[name]||IC.dots}</svg>`;
+function icon(name,cls,sw){const t=document.createElement("template");t.innerHTML=svgIcon(name,cls,sw);return t.content.firstChild;}
+const disc=(name,color)=>h("div",{class:"disc",style:`--c:var(--${color})`},icon(name));
+
+/* ---------- plain-language names ---------- */
+const SCENES=[
+  {label:"Alert",icon:"alert"},{label:"Understand",icon:"search"},{label:"Decide",icon:"fork"},
+  {label:"Build",icon:"dag"},{label:"Run",icon:"play"},{label:"Learn",icon:"book"}];
+const SOURCE={siem_alert:"SIEM alert",analyst_description:"Analyst report",log_excerpt:"Log excerpt",threat_intel_report:"Threat-intel report",other:"Report"};
+const EVID={process_telemetry:["Processes","cpu"],command_line:["Command lines","terminal"],script_execution:["Scripts","code"],
+  file_activity:["Files","file"],network_traffic:["Network","network"],dns:["DNS","globe"],authentication:["Logins","key"],
+  user_account:["User accounts","user"],email:["Email","mail"],web_server_logs:["Web server","server"],memory:["Memory","chip"],
+  registry:["Registry","db"],scheduled_tasks_services:["Tasks & services","clock"],cloud_audit:["Cloud audit","cloud"],
+  security_alert:["Alerts","bell"],indicators_of_compromise:["Threat indicators","target"],other:["Other","dots"]};
+const evName=c=>(EVID[c]||[cap(c)])[0], evIcon=c=>(EVID[c]||[0,"dots"])[1];
+const OPTION={reuse:["Reuse a stored playbook","book"],request_evidence:["Ask for more evidence","ask"],synthesize:["Build a new playbook","sparkle"]};
+
+/* step states: same rules as demo.html's nodeState, with plain labels */
+const ST={
+  ok:{label:"Done",glyph:"check",c:"green"},
+  nodata:{label:"Nothing found",glyph:"dash",c:"grey"},
+  analyst:{label:"Needs an analyst",glyph:"user",c:"blue"},
+  unavail:{label:"Tool not available",glyph:"bang",c:"amber"},
+  failed:{label:"Error",glyph:"x",c:"red"},
+  skipped:{label:"Skipped",glyph:"skip",c:"faint"},
+  blocked:{label:"Stopped by safety gate",glyph:"shield",c:"violet"},
+  sim:{label:"Simulated only (safe)",glyph:"shield",c:"violet"},
+  pending:{label:"Waiting",glyph:"clock",c:"faint"}};
+const analystBound=d=>!!d&&(d.binding_kind==="analyst"||String(d.binding||"").startsWith("analyst."));
+function nodeState(r,def){
+  if(!r) return "pending";
+  const d=def||{};
+  switch(r.status){
+    case "succeeded": if(r.destructive&&r.synthetic) return "sim"; if(r.verdict) return r.verdict==="confirmed"?"ok":"nodata"; return "ok";
+    case "no_data": return "nodata";
+    case "failed": return "failed";
+    case "manual_task":
+      if(d.verification&&analystBound(d)) return "analyst";
+      if(r.tool) return /unavailable/.test(r.reason||"")?"unavail":"failed";
+      return "analyst";
+    case "skipped": return "skipped";
+    case "blocked": return "blocked";
+    default: return "pending";
+  }
+}
+
+/* =======================================================================
+   VIEW: turns the API snapshot {inc, resp, ev, vocab} into what the screen shows
+   ======================================================================= */
+function view(snap){
+  snap=snap||{};
+  const V={};
+  V.incident=snap.inc&&snap.inc.incident||null;
+  V.analysis=snap.inc&&snap.inc.latest_analysis||null;
+  V.result=V.analysis&&V.analysis.result||null;
+  V.analysisFailed=!!(V.analysis&&V.analysis.extraction_status==="failed")||(!!V.incident&&V.incident.status==="analysis_failed");
+  V.evidence=snap.ev||null;
+  V.vocab={}; for(const a of (snap.vocab&&snap.vocab.actions)||[]) V.vocab[a.id]=a;
+  const R=snap.resp||{};
+  V.decisions=R.decisions||[]; V.plans=R.plans||[]; V.runs=R.runs||[];
+  V.plan=last(V.plans);
+  V.run=V.plan?last(V.runs.filter(r=>r.plan_id===V.plan.plan_id)):null;
+  V.planDecision=V.plan&&V.plan.routing_decision_id!=null?(V.decisions.find(d=>d.decision_id===V.plan.routing_decision_id)||null):null;
+  const ld=last(V.decisions);
+  V.pendingDecision=ld&&(!V.plan||Date.parse(ld.created_at)>Date.parse(V.plan.created_at))?ld:null;
+  V.decision=V.pendingDecision||V.planDecision||ld||null;
+  V.awaitingEvidence=!!(V.pendingDecision&&V.pendingDecision.action==="request_evidence");
+  const results={}; for(const r of (V.run&&V.run.node_results)||[]) results[r.node_id||r.id]=r;
+  V.nodes=V.plan?V.plan.playbook.nodes.map(n=>{
+    const id=n.node_id||n.id, def=V.vocab[n.action]||{}, r=results[id]||null;
+    return {id,label:def.name||cap(n.action),st:nodeState(r,def),destructive:!!def.destructive||(V.plan.destructive_nodes||[]).includes(id)};
+  }):[];
+  V.edges=V.plan?(V.plan.playbook.edges||[]).map(e=>({source:e.source||e.from,target:e.target||e.to})):[];
+  V.counts={}; for(const n of V.nodes) V.counts[n.st]=(V.counts[n.st]||0)+1;
+  /* CADE is mid-way through a stage that has no record yet. A decision with no plan after 2 h is not shown as
+     "still building": the job most likely failed, and the screen must not claim work that is not happening. */
+  const recent=t=>!!t&&Date.now()-Date.parse(t)<2*3600e3;
+  V.busy=null; V.since=null;
+  if(V.incident&&!V.result&&!V.analysisFailed&&V.incident.status==="analyzing"){V.busy="analyze";V.since=V.incident.updated_at||V.incident.created_at;}
+  else if(V.pendingDecision&&!V.awaitingEvidence&&recent(V.pendingDecision.created_at)){V.busy="respond";V.since=V.pendingDecision.created_at;}
+  else if(V.plan&&!V.run&&V.plan.status==="executing"){V.busy="execute";V.since=V.plan.updated_at;}
+  return V;
+}
+/* the furthest stage CADE has reached (-1: no incident yet) */
+function reachedScene(V){
+  if(!V.incident) return -1;
+  if(V.run) return 5;
+  if(V.busy==="execute") return 4;
+  if(V.plan||V.awaitingEvidence||V.busy==="respond") return 3;
+  if(V.decision) return 2;
+  if(V.result||V.analysisFailed||V.busy==="analyze") return 1;
+  return 0;
+}
+
+/* =======================================================================
+   LIVE: poll CADE and follow the newest new incident
+   ======================================================================= */
+const DWELL=8000;        // each stage stays on screen at least this long, so the audience can see it
+const GRACE=10*60e3;     // incidents created up to 10 min before the screen opened still count
+const OPENED=Date.now();
+const S={key:"",vocab:null,snap:null,shown:null,scene:-1,manual:false,changed:0,wasBusy:false,timer:null,sig:"",polled:null,error:"",posting:false};
+/* is CADE still working on the stage shown at index i? */
+const isBusy=(V,i)=>(i===1&&V.busy==="analyze")||(i===3&&V.busy==="respond")||(i===4&&V.busy==="execute");
+async function api(path,payload){   // GET, or POST when a payload is given
+  const opt={headers:{Authorization:`Bearer ${S.key}`},cache:"no-store"};
+  if(payload!==undefined){opt.method="POST";opt.headers["Content-Type"]="application/json";opt.body=JSON.stringify(payload);}
+  const res=await fetch(path,opt);
+  const body=res.status===204?null:await res.json().catch(()=>null);
+  if(!res.ok){const e=new Error(body&&body.error?body.error.message:`HTTP ${res.status}`);e.status=res.status;throw e;}
+  return body;
+}
+const safe=p=>api(p).catch(()=>null);
+async function connect(key){
+  S.key=key; $("#c-err").textContent="";
+  try{
+    await api("/incidents?limit=1");   // not /health: it is public, so it would accept any key
+    S.vocab=await safe("/vocabulary");
+    try{sessionStorage.setItem("cade-key",key);}catch(e){}
+    $("#connect").hidden=true; poll();
+  }catch(err){
+    $("#connect").hidden=false;
+    $("#c-err").textContent=err.status===401||err.status===403?"That key was not accepted.":"Could not reach CADE: "+err.message;
+  }
+}
+async function poll(){
+  clearTimeout(S.timer);
+  try{
+    const list=await api("/incidents?limit=20");
+    const fresh=(Array.isArray(list)?list:[]).filter(i=>Date.parse(i.created_at)>=OPENED-GRACE);
+    const id=fresh.length?fresh[0].incident_id:null;
+    if(id!==S.shown){S.shown=id;S.scene=id?0:-1;S.manual=false;S.changed=Date.now();S.wasBusy=false;}
+    if(id){
+      const [inc,resp,ev]=await Promise.all([api(`/incidents/${id}`),safe(`/incidents/${id}/response`),safe(`/incidents/${id}/evidence`)]);
+      S.snap={inc,resp,ev,vocab:S.vocab};
+    } else S.snap=null;
+    const V=view(S.snap), r=reachedScene(V);
+    if(S.wasBusy&&!isBusy(V,S.scene)) S.changed=Date.now();   // the stage on screen just finished: give its result the full time
+    if(!S.manual&&S.scene<r&&Date.now()-S.changed>=DWELL){S.scene++;S.changed=Date.now();}
+    S.scene=Math.min(S.scene,r);
+    S.wasBusy=isBusy(V,S.scene);
+    S.polled=new Date(); S.error="";
+    const sig=JSON.stringify([id,S.scene,S.snap]);
+    if(sig!==S.sig){S.sig=sig;render();} else renderFoot(view(S.snap));
+  }catch(err){
+    S.error=err.message; renderFoot(view(S.snap));
+    if(err.status===401||err.status===403){$("#connect").hidden=false;$("#c-err").textContent="The key is no longer accepted.";return;}
+  }
+  S.timer=setTimeout(poll,1500);
+}
+/* the analyst confirms a finished run's findings (POST /playbook-runs/{id}/feedback); nothing is sent without Confirm */
+function openConfirm(runId){
+  if(S.posting) return;
+  const d=$("#confirm"); d.dataset.run=runId;
+  $("#f-kept").checked=true; $("#f-resolved").checked=false; $("#f-ok").disabled=false; $("#f-err").textContent="";
+  d.hidden=false; $("#f-cancel").focus();
+}
+const closeConfirm=()=>{if(!S.posting)$("#confirm").hidden=true;};
+async function submitConfirm(){
+  const runId=$("#confirm").dataset.run; if(S.posting||!runId) return;
+  S.posting=true; $("#f-ok").disabled=true; $("#f-err").textContent="";
+  try{
+    await api(`/playbook-runs/${runId}/feedback`,{resolved:$("#f-resolved").checked,findings_retained:$("#f-kept").checked});
+    S.posting=false; closeConfirm();
+  }catch(err){
+    S.posting=false; $("#f-ok").disabled=false;
+    $("#f-err").textContent=err.status===403?"This key can only watch. Confirming needs an analyst key (run_live_demo.bat issues one).":
+      err.status===409?"Feedback was already recorded for this run.":"Not recorded: "+err.message;
+  }
+  S.sig=""; poll();   // show CADE's answer on the Learn stage
+}
+
+/* clicking a stage shows it; clicking the newest reached stage goes back to following CADE */
+function gotoScene(i){
+  const r=reachedScene(view(S.snap));
+  if(i>r||r<0) return;
+  S.scene=i; S.manual=i<r; S.changed=Date.now(); S.sig=""; render();
+}
+
+/* =======================================================================
+   RENDER
+   ======================================================================= */
+function render(){
+  const V=view(S.snap);
+  renderRail(V,S.scene); renderScene(V,S.scene); renderFoot(V);
+}
+function renderRail(V,scene){
+  const r=reachedScene(V);
+  $("#rail").replaceChildren(...SCENES.map((s,i)=>{
+    let st=i<scene?"done":i===scene?"active":i<=r?"ready":"idle", tone="";
+    if(i===1&&V.analysisFailed) tone="fail";
+    if(i===3&&V.awaitingEvidence) tone="warn";
+    if(i>=4&&V.awaitingEvidence) st="na";
+    const lib=i===3&&V.plan&&V.plan.source==="library", ask=i===3&&V.awaitingEvidence;
+    return h("button",{class:"rs","data-s":st,"data-tone":tone||null,type:"button",onclick:()=>gotoScene(i)},
+      h("div",{class:"rc"},icon(lib?"book":ask?"ask":s.icon),st==="done"?h("span",{class:"tick"},icon("check")):null),
+      h("div",{class:"rl"},lib?"Reuse":ask?"Ask":s.label));
+  }));
+}
+function renderFoot(V){
+  $("#pills").replaceChildren(S.error?h("span",{class:"pill off"},h("i"),"Connection lost"):h("span",{class:"pill"},h("i"),"Live"));
+  const syn=V.plan&&V.plan.synthesis, m=[];
+  if(V.analysis) m.push(`intent ${V.analysis.model_name}`);
+  if(syn&&syn.generator) m.push(`generator ${syn.generator.model}`);
+  if(syn&&syn.judge_model) m.push(`judge ${syn.judge_model}`);
+  $("#foot-l").textContent=S.error?`Cannot reach CADE: ${S.error}`:S.polled?`Updated ${S.polled.toLocaleTimeString()}`:"";
+  $("#foot-r").textContent=(m.length?`Local models: ${m.join(" · ")} · `:"")+"lab demo, not the paper's benchmark";
+}
+const sceneHead=(title,sub)=>h("div",{class:"sh"},h("h1",{},title),sub?h("p",{},sub):null);
+const busyBlock=(title,sub,visual)=>h("div",{class:"busy"},visual||h("div",{class:"spinner"}),h("div",{class:"bt"},title),sub?h("div",{class:"bs"},sub):null);
+const running=V=>V.since?h("span",{},"Running for ",h("b",{class:"num","data-since":V.since},dur(Date.now()-Date.parse(V.since)))):"";
+function renderScene(V,scene){
+  let body;
+  if(scene<0) body=busyBlock("Watching for alerts…","A new incident appears here as soon as CADE receives it",disc("radar","blue"));
+  else body=[sceneAlert,sceneUnderstand,sceneDecide,sceneBuild,sceneRun,sceneLearn][scene](V);
+  $("#scene").replaceChildren(...[body].flat());
+}
+
+/* ---------- 1: alert ---------- */
+function sceneAlert(V){
+  const I=V.incident, ob=I.observables||{}, at=I.attributes||{};
+  const hosts=(ob.hosts||[]).length?ob.hosts:(typeof at.host==="string"?[at.host]:[]);   // the alert forwarder sends the host as an attribute
+  const chips=[...hosts.slice(0,2).map(x=>h("span",{class:"chip"},icon("host"),x)),
+    ...(ob.users||[]).slice(0,2).map(x=>h("span",{class:"chip"},icon("user"),x)),
+    ...(ob.ips||[]).slice(0,1).map(x=>h("span",{class:"chip mono"},icon("network"),x))];
+  if(I.severity) chips.push(h("span",{class:`chip sev-${I.severity}`},icon("alert"),`${cap(I.severity)} severity`));
+  return h("div",{class:"alert-wrap"},disc("alert","red"),
+    h("div",{class:"grow"},
+      h("div",{class:"alert-ey"},"New alert"),
+      h("div",{class:"alert-title"},String(I.title||"Untitled incident").replace(/(\w)-(\w)/g,"$1‑$2")),   // no line break inside host names
+      chips.length?h("div",{class:"chips"},chips):null,
+      h("div",{class:"alert-meta"},[SOURCE[I.source]||cap(I.source),clockT(I.received_at||I.created_at)].filter(Boolean).join(" · "))));
+}
+
+/* ---------- 2: understand ---------- */
+function donut(v,size,stroke,color,inner){
+  const r=(size-stroke)/2, C=2*Math.PI*r, val=Math.max(0,Math.min(1,v||0));
+  const t=document.createElement("template");
+  t.innerHTML=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle class="trk" cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke-width="${stroke}"/>`+
+    `<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-val)}"/></svg>`;
+  return h("div",{class:"donut",style:`width:${size}px;height:${size}px`},t.content.firstChild,inner?h("div",{class:"dv"},inner):null);
+}
+function evidenceTiles(V,maxTiles){
+  const base=(V.evidence&&V.evidence.base)||(V.result&&V.result.evidence_profile)||null;
+  if(!base) return null;
+  const cats=items=>uniq((items||[]).map(i=>i.category));
+  const have=cats(base.observed);
+  const need=cats((base.missing||[]).filter(i=>i.criticality==="critical")).filter(c=>!have.includes(c));
+  const nice=cats((base.missing||[]).filter(i=>i.criticality!=="critical")).filter(c=>!have.includes(c)&&!need.includes(c));
+  const all=[...have.map(c=>[c,"have"]),...need.map(c=>[c,"need"]),...nice.map(c=>[c,"nice"])];
+  const shown=all.length>maxTiles?all.slice(0,maxTiles-1):all;
+  const tiles=shown.map(([c,t])=>h("div",{class:"tile","data-t":t},icon(evIcon(c)),evName(c)));
+  if(all.length>shown.length) tiles.push(h("div",{class:"tile","data-t":"more"},`+${all.length-shown.length} more`));
+  return {tiles,have,need,nice};
+}
+function sceneUnderstand(V){
+  if(V.busy==="analyze") return [sceneHead("What is happening?","CADE reads the alert with a local language model"),busyBlock("Reading the alert…",running(V))];
+  if(V.analysisFailed) return [sceneHead("What is happening?"),busyBlock("CADE could not understand this alert",
+    (V.analysis&&V.analysis.error&&V.analysis.error.message)||"The analysis failed",disc("x","red"))];
+  if(!V.result) return [sceneHead("What is happening?"),busyBlock("Waiting for CADE to analyse the alert","",disc("clock","grey"))];
+  const it=V.result.intent, techs=it.attack_techniques||[], ev=evidenceTiles(V,16);
+  return [sceneHead("What is happening?","CADE names the attack and checks which logs it has"),
+    h("div",{class:"row",style:"height:500px"},
+      h("div",{class:"card",style:"width:640px;flex:none"},
+        h("div",{class:"ey"},"Type of attack"),
+        h("div",{class:"row",style:"align-items:center;gap:26px"},
+          h("div",{class:"big grow"},cap(it.label)),
+          donut(it.confidence,120,12,css("blue"),[h("b",{style:"font-size:30px"},pct(it.confidence)),h("span",{},"confidence")])),
+        it.tactic?h("div",{style:"margin-top:14px"},h("span",{class:"badge info"},`ATT&CK tactic: ${cap(it.tactic)}`)):null,
+        h("div",{class:"ey",style:"margin-top:34px"},"ATT&CK techniques"),
+        techs.length?h("div",{class:"chips"},techs.slice(0,4).map(t=>h("span",{class:"tech"+(t.validation_status&&t.validation_status!=="validated"?" unv":"")},
+          h("b",{class:"mono"},t.technique_id),h("span",{},t.name||"")))):h("div",{class:"note"},"None proposed")),
+      h("div",{class:"card grow"},
+        h("div",{class:"ey"},"Which logs does CADE have?"),
+        ev?h("div",{class:"tiles"},ev.tiles):h("div",{class:"note"},"No evidence profile recorded"),
+        ev?h("div",{class:"legend"},
+          ev.have.length?h("span",{},h("i",{style:"border-color:var(--green)"}),"Have it"):null,
+          ev.need.length?h("span",{},h("i",{style:"border-color:var(--red)"}),"Missing, needed"):null,
+          ev.nice.length?h("span",{},h("i",{style:"border-color:var(--line2);border-style:dashed"}),"Missing, nice to have"):null):null))];
+}
+
+/* ---------- 3: decide ---------- */
+function decisionReason(d){
+  const tc=d.top_candidate, T=d.terms||{};
+  if(d.action==="reuse") return tc?`“${tc.name}” in the library fits this alert`:"A stored playbook fits this alert";
+  if(d.action==="request_evidence") return `Missing ${(d.requestable||[]).map(evName).join(", ")||"evidence"}: ask for it before planning`;
+  if(!tc) return "No stored playbook matches this alert";
+  return `The closest stored playbook has only ${pct(T.coverage)} of the evidence it needs`;
+}
+function policyBadge(d){
+  if(d.policy==="linucb") return h("span",{class:"badge info"},"Chosen by the learned router");
+  if(d.ucb&&Object.keys(d.ucb).length) return h("span",{class:"badge warn"},"Chosen by the rule · learned router still warming up");
+  return h("span",{class:"badge warn"},"Chosen by the rule");
+}
+function sceneDecide(V){
+  const d=V.decision, sc=d.scores||{}, tc=d.top_candidate, T=d.terms||{};
+  const max=Math.max(1e-9,...["reuse","request_evidence","synthesize"].map(k=>typeof sc[k]==="number"?sc[k]:0));
+  return [sceneHead("What should CADE do?","Three options. CADE scores each one and picks the best"),
+    h("div",{class:"opts"},["reuse","request_evidence","synthesize"].map(k=>{
+      const win=k===d.action, v=sc[k];
+      return h("div",{class:"opt "+(win?"win":"lose")},
+        win?h("div",{class:"stamp"},icon("check"),"Chosen"):null,
+        h("div",{class:"oi"},icon(OPTION[k][1])),
+        h("div",{class:"ol"},OPTION[k][0]),
+        h("div",{class:"meter"},h("i",{style:`width:${typeof v==="number"?Math.max(2,v/max*100):0}%;--c:${win?css("blue"):css("grey")}`})),
+        h("div",{class:"os"},h("span",{},"score"),h("span",{class:"num"},typeof v==="number"?(v!==0&&v<0.001?"≈ 0":v.toFixed(3)):"–")));
+    })),
+    h("div",{class:"why"},
+      tc?h("div",{class:"card",style:"width:560px;flex:none;padding:24px 28px"},
+        h("div",{class:"ey"},"Closest stored playbook"),
+        h("div",{style:"font-size:24px;font-weight:700;margin-bottom:16px"},tc.name),
+        h("div",{class:"mrow",style:"margin-bottom:12px"},h("div",{class:"ml",style:"font-size:18px"},"Similar to this alert"),
+          h("div",{class:"meter"},h("i",{style:`width:${(tc.similarity||0)*100}%;--c:var(--blue)`})),h("div",{class:"mv",style:"font-size:20px"},pct(tc.similarity))),
+        h("div",{class:"mrow",style:"margin-bottom:0"},h("div",{class:"ml",style:"font-size:18px"},"Evidence it needs that we have"),
+          h("div",{class:"meter"},h("i",{style:`width:${(T.coverage||0)*100}%;--c:${(T.coverage||0)<0.5?css("amber"):css("green")}`})),h("div",{class:"mv",style:"font-size:20px"},pct(T.coverage)))):null,
+      h("div",{class:"card grow",style:"display:flex;flex-direction:column;justify-content:center;gap:18px;padding:24px 30px"},
+        h("div",{class:"ey",style:"margin:0"},"Why"),
+        h("div",{class:"reason"},decisionReason(d)),
+        h("div",{},policyBadge(d))))];
+}
+
+/* ---------- 4: build / reuse / ask ---------- */
+function genChart(hist){
+  if(!hist||!hist.length) return null;
+  const W=420,H=150,pl=46,pr=26,pt=26,pb=28;
+  const n=Math.max(...hist.map(g=>g.generation)), pts=hist.filter(g=>typeof g.best_fitness==="number");
+  if(!pts.length) return null;
+  const lo=Math.max(0,Math.floor((Math.min(...pts.map(g=>g.best_fitness))-0.05)*10)/10), hi=1;
+  const X=g=>pl+(n?g/n:0.5)*(W-pl-pr), Y=v=>pt+(hi-v)/((hi-lo)||1)*(H-pt-pb);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Best plan score per generation">`;
+  for(const v of [lo,hi]) s+=`<line class="gl" x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${pl-8}" y="${Y(v)+5}" text-anchor="end">${v.toFixed(1)}</text>`;
+  if(pts.length>1) s+=`<polyline class="ln" points="${pts.map(g=>`${X(g.generation)},${Y(g.best_fitness)}`).join(" ")}"/>`;
+  pts.forEach((g,i)=>{ s+=`<circle class="pt" cx="${X(g.generation)}" cy="${Y(g.best_fitness)}" r="6"/>`;
+    if(i===0||i===pts.length-1) s+=`<text class="pv" x="${X(g.generation)}" y="${Y(g.best_fitness)-14}" text-anchor="middle">${g.best_fitness.toFixed(2)}</text>`; });
+  s+=`<text x="${X(0)}" y="${H-6}" text-anchor="${n?"start":"middle"}">gen 0</text>`;
+  if(n) s+=`<text x="${X(n)}" y="${H-6}" text-anchor="end">gen ${n}</text>`;
+  const t=document.createElement("template"); t.innerHTML=s+"</svg>"; return t.content.firstChild;
+}
+const meterRow=(label,tag,v,color)=>h("div",{class:"mrow"},h("div",{class:"ml"},label,h("small",{},tag)),
+  h("div",{class:"meter"},h("i",{style:`width:${Math.max(0,Math.min(1,v||0))*100}%;--c:${color}`})),h("div",{class:"mv num"},f2(v)));
+function sceneBuild(V){
+  if(V.awaitingEvidence){
+    const d=V.pendingDecision, ask=(d.requestable&&d.requestable.length)?d.requestable:(d.missing_critical||[]);
+    return [sceneHead("CADE asks for more evidence","No playbook is built until this evidence arrives"),
+      h("div",{class:"row",style:"align-items:center;gap:60px;padding:20px 40px"},disc("ask","amber"),
+        h("div",{class:"grow"},h("div",{class:"ey"},"Requested"),
+          h("div",{class:"tiles"},ask.map(c=>h("div",{class:"tile","data-t":"ask"},icon(evIcon(c)),evName(c))))))];
+  }
+  if(V.busy==="respond"){
+    if(V.pendingDecision.action==="reuse") return [sceneHead("Reusing a stored playbook"),busyBlock("Fetching the playbook from the library…",running(V))];
+    return [sceneHead("Building a new playbook","Candidate playbooks are drafted, scored and improved"),
+      busyBlock("Drafting and improving candidate playbooks…",running(V))];
+  }
+  if(!V.plan) return [sceneHead("No plan yet"),busyBlock("CADE has not recorded a plan for this decision","",disc("dag","grey"))];
+  const P=V.plan, F=P.fitness, E=(P.synthesis&&P.synthesis.evolution)||{};
+  const ready=V.planDecision?tdiff(V.planDecision.created_at,P.created_at):null;
+  if(P.source==="library"){
+    return [sceneHead("Reusing a stored playbook","No need to build from scratch"),
+      h("div",{class:"row",style:"align-items:center;gap:60px;padding:10px 40px"},disc("book","green"),
+        h("div",{class:"grow"},
+          h("div",{class:"ey"},"From the library"),
+          h("div",{class:"big",style:"margin-bottom:30px"},P.playbook.name||"Stored playbook"),
+          h("div",{class:"row"},
+            h("div",{class:"stat"},h("div",{class:"v"},dur(ready)),h("div",{class:"k"},"to get the plan ready")),
+            h("div",{class:"stat"},h("div",{class:"v"},V.nodes.length),h("div",{class:"k"},"steps")),
+            F?h("div",{class:"stat"},h("div",{class:"v"},f2(F.fitness)),h("div",{class:"k"},"quality score")):null)))];
+  }
+  const hist=E.history||[], stopped=E.termination==="full_coverage"&&hist.length<=1;
+  return [sceneHead("The best playbook CADE built","Scored on three things; a weak score on any one pulls the total down"),
+    h("div",{class:"row",style:"height:500px"},
+      h("div",{class:"card center",style:"width:420px;flex:none;flex-direction:column;gap:18px"},
+        F?donut(F.fitness,250,22,css("violet"),[h("b",{},f2(F.fitness)),h("span",{},"quality score")]):h("div",{class:"note"},"No score recorded"),
+        h("div",{class:"note",style:"margin:0"},"∛(IC × EA × OS)")),
+      h("div",{class:"grow",style:"display:flex;flex-direction:column;gap:24px"},
+        F?h("div",{class:"card",style:"padding:22px 30px 6px"},
+          meterRow("Covers the investigation goals","IC",F.ic,css("green")),
+          meterRow("Uses the evidence that exists","EA",F.ea,css("blue")),
+          meterRow(F.os_source==="llm"?"Judged sound and safe by a second LLM":"Sound and safe (rule-based check)","OS",F.os,css("violet"))):null,
+        h("div",{class:"row",style:"flex:1"},
+          h("div",{class:"card",style:"width:470px;flex:none;padding:18px 22px"},h("div",{class:"ey",style:"margin-bottom:4px"},"Best score per generation"),
+            genChart(hist)||h("div",{class:"note"},"No history recorded"),
+            stopped?h("div",{class:"note",style:"margin-top:2px"},"Stopped at once: the first drafts already covered every goal"):null),
+          h("div",{class:"grow",style:"display:flex;flex-direction:column;gap:16px"},
+            h("div",{class:"stat"},h("div",{class:"v"},E.evaluations!=null?E.evaluations:"–"),h("div",{class:"k"},"candidate plans scored")),
+            h("div",{class:"stat"},h("div",{class:"v"},dur(ready)),h("div",{class:"k"},"to build"))))))];
+}
+
+/* ---------- 5: run ---------- */
+function wrap(text,max,lines){
+  const out=[]; let cur="";
+  for(const w of String(text).split(/\s+/)){ if((cur+" "+w).trim().length<=max) cur=(cur+" "+w).trim(); else { if(cur) out.push(cur); cur=w; } }
+  if(cur) out.push(cur);
+  if(out.length>lines){ out.length=lines; out[lines-1]=out[lines-1].replace(/.{0,2}$/,"")+"…"; }
+  return out;
+}
+function layout(nodes,edges){
+  const ids=nodes.map(n=>n.id), set=new Set(ids);
+  const preds=Object.fromEntries(ids.map(id=>[id,edges.filter(e=>e.target===id&&set.has(e.source)).map(e=>e.source)]));
+  const layer={}, depth=(id,seen=new Set())=>{
+    if(layer[id]!==undefined) return layer[id];
+    if(seen.has(id)) return 0; seen.add(id);
+    return layer[id]=preds[id].length?1+Math.max(...preds[id].map(p=>depth(p,seen))):0;
+  };
+  ids.forEach(id=>depth(id));
+  const cols=[]; ids.forEach(id=>(cols[layer[id]]=cols[layer[id]]||[]).push(id));
+  for(let c=0;c<cols.length;c++) cols[c]=cols[c]||[];
+  const row={}; cols[0].forEach((id,i)=>row[id]=i);
+  for(let c=1;c<cols.length;c++){   // order each column by its parents' rows to cut edge crossings
+    const bary=id=>{const p=preds[id].filter(x=>row[x]!==undefined);return p.length?p.reduce((a,x)=>a+row[x],0)/p.length:999;};
+    cols[c].sort((a,b)=>bary(a)-bary(b)); cols[c].forEach((id,i)=>row[id]=i);
+  }
+  /* a tall layer is split into side-by-side sub-columns; pick the split that draws the nodes largest in the box */
+  const W=214,H=54,GX=46,GY=12, BOX=[1010,455];
+  const build=R=>{
+    const sub=[]; cols.forEach(m=>{for(let i=0;i<m.length;i+=R) sub.push(m.slice(i,i+R));});
+    const rows=Math.max(...sub.map(m=>m.length)), width=sub.length*(W+GX)-GX, height=rows*(H+GY)-GY;
+    return {sub,rows,width,height,scale:Math.min(BOX[0]/width,BOX[1]/height)};
+  };
+  let best=null, tallest=Math.max(...cols.map(m=>m.length));
+  for(let R=tallest;R>=Math.min(3,tallest);R--){const b=build(R);if(!best||b.scale>best.scale+0.01)best=b;}   // always try at least once
+  const pos={};
+  best.sub.forEach((m,c)=>m.forEach((id,r)=>{pos[id]={x:c*(W+GX),y:(best.rows-m.length)*(H+GY)/2+r*(H+GY)};}));
+  return {pos,W,H,width:best.width,height:best.height};
+}
+function dagSvg(V){
+  const {pos,W,H,width,height}=layout(V.nodes,V.edges), st={};
+  V.nodes.forEach(n=>st[n.id]=n.st);
+  let s=`<svg class="dag" viewBox="-6 -6 ${width+12} ${height+12}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="The playbook as a graph of steps">`;
+  for(const e of V.edges){
+    const a=pos[e.source], b=pos[e.target]; if(!a||!b) continue;
+    const on=st[e.source]==="ok"&&st[e.target]!=="pending";
+    const x1=a.x+W, y1=a.y+H/2, x2=b.x, y2=b.y+H/2, mx=(x1+x2)/2;
+    s+=`<path class="edge${on?" on":""}" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"/>`;
+  }
+  for(const n of V.nodes){
+    const p=pos[n.id], S=ST[n.st], lines=wrap(n.label,21,2), ty=H/2+5-(lines.length-1)*9;
+    s+=`<g class="nd" data-s="${n.st}" style="--sc:var(--${S.c})" transform="translate(${p.x},${p.y})"><title>${esc(n.label)}: ${esc(S.label)}</title>`+
+      `<rect class="nb" width="${W}" height="${H}" rx="12"/><circle class="nc" cx="28" cy="${H/2}" r="15"/>`+
+      `<svg class="ng" x="19" y="${H/2-9}" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">${IC[S.glyph]}</svg>`+
+      `<text class="nt" x="54" y="${ty}">${lines.map((l,i)=>`<tspan x="54" dy="${i?18:0}">${esc(l)}</tspan>`).join("")}</text>`+
+      (n.destructive?`<svg class="shd" x="${W-24}" y="5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">${IC.shield}</svg>`:"")+
+      `</g>`;
+  }
+  return s+"</svg>";
+}
+function modeBadge(run){
+  if(run.mode==="live"&&!run.synthetic) return h("span",{class:"badge ok"},icon("check"),"Real tools on real logs");
+  if(run.mode==="live") return h("span",{class:"badge sim"},"Some results simulated");
+  return h("span",{class:"badge sim"},"Simulated tools");
+}
+function sceneRun(V){
+  if(!V.run) return [sceneHead("The playbook runs"),busyBlock("Running the steps…",running(V))];
+  const run=V.run;
+  const order=["ok","nodata","analyst","unavail","failed","skipped","blocked","sim","pending"].filter(s=>V.counts[s]);
+  const box=h("div",{class:"card dagbox"}); box.innerHTML=dagSvg(V);
+  return [h("div",{class:"row",style:"align-items:flex-end;justify-content:space-between"},
+      sceneHead("The playbook runs","Each step calls a security tool or asks an analyst"),
+      h("div",{style:"margin-bottom:30px"},modeBadge(run))),
+    h("div",{class:"row",style:"height:500px"},box,
+      h("div",{class:"side"},
+        h("div",{class:"card",style:"padding:16px 24px"},order.map(s=>h("div",{class:"cnt",style:`--sc:var(--${ST[s].c})`},
+          h("span",{class:"cd"},icon(ST[s].glyph)),h("span",{class:"cl"},ST[s].label),h("span",{class:"cv num"},V.counts[s])))),
+        h("div",{class:"card",style:"padding:20px 24px"},h("div",{class:"ey",style:"margin-bottom:10px"},"Finished"),
+          h("div",{style:"font-size:23px;font-weight:720;line-height:1.25"},
+            `${V.counts.pending?`${V.nodes.length-V.counts.pending} of ${V.nodes.length}`:`All ${V.nodes.length}`} steps handled in ${dur(tdiff(run.started_at,run.completed_at))}`))))];
+}
+
+/* ---------- 6: result + learning ---------- */
+function sceneLearn(V){
+  const run=V.run, fb=run.feedback;
+  const tone=run.status==="completed"?"green":run.status==="blocked"?"red":"amber";
+  const head=run.status==="completed"?"Completed":run.status==="blocked"?"Blocked":"Completed with issues";
+  const segs=[["Understand",V.analysis&&V.analysis.duration_ms,"blue"],
+    [V.plan.source==="library"?"Decide & reuse":"Decide & build",V.planDecision?tdiff(V.planDecision.created_at,V.plan.created_at):null,"violet"],
+    ["Run",tdiff(run.started_at,run.completed_at),"green"]].filter(s=>typeof s[1]==="number"&&s[1]>=0);
+  const tot=segs.reduce((a,s)=>a+s[1],0)||1, w=s=>Math.max(9,s[1]/tot*100), wsum=segs.reduce((a,s)=>a+w(s),0);
+  let learn;
+  if(fb){
+    const lo=fb.library_outcome||{};
+    const what={inserted:"New playbook saved to the library",merged:"Merged into a similar stored playbook",
+      updated:"The stored playbook’s track record was updated",not_stored:"Not stored in the library"}[lo.action]||cap(lo.action||"recorded");
+    const c=lo.action==="not_stored"?"grey":"green";
+    learn=[h("div",{class:"row",style:"align-items:center;gap:26px"},
+        h("div",{class:"learn-ic",style:`color:var(--${c})`},icon("book")),h("div",{class:"big",style:"font-size:32px"},what)),
+      h("div",{class:"row",style:"margin-top:26px"},
+        h("div",{class:"stat"},h("div",{class:"v"},fb.routing_reward!=null?f2(fb.routing_reward):"–"),h("div",{class:"k"},fb.routing_reward!=null?"reward for the router":"router not credited")),
+        h("div",{class:"stat"},h("div",{class:"v",style:"font-size:28px"},fb.findings_retained?"Kept":"Not kept"),h("div",{class:"k"},"analyst kept the findings"))),
+      (lo.action==="inserted"||lo.action==="merged")&&fb.findings_retained?h("div",{class:"note",style:"font-size:20px;color:var(--muted)"},"A similar alert next time can reuse it instead of building again"):
+        lo.action==="not_stored"&&lo.reason?h("div",{class:"note",style:"font-size:19px"},cap(lo.reason)):null];
+  } else {
+    learn=[h("div",{class:"row",style:"align-items:center;gap:26px"},
+        h("div",{class:"learn-ic",style:"color:var(--faint)"},icon("book")),
+        h("div",{},h("div",{class:"big",style:"font-size:32px"},"Not learned yet"),
+          h("div",{style:"font-size:20px;color:var(--muted);margin-top:8px"},"Waiting for an analyst to confirm the findings"))),
+      h("div",{class:"note",style:"font-size:19px;margin-top:26px"},"Once confirmed, the playbook goes into the library and the router gets a reward"),
+      run.status==="blocked"?null:h("div",{style:"margin-top:26px"},
+        h("button",{class:"act",type:"button",onclick:()=>openConfirm(run.run_id)},icon("check"),"Confirm findings"))];
+  }
+  return [sceneHead("Result and learning"),
+    h("div",{class:"row",style:"height:500px"},
+      h("div",{class:"card",style:"width:780px;flex:none;display:flex;flex-direction:column;justify-content:center;gap:30px"},
+        h("div",{class:"res-head"},h("div",{class:"res-ic",style:`--sc:var(--${tone})`},icon(tone==="green"?"check":tone==="red"?"x":"bang")),
+          h("div",{},h("div",{class:"big",style:"font-size:38px"},head),h("div",{style:"margin-top:6px"},modeBadge(run)))),
+        h("div",{class:"row"},
+          h("div",{class:"stat"},h("div",{class:"v"},V.counts.ok||0,h("span",{style:"font-size:26px;color:var(--faint)"},` / ${V.nodes.length}`)),h("div",{class:"k"},"steps done")),
+          h("div",{class:"stat"},h("div",{class:"v"},run.execution_coverage!=null?pct(run.execution_coverage):"–"),h("div",{class:"k"},"investigation goals answered with data"))),
+        segs.length?h("div",{},h("div",{class:"ey",style:"margin-bottom:0"},`Time taken: ${dur(tot)} in total`),
+          h("div",{class:"tl"},segs.map(s=>h("div",{style:`width:${w(s)/wsum*100}%;background:var(--${s[2]})`},dur(s[1])))),
+          h("div",{class:"legend",style:"margin-top:14px"},segs.map(s=>h("span",{},h("i",{style:`border-color:var(--${s[2]});background:var(--${s[2]})`}),h("b",{style:"color:var(--text)"},s[0]),dur(s[1]))))):null),
+      h("div",{class:"card grow",style:"display:flex;flex-direction:column;justify-content:center"},
+        h("div",{class:"ey"},"Learning for next time"),learn))];
+}
+
+/* ---------- boot ---------- */
+$("#logo").innerHTML=svgIcon("shieldCheck");
+function fit(){$("#stage").style.transform=`scale(${Math.min(innerWidth/1600,innerHeight/900)})`;}
+addEventListener("resize",fit); fit();
+setInterval(()=>document.querySelectorAll("[data-since]").forEach(el=>{el.textContent=dur(Date.now()-Date.parse(el.dataset.since));}),1000);
+document.addEventListener("keydown",e=>{   // F: full screen, T: light/dark, Esc: close the confirm dialog
+  if(e.key==="Escape"&&!$("#confirm").hidden){closeConfirm();return;}
+  if(e.target.closest&&e.target.closest("input,#confirm")) return;
+  if(e.key==="f"||e.key==="F") document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});
+  if(e.key==="t"||e.key==="T"){const r=document.documentElement;r.dataset.theme=r.dataset.theme==="light"?"dark":"light";}
+});
+$("#c-form").addEventListener("submit",e=>{e.preventDefault();const k=$("#c-key").value.trim();if(k)connect(k);});
+$("#f-form").addEventListener("submit",e=>{e.preventDefault();submitConfirm();});
+$("#f-cancel").addEventListener("click",closeConfirm);
+render();
+let saved=""; try{saved=sessionStorage.getItem("cade-key")||"";}catch(e){}
+if(saved) connect(saved); else $("#connect").hidden=false;
+</script>
+</body>
+</html>
