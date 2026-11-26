@@ -40,6 +40,9 @@ powershell -ExecutionPolicy Bypass -File deploy\gcp\tunnel.ps1       # keep this
 gcloud compute instances stop cade victim --zone asia-south1-a       # when done (disks still bill)
 ```
 
+For the live demo, `run_live_demo.bat` in the repo root does all of this in one window, plus the firewall,
+service and API-key checks; see "Live conference demo" in the main README.
+
 The VMs have no reserved address, so their external IPs change on every start; both scripts look the
 current IP up with gcloud. SSH is only allowed from the IPs in the `cade-allow-ssh` firewall rule. If your
 home IP changes, add the new one there (keep the others).

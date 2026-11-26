@@ -17,11 +17,13 @@ for this implementation, and section numbers below refer to it.
 > - controlled execution with approvals, verification and audit
 > - an analyst console
 >
-> **Evaluation: built, partly run, execution still simulated.** The 96-scenario benchmark (Table 2), the routing
-> protocol (10 orderings), the four baselines and the scorer ablation (Table 4), Fig. 2, the Fig. 4b costs and the
-> library-growth experiment (Fig. 4a) are implemented (§9). Only the routing benchmark has been run, with simulated
-> execution. No playbook is yet executed against indexed Splunk logs, so no experimental result from the paper is
-> claimed for this implementation; see `docs/PAPER_TEXT_CORRECTIONS.md`.
+> **Evaluation: built and run with small local models; execution still simulated.** The 96-scenario benchmark
+> (Table 2), the routing protocol (10 orderings), the four baselines and the scorer ablation (Table 4), Fig. 2, the
+> Fig. 4b costs and the library-growth experiment (Fig. 4a) are implemented (§9). All of them were run on
+> 2026-11-22/23 with real local models (3B substitutes for the paper's models, on a 4 GB GPU) but with simulated
+> execution; the results so far, and the live runs on the Google Cloud lab, are summarised in §9. No playbook is yet
+> executed against indexed Splunk logs, so no experimental result from the paper is claimed for this
+> implementation; see `docs/PAPER_TEXT_CORRECTIONS.md`.
 >
 > **Simulation is the default.** Every security-tool call is answered by a deterministic simulator and labelled
 > SYNTHETIC unless you switch to live mode and configure real tools. This is a research/reference system, not a
@@ -124,6 +126,52 @@ python scripts/demo_full_pipeline.py --api-key <alice> --approver-key <bob> --ex
 
 - Analyst console: <http://127.0.0.1:8000/console/>. Paste a key to connect.
 - API docs: <http://127.0.0.1:8000/docs> (not served in production).
+
+### Live conference demo (Google Cloud lab)
+
+[`run_live_demo.bat`](./run_live_demo.bat) sets up the live lab demo from one window. It needs the two lab VMs,
+`gcloud`, the SSH key `%USERPROFILE%\.ssh\google_compute_engine` and Ollama on this laptop; the lab itself is
+described in [deploy/gcp/README.md](./deploy/gcp/README.md). The lab is not part of paper 968.
+
+```powershell
+.\run_live_demo.bat                          # start everything; press Enter in the window after the demo to stop it again
+.\run_live_demo.bat start -Page story.html   # the same, with the six-stage screen instead of demo.html
+.\run_live_demo.bat stop                     # close the tunnel and stop both VMs (e.g. after closing the window with X)
+```
+
+The launcher runs [`deploy/gcp/live_demo.ps1`](./deploy/gcp/live_demo.ps1), which checks each step and stops with
+a message if one fails:
+
+1. starts Ollama on the laptop if it is not running;
+2. starts the `cade` and `victim` VMs and reads their current external IPs;
+3. checks that the laptop's public IP is in the `cade-allow-ssh` firewall rule, and offers to add it (y/n);
+4. waits for SSH and checks that the `cade` and `cade-forwarder` services are active;
+5. copies the chosen screen to the VM (no restart needed);
+6. opens `tunnel.ps1` in its own window and waits until CADE answers through it;
+7. reads the `yeswanth` key from `%USERPROFILE%\.cade\cloud_api_keys.txt` and checks that CADE accepts it as an
+   analyst key. If it does not, the launcher offers (y/n) to issue a new analyst key on the VM and save it in that
+   file, keeping the old file as `.bak`. It then copies the key to the clipboard and opens the screen at
+   <http://127.0.0.1:8800/console/demo.html>.
+
+Then attack the victim from a terminal, for example with an Atomic Red Team test (see deploy/gcp/README.md). The
+alert forwarder on the `cade` VM notices the attack in Elasticsearch and submits an incident. CADE analyses it,
+routes it, builds or reuses a plan and runs it, and the screen follows each step. Both screens read only the live
+API; there is no replay mode.
+
+| Screen | What it shows | Use |
+|---|---|---|
+| `demo.html` (default) | Detailed wall: incident, evidence profile, routing terms (Eq. 3–5), fitness IC/EA/OS, plan DAG, step results | Paste the key, keep "latest incident", click Connect. Until the attack it shows the newest *old* incident. F11 for full screen. "Retain findings…" records analyst feedback, after a confirmation dialog |
+| `story.html` | Six stages, one at a time: Alert → Understand → Decide → Build/Reuse/Ask → Run → Learn | Paste the key. It follows only incidents created after the page was opened (10 min grace). F full screen, T theme. "Confirm findings" on the Learn stage records analyst feedback |
+
+- The launcher window prints the API key, so hide it before recording.
+- The only changes outside the laptop are starting and stopping the VMs and, only when you answer "y", adding your
+  IP to the firewall rule and issuing an analyst key. Nothing changes CADE's incidents or library until someone
+  confirms findings on the screen.
+- Closing the launcher window with X leaves the VMs running, and they keep billing. Run `run_live_demo.bat stop`.
+- Retakes: the forwarder waits 600 s per rule before firing again (`FWD_COOLDOWN_SECONDS`), and `story.html` counts
+  incidents created up to 10 min before it opened. Run the attack's cleanup, wait more than 10 minutes, and open
+  the screen just before the next attack.
+- Results of the rehearsals are in §9 ("Live runs").
 
 ## 3. Using real models (Ollama)
 
@@ -470,6 +518,107 @@ generation and adaptive K, evolution operators, selection and termination, Eq. 1
 training loop), the ATT&CK / log-source ontology, the library, execution gates I1–I7, and the full HTTP pipeline. No
 test contacts a real tool or performs a destructive action.
 
+### Results so far
+
+`reports/` is git-ignored, so the full reports stay on the machine that produced them. The numbers below are copied
+from them, and each block names its report folder. Execution is simulated unless a block says *live*, the models
+are 3B substitutes for the paper's (Table 3), and none of this is a reproduction of the paper's evaluation.
+
+**Offline test suite** (2026-11-26): 577 passed, 1 failed (4 min). The failure,
+`test_the_default_build_is_the_archived_96`, compares the benchmark with the local archive
+`reports/2026-10-26_routing_benchmarks/paper968/scenarios.json`, whose first bytes are stray text ("how did "), so
+it is not valid JSON. The archive is git-ignored and protected, so it was left unchanged. On a fresh clone there is
+no archive, the test skips that comparison, and all 578 tests are expected to pass.
+
+**Intent extraction** (Part 1, llama3.2:3b): 12/13 intents on the tuned set, 3/10 on the held-out set (§7 item 15).
+
+**Routing with simulated synthesis** (`reports/2026-10-26_routing_benchmarks/`; paper-matched rerun with context
+scaling and the thresholded ρ on 2026-11-16). Mean ± std over 10 orderings:
+
+| Benchmark | LinUCB | Rule (Eq. 7) | Reward gain | Paper |
+|---|---|---|---|---|
+| Paper-matched, 96 scenarios | 83.1 ± 2.6% | 65.6% | +19.1 ± 3.7% | ≈ 90%, 73.5%, +14% |
+| Paper-matched, held-out orderings (seeds 10–19) | 82.1 ± 3.9% | | | |
+| Legacy, 123 (before scaling) | 57.5 ± 4.9% | 54.5% | +49.9 ± 5.6% | |
+| Corrected, 93 (before scaling) | 53.4 ± 2.4% | 66.7% | +17.6 ± 6.4% | |
+
+The pre-registered reproduction (`reports/2026-10-26_routing_reproduction_968/`) reruns the archived benchmark
+exactly (0/960 mismatches). Details and the ranked causes of the gap are in §7 item 17.
+
+**Experiments with real local models** (step 1, `reports/2026-11-22/`, commit c992e8e). Generator llama3.2:3b, judge
+qwen2.5:3b, all-MiniLM-L6-v2 + FAISS, on an NVIDIA RTX 2050 (4 GB). Ollama ran with `OLLAMA_KV_CACHE_TYPE=q8_0` and
+`OLLAMA_FLASH_ATTENTION=1` (the q8_0 cache fits all of llama3.2:3b on the GPU and cut one synthesis from 485 s to
+357 s at the same fitness), and `CADE_LLM_REQUEST_TIMEOUT_SECONDS=300`. Every synthesis is cached, so the three
+scripts share them.
+
+- *Routing with real synthesized playbooks* (`eval_routing_generated.py`, 8.1 h, 99 syntheses, 0 failed, mean
+  290 s each): LinUCB **82.4 ± 2.9%** (macro-F1 0.827), rule 65.6%, reward gain +19.2 ± 3.4%. This agrees with
+  the simulated-synthesis result above.
+- *Table 4* (`eval_quality_paper.py`):
+
+  | System | IC | EA | OS | f | Latency (s) | Paper f |
+  |---|---|---|---|---|---|---|
+  | Static SOAR | 0.95 | 0.88 | 0.72 | 0.84 | 0.0 | 0.64 |
+  | LLM-only | 0.86 | 0.83 | 0.60 | 0.74 | 22.3 | 0.69 |
+  | Retrieval-only | 0.61 | 0.48 | 0.69 | 0.57 | 0.1 | 0.72 |
+  | Generation-only | 1.00 | 1.00 | 0.67 | 0.88 | 291.4 | 0.81 |
+  | Generation-only, OS_H only (scorer ablation) | 1.00 | 1.00 | 0.66 | 0.87 | 238.7 | 0.77 |
+  | **CADE (full)** | 0.80 | 0.74 | 0.67 | **0.72** | 149.4 | **0.86** |
+
+  CADE (full) synthesized for 51% of incidents (paper: 35%). The report's line "latencies measured on this
+  machine (CPU)" is template text: the run used the GPU.
+- *Fig. 2*: flat. Search stopped after 0.3 generations on average (paper: 13.2); 78 of 99 syntheses stopped at
+  generation 0, because the first draft pool already had IC = EA = 1, so fitness varied only through OS.
+- *Fig. 4b*: 291 s per synthesis (paper: 238 s), 51 judge calls (paper: about 110), judging 17% of synthesis time
+  (paper: 65%).
+- *Fig. 4a* (`eval_library_growth.py`, rule routing, one pass, 96 incidents): the library grew from 10 to 52
+  playbooks.
+
+  | Library size | ~10 | ~20 | ~30 | ~40 | ~50 |
+  |---|---|---|---|---|---|
+  | Reuse rate | 42% | 36% | 38% | 44% | 46% |
+  | Paper | 28% | 41% | 50% | 57% | 61% |
+
+  Each bin holds only 12–28 incidents.
+
+Why Table 4, Fig. 2 and Fig. 4a differ from the paper (analysis of 2026-11-23; nothing has been changed for it):
+- **Two ontologies.** Routing and the library use the benchmark's derived ontology, but Table 4 scores IC/EA with
+  CADE's app intent ontology (`TACTIC_INTENT` in `app/evaluation/quality.py`). A correctly reused playbook can
+  score low (credential-access reuse of the right T1003 playbook gets IC 0.20). 49% of CADE's decisions are
+  reuses, which score f ≈ 0.55 against 0.87 for syntheses, so CADE (full) falls below generation-only.
+- **Library and Static SOAR.** The library is minimal generated stand-ins (one per technique), not converted
+  published playbooks. Static SOAR is CADE's own per-intent seeds, written for the same ontology that scores them.
+- **Evolution stops at once.** The generation prompt lists the goals and categories that IC/EA count, so the 3B
+  generator covers all of them in the first drafts and the paper's full-coverage stop ends the search. This also
+  leaves the scorer ablation with almost no gap.
+- **Synthesis after a request.** After a correct REQUEST, LinUCB synthesizes in 60% of cases instead of reusing,
+  which raises the synthesis share and CADE's latency.
+
+Open questions for the paper authors: the goals per intent, whether the generation prompt listed them, the sources
+of the library and of Static SOAR, and whether Fig. 4a used LinUCB or the rule.
+
+**Live runs** (real tools; functional tests on single attacks, not benchmarks):
+
+| Date | Setup | Attack | Outcome |
+|---|---|---|---|
+| 2026-10-24 | Laptop; real Elastic, Sigma, VirusTotal (`reports/2026-10-24_full_table3_live_run/`) | Recorded encoded-PowerShell attack | T1059.001 found; rule chose synthesize; f 0.933 (IC 1, EA 1, OS 0.81), 18 nodes in 10 min; live run completed with issues, IC_exec 1.0 |
+| 2026-10-26 | Google Cloud lab, attack from the laptop | VIC-SSH-0001: 7 invalid-user SSH logins and enumeration commands | T1087 + T1033; synthesize; f 0.917, 12 nodes; live run, execution coverage 0.4 |
+| 2026-10-26 | Google Cloud lab | VIC-PERSIST-0001: new user, root cron job, systemd unit | T1543.002 + T1569.003; f 0.933; live run, execution coverage 0.833 |
+| 2026-11-23 | Lab, first full rehearsal with `run_live_demo.bat` | Atomic Red Team T1136.001-1 (`useradd`) | Forwarder detected it after 35 s; intent after 34 s; rule chose build; 6.0 min build, f 0.90; 17-step run (6 done, 2 nothing found, 2 analyst tasks, 3 tool unavailable, 4 skipped), 33% of goals answered |
+| 2026-11-24 | Lab, video dry run on c992e8e | Same test | Detected after about 35 s; understood in 38 s; 4.7 min build, f 0.92 (all 20 drafts valid); 12-step run (5 done, 1 nothing found, 1 analyst task, 2 tool unavailable, 3 skipped), 50% of goals answered; 5.3 min in total |
+
+Problems seen in these runs and not yet fixed:
+- the account-creation test is labelled T1087.001 (Account Discovery) instead of T1136.001, and "user accounts" is
+  listed as missing evidence;
+- osquery steps are "tool unavailable" on the victim, because osquery only covers the CADE host;
+- Windows-only queries (registry, Windows event IDs) are planned against the Linux victim;
+- only one of several techniques is captured when an attack combines them (VIC-PERSIST-0001 missed T1136 and
+  T1053.003);
+- IP reputation is looked up for internal addresses, and `CADE_MAX_TARGETS_PER_NODE=3` caps user lookups.
+
+No feedback was recorded for any live run, so none of them trained the library or the router. A second attack
+that reuses the confirmed playbook has not been tested yet.
+
 ## 10. Project structure
 
 ```
@@ -490,13 +639,14 @@ app/
   execution/      internal steps and the gated executor
   services/       use cases: incidents, evidence, plans, response orchestration, jobs, audit
   storage/        SQLAlchemy models and repositories
-  web/static/     analyst console (no external assets)
+  web/static/     analyst console (no external assets); demo.html and story.html, the live demo screens
   data/           taxonomy, vocabulary, goals, availability, seed playbooks, ATT&CK bundle (fetched)
 scripts/          demo_workflow.py, demo_full_pipeline.py, check_live_extraction.py, fetch_attack_dataset.py,
                   check_tools.py, load_attack_data.py, eval_intent.py, eval_routing.py, eval_routing_paper.py,
                   eval_routing_generated.py, eval_quality_paper.py, eval_library_growth.py, build_paper_catalog.py,
                   alert_forwarder.py (lab VM detection bridge)
-deploy/gcp/       lab VM tunnel, deploy script, systemd units, victim Auditbeat config (see deploy/gcp/README.md)
+deploy/gcp/       lab VM tunnel, deploy script, live demo launcher (live_demo.ps1, run by run_live_demo.bat), systemd
+                  units, victim Auditbeat config (see deploy/gcp/README.md)
 docs/             PAPER_TEXT_CORRECTIONS.md, GPU_RUN_GUIDE.md (running the experiments on a GPU laptop)
 examples/         SYNTHETIC incidents (10)
 ```
@@ -521,8 +671,9 @@ examples/         SYNTHETIC incidents (10)
 - **Routing with the exact Eq. 2** gives H ≈ 1 (raw cosine similarities), so the rule reuses only when coverage is
   complete, and requests evidence only when all of the top playbook's critical evidence is missing and obtainable
   (§7 items 4, 6 and 17). LinUCB reaches 83% on the paper-matched benchmark against the paper's ≈ 90% with
-  simulated execution and assumed latencies (§7 item 17); the run with real synthesized playbooks
-  (`eval_routing_generated.py`) has not been completed yet.
+  simulated execution and assumed latencies (§7 item 17), and 82.4% with real synthesized playbooks (§9).
+- With the 3B models, Table 4 does not match the paper (CADE full f 0.72 against 0.86) and the evolutionary search
+  usually stops at generation 0; the known causes are listed in §9.
 - The learned router needs real, executed and reviewed incidents: in the default simulate mode it stays on the
   bootstrap rule. A low-volume deployment may never leave the bootstrap period, and the linear reward model misses
   feature interactions (paper §8).
